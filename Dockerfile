@@ -11,14 +11,16 @@ ENV KONG_VERSION 0.1-preview
 # download Kong
 RUN wget https://github.com/Mashape/kong/archive/$KONG_VERSION.tar.gz && tar xzf $KONG_VERSION.tar.gz
 
+RUN mv kong-$KONG_VERSION kong
+
 # install Kong
-RUN cd kong-$KONG_VERSION && make install
+RUN cd kong && make install
 
 # copy configuration files
-ADD config.docker/* kong-$KONG_VERSION/config.default/
+ADD config.docker/* kong/config.default/
 
 # run Kong
-CMD ["cd kong-$KONG_VERSION && bin/kong start"]
+CMD ["kong/bin/kong start"]
 
 EXPOSE 8000 8001
 
