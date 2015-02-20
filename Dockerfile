@@ -21,6 +21,6 @@ RUN cd kong && make install
 ADD config.docker/* kong/config.default/
 
 # run Kong
-CMD ["kong/bin/kong migrate && kong/bin/kong start"]
+CMD cd /kong && bin/kong migrate && bin/kong start
 
 EXPOSE 8000 8001
