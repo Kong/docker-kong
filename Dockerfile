@@ -14,6 +14,9 @@ RUN wget https://github.com/Mashape/kong/archive/$KONG_VERSION.tar.gz && tar xzf
 # install Kong
 RUN cd kong-$KONG_VERSION && make install
 
+# copy configuration files
+ADD config.docker/* kong-$KONG_VERSION/config.default/
+
 # run Kong
 CMD ["cd kong-$KONG_VERSION && bin/kong start"]
 
