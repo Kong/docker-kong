@@ -11,6 +11,7 @@ ENV KONG_VERSION 0.1-preview
 # download Kong
 RUN wget https://github.com/Mashape/kong/archive/$KONG_VERSION.tar.gz && tar xzf $KONG_VERSION.tar.gz
 
+# moving kong to a default directory "kong"
 RUN mv kong-$KONG_VERSION kong
 
 # install Kong
