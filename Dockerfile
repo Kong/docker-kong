@@ -12,7 +12,7 @@ ENV KONG_VERSION 0.0.1-beta
 RUN yum -y install dnsmasq
 
 # configuring dnsmasq
-RUN echo "user=root" >> /etc/dnsmasq.conf && echo "server=8.8.8.8" >> /etc/dnsmasq.conf
+RUN echo -e "user=root\nno-resolv\nserver=8.8.8.8" >> /etc/dnsmasq.conf
 
 # download Kong
 RUN wget https://github.com/Mashape/kong/archive/$KONG_VERSION.tar.gz && tar xzf $KONG_VERSION.tar.gz
