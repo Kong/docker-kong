@@ -27,7 +27,6 @@ Once the environment is ready, remember to run the following command before star
 boot2docker down; \
 PORTS=( 8000 8001 9042 ); \
 for port in "${PORTS[@]}"; do VBoxManage modifyvm "boot2docker-vm" --natpf1 "tcp-port${port},tcp,,${port},,${port}"; done; \
-boot2docker init; \
 boot2docker up;
 ```
 
