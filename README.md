@@ -6,13 +6,13 @@ This is the official Docker distribution for Kong.
 Using Kong with Docker is easy. First, remember that Kong requires a running Cassandra before it starts, so let's run the Cassandra Docker image first:
 
 ```bash
-docker run -d --name cassandra -p 9042:9042 mashape/docker-cassandra
+docker run -p 9042:9042 -d --name cassandra mashape/docker-cassandra
 ```
 
 Once Cassandra is running, we can start the Kong container and link it with the Cassandra container:
 
 ```bash
-docker run -d --name kong --link cassandra:cassandra -p 8000:8000 -p 8001:8001 mashape/docker-kong:0.0.1-beta
+docker run -p 8000:8000 -p 8001:8001 -d --name kong --link cassandra:cassandra mashape/docker-kong:0.0.1-beta
 ```
 
 Since Kong listens by default on ports `8000` and `8001`, we also make the same ports available on your system. Make sure that these ports are available before starting Docker and they are not used by another process on your computer.
