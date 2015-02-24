@@ -1,2 +1,2 @@
-# kong-docker
+# docker-kong
 Docker distribution for Kong
