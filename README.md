@@ -6,7 +6,7 @@ This is the official Docker distribution for Kong.
 Using Kong with Docker is easy. First, remember that Kong requires a running Cassandra before it starts, so let's run the Cassandra Docker image first:
 
 ```bash
-docker run -d --name cassandra mashape/docker-cassandra
+docker run -p 9042:9042 -d --name cassandra mashape/docker-cassandra
 ```
 
 Once Cassandra is running, we can start the Kong container and link it with the Cassandra container:
