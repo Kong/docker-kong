@@ -1,7 +1,9 @@
 # docker-kong
-This is the official Docker distribution for Kong.
+This is the official Docker distribution for Kong. You can find the official documentation at [getkong.org/docs](http://getkong.org/docs)
 
 # Usage
+
+If you are a MacOSX user please [read this](#macosx-users-using-boot2docker) first.
 
 Using Kong with Docker is easy. First, remember that Kong requires a running Cassandra before it starts, so let's run the Cassandra Docker image first:
 
@@ -32,4 +34,4 @@ boot2docker up;
 
 # Enjoy
 
-If everything went well, Kong should be listening at `127.0.0.1:8000` and `127.0.0.1:8001`.
+If everything went well, Kong should be listening at `127.0.0.1:8000` and `127.0.0.1:8001`. You can now read the docs at [getkong.org/docs](http://getkong.org/docs) to learn how to use it.
