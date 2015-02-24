@@ -8,6 +8,12 @@ MAINTAINER Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.0.1-beta
 
+# installing dnsmasq
+RUN yum -y install dnsmasq
+
+# configuring dnsmasq
+RUN echo "user=root" >> /etc/dnsmasq.conf && echo "server=8.8.8.8" >> /etc/dnsmasq.conf
+
 # download Kong
 RUN wget https://github.com/Mashape/kong/archive/$KONG_VERSION.tar.gz && tar xzf $KONG_VERSION.tar.gz
 
@@ -21,6 +27,6 @@ RUN cd kong-src && make install
 ADD config.docker/* kong-src/config.default/
 
 # run Kong
-CMD cd /kong-src && bin/kong migrate && bin/kong start
+CMD dnsmasq && cd /kong-src && bin/kong migrate && bin/kong start
 
 EXPOSE 8000 8001
