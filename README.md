@@ -21,7 +21,7 @@ Since Kong listens by default on ports `8000` and `8001`, we also make the same 
 
 ##  Mac OS X users using boot2docker
 
-For running Docker on MacOSX follow the instructions at [https://docs.docker.com/installation/mac/](https://docs.docker.com/installation/mac/)
+For running Docker on Mac OS X follow the instructions at [https://docs.docker.com/installation/mac/](https://docs.docker.com/installation/mac/)
 
 Once the environment is ready, remember to run the following command before starting Docker to initialize `boot2docker` and setup port forwarding:
 
