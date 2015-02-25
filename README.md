@@ -3,7 +3,7 @@ This is the official Docker distribution for Kong. You can find the official doc
 
 # Usage
 
-If you are a MacOSX user please [read this](#macosx-users-using-boot2docker) first.
+If you are a  Mac OS X user please [read this](#mac-os-x-users-using-boot2docker) first.
 
 Using Kong with Docker is easy. First, remember that Kong requires a running Cassandra before it starts, so let's run the Cassandra Docker image first:
 
@@ -19,7 +19,7 @@ docker run -p 8000:8000 -p 8001:8001 -d --name kong --link cassandra:cassandra m
 
 Since Kong listens by default on ports `8000` and `8001`, we also make the same ports available on your system. Make sure that these ports are available before starting Docker and they are not used by another process on your computer.
 
-## MacOSX users using boot2docker
+##  Mac OS X users using boot2docker
 
 For running Docker on MacOSX follow the instructions at [https://docs.docker.com/installation/mac/](https://docs.docker.com/installation/mac/)
 
