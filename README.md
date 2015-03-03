@@ -3,7 +3,7 @@ This is the official Docker distribution for [Kong][kong-repo-url]. You can find
 
 # Usage
 
-If you are an OS X user please [read this](#os-x-users-using-boot2docker) first.
+If you are an OS X user please [read this](#os-x-with-boot2docker) first.
 
 Using Kong with Docker is easy. First, remember that Kong requires a running Cassandra before it starts, so let's run the Cassandra Docker image first:
 
