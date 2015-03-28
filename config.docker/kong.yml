@@ -33,7 +33,7 @@ cache:
 nginx: |
   worker_processes auto;
   error_log logs/error.log info;
-  daemon on;
+  daemon off;
 
   # Set "worker_rlimit_nofile" to a high value
   # worker_rlimit_nofile 65536;
