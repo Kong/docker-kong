@@ -1,12 +1,12 @@
 # Kong
 #
-# VERSION       0.0.1-beta
+# VERSION       0.1.0beta-3
 
 # use the Openresty base image provided by Mashape
-FROM mashape/docker-openresty
+FROM centos
 MAINTAINER Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.0.1-beta
+ENV KONG_VERSION 0.1.0beta-3
 
 # installing dnsmasq
 RUN yum -y install dnsmasq
@@ -15,18 +15,14 @@ RUN yum -y install dnsmasq
 RUN echo -e "user=root\nno-resolv\nserver=8.8.8.8" >> /etc/dnsmasq.conf
 
 # download Kong
-RUN wget https://github.com/Mashape/kong/archive/$KONG_VERSION.tar.gz && tar xzf $KONG_VERSION.tar.gz
+RUN echo "[kong]\nname = Kong\nbaseurl = http://mashape-kong-yum-repo.s3-website-us-east-1.amazonaws.com/$releasever/$basearch\nenabled = 1\ngpgcheck = 0" > /etc/yum.repos.d/kong.repo
 
-# moving kong to a default directory "kong"
-RUN mv kong-$KONG_VERSION kong-src
-
-# install Kong
-RUN cd kong-src && make install
+RUN yum -y install kong
 
 # copy configuration files
-ADD config.docker/* kong-src/config.default/
+ADD config.docker/* /etc/kong/
 
 # run Kong
-CMD dnsmasq && cd /kong-src && bin/kong migrate && bin/kong start
+CMD dnsmasq && kong start
 
 EXPOSE 8000 8001
