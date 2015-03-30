@@ -5,7 +5,7 @@
 FROM centos:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.1.0beta_3
+ENV KONG_VERSION 0.1.1beta_1
 
 # installing dnsmasq
 RUN yum -y install dnsmasq
