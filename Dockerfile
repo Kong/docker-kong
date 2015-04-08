@@ -1,7 +1,3 @@
-# Kong
-#
-# VERSION       0.1.0beta-3
-
 FROM centos:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
