@@ -1,18 +1,14 @@
 FROM centos:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.1.1beta_2
-
 # installing dnsmasq
-RUN yum -y install dnsmasq
+RUN yum -y install dnsmasq wget
 
 # configuring dnsmasq
 RUN echo -e "user=root\nno-resolv\nserver=8.8.8.8" >> /etc/dnsmasq.conf
 
 # download Kong
-RUN echo -e "[kong]\nname = Kong\nbaseurl = http://mashape-kong-yum-repo.s3-website-us-east-1.amazonaws.com/\$releasever/\$basearch\nenabled = 1\ngpgcheck = 0" > /etc/yum.repos.d/kong.repo
-
-RUN yum -y install kong-$KONG_VERSION-1
+RUN wget https://github.com/Mashape/kong/releases/download/0.2.0-2/kong-0.2.0_2-1.noarch.rpm && yum install -y kong-0.2.0_2-1.noarch.rpm
 
 # copy configuration files
 ADD config.docker/* /etc/kong/
