@@ -17,7 +17,7 @@ Once Cassandra is running, we can start the Kong container and link it with the 
 docker run -p 8000:8000 -p 8001:8001 -d --name kong --link cassandra:cassandra mashape/docker-kong:0.2.0-2
 ```
 
-you can load a configuration file from your local file system
+To load a local configuration file without accessing docker shell:
 
 ```bash
  
