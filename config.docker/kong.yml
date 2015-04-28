@@ -49,7 +49,7 @@ nginx: |
   }
 
   http {
-    resolver 8.8.8.8;
+    resolver 127.0.0.1;
     charset UTF-8;
 
     access_log logs/access.log;
