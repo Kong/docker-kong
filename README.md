@@ -17,6 +17,13 @@ Once Cassandra is running, we can start the Kong container and link it with the 
 docker run -p 8000:8000 -p 8001:8001 -d --name kong --link cassandra:cassandra mashape/docker-kong:0.2.0-2
 ```
 
+you can load a configuration file from your local file system
+
+```bash
+ 
+docker run -p 8000:8000 -p 8001:8001 -v  <configuration file path>/kong.yml:/etc/kong/ -d --name kong --link cassandra:cassandra mashape/docker-kong:0.2.0-2
+```
+
 Since Kong listens by default on ports `8000` and `8001`, we also make the same ports available on your system. Make sure that these ports are available before starting Docker and they are not used by another process on your computer.
 
 ### OS X with boot2docker
