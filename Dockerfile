@@ -8,7 +8,7 @@ RUN yum -y install dnsmasq wget
 RUN echo -e "user=root\nno-resolv\nserver=8.8.8.8" >> /etc/dnsmasq.conf
 
 # download Kong
-RUN wget https://github.com/Mashape/kong/releases/download/0.2.0-2/kong-0.2.0_2.el7.noarch.rpm && yum install -y kong-0.2.0_2-1.noarch.rpm
+RUN wget https://github.com/Mashape/kong/releases/download/0.2.0-2/kong-0.2.0_2.el7.noarch.rpm && yum install -y kong-0.2.0_2.el7.noarch.rpm
 
 # copy configuration files
 ADD config.docker/* /etc/kong/
