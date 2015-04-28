@@ -37,7 +37,7 @@ send_anonymous_reports: true
 nginx: |
   worker_processes auto;
   error_log logs/error.log info;
-  daemon on;
+  daemon off;
 
   worker_rlimit_nofile {{auto_worker_rlimit_nofile}};
 
