@@ -1,36 +1,45 @@
 # docker-kong
-This is the official Docker distribution for [Kong][kong-repo-url]. You can find the official documentation at [getkong.org/docs][kong-docs-url]
+
+This is the official Docker image for [Kong][kong-repo-url]. You can read Kong's documentation at [getkong.org/docs][kong-docs-url].
 
 # Usage
 
-If you are an OS X user please [read this](#os-x-with-boot2docker) first.
+First, Kong requires a running Cassandra before it starts. You can either use the [Mashape/cassandra](https://github.com/Mashape/docker-cassandra) image or provision a test instance on [kongdb.org](http://kongdb.org).
 
-Using Kong with Docker is easy. First, remember that Kong requires a running Cassandra before it starts, so let's run the Cassandra Docker image first:
-
-```bash
-docker run -p 9042:9042 -d --name cassandra mashape/docker-cassandra
-```
-
-Once Cassandra is running, we can start the Kong container and link it with the Cassandra container:
+#### Link to the mashape/cassandra image (default).
 
 ```bash
-docker run -p 8000:8000 -p 8001:8001 -d --name kong --link cassandra:cassandra mashape/docker-kong:0.2.0-2
+docker run -d -p 9042:9042 --name cassandra mashape/cassandra
 ```
 
-To load a local configuration file without accessing docker shell:
+Once Cassandra is running, we can start a Kong container and link it with the Cassandra container:
 
 ```bash
- 
-docker run -p 8000:8000 -p 8001:8001 -v  <configuration file path>/kong.yml:/etc/kong/ -d --name kong --link cassandra:cassandra mashape/docker-kong:0.2.0-2
+docker run -d -p 8000:8000 -p 8001:8001 --name kong --link cassandra:cassandra mashape/kong
 ```
 
-Since Kong listens by default on ports `8000` and `8001`, we also make the same ports available on your system. Make sure that these ports are available before starting Docker and they are not used by another process on your computer.
+This will make Kong listen on your machine on ports `8000` ([proxy port](http://getkong.org/docs/latest/configuration/#proxy_port)), and  `8001` ([Admin API port](http://getkong.org/docs/latest/configuration/#admin_api_port)). Make sure those ports are free. If you wish to change these ports, keep in mind that the `-p` arguments expects: `host-port:container-port`. Feel free to change the host port.
 
-### OS X with boot2docker
+#### Volumes and custom configuration
+
+This container stores the [Kong configuration file](http://getkong.org/docs/latest/configuration/) in a Docker volume. You can store this file on your host's file system (name it `kong.yml` and place it in a directory) and give access to it to your container by using the `-v` argument:
+
+```bash
+docker run -d \
+  -v /path/to/your/kong/configuration/directory/:/etc/kong/ \
+  -p 8000:8000 -p 8001:8001 \
+  --name kong \
+  --link cassandra:cassandra \
+  mashape/kong
+```
+
+When attached this way you can edit your configuration file from your host machine and restart your container. You can also make the container point to a different instance of Cassandra.
+
+##### OS X with boot2docker
 
 To run docker on OS X, follow the instructions at [https://docs.docker.com/installation/mac/](https://docs.docker.com/installation/mac/)
 
-Once the environment is ready, remember to run the following command before starting Docker to initialize `boot2docker` and setup port forwarding:
+Once the environment is ready, remember to run the following command before starting a Kong or a Mashape/cassandra container to initialize `boot2docker` and setup port forwarding:
 
 ```
 boot2docker down; \
