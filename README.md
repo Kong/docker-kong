@@ -60,7 +60,7 @@ When attached this way you can edit your configuration file from your host machi
 If you change your custom configuration, you can reload Kong (without downtime) by issuing:
 
 ```shell
-$ docker run -it kong kong reload
+$ docker exec -it kong kong reload
 ```
 
 This will run the [`kong reload`][kong-docs-reload] command in your container.
