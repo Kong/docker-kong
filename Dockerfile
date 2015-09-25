@@ -3,12 +3,8 @@ MAINTAINER Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.4.2
 
-RUN yum -y install wget
-
-RUN wget https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm \
-    && yum install -y kong-$KONG_VERSION.el7.noarch.rpm
-
-RUN rm kong-$KONG_VERSION.el7.noarch.rpm
+RUN yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
+    yum clean all 
 
 VOLUME ["/etc/kong/"]
 
