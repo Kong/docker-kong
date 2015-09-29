@@ -1,7 +1,7 @@
 FROM centos:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.4.2
+ENV KONG_VERSION 0.5.0
 
 RUN yum -y install wget
 
