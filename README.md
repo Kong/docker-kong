@@ -13,7 +13,8 @@ This is the official Docker image for [Kong][kong-site-url].
 - `0.4.1` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.4.1/Dockerfile))*
 - `0.4.2` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.4.2/Dockerfile))*
 - `0.5.0` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.0/Dockerfile))*
-- `latest` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.0/Dockerfile))*
+- `0.5.1` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.1/Dockerfile))*
+- `latest` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.1/Dockerfile))*
 
 # What is Kong?
 
