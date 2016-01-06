@@ -12,4 +12,4 @@ COPY config.docker/kong.yml /etc/kong/kong.yml
 
 CMD kong start
 
-EXPOSE 8000 8001 7946
+EXPOSE 8000 8443 8001 7946
