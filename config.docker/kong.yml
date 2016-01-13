@@ -6,7 +6,7 @@ nginx: |
   user {{user}};
   worker_processes auto;
   error_log logs/error.log error;
-  daemon off;
+  daemon on;
 
   worker_rlimit_nofile {{auto_worker_rlimit_nofile}};
 
