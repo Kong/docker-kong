@@ -1,8 +1,9 @@
-databases_available:
-  cassandra:
-    contact_points:
-      - "cassandra:9042"
+database: cassandra
+cassandra:
+  contact_points:
+    - "cassandra:9042"
 nginx: |
+  user {{user}};
   worker_processes auto;
   error_log logs/error.log error;
   daemon off;
@@ -18,7 +19,7 @@ nginx: |
   }
 
   http {
-    resolver {{dns_resolver}} ipv6=off;
+    resolver {{dns_resolver}};
     charset UTF-8;
 
     access_log logs/access.log;
@@ -67,21 +68,17 @@ nginx: |
 
     init_by_lua '
       kong = require "kong"
-      local status, err = pcall(kong.init)
-      if not status then
-        ngx.log(ngx.ERR, "Startup error: "..err)
-        os.exit(1)
-      end
+      kong.init()
     ';
 
-    init_worker_by_lua 'kong.exec_plugins_init_worker()';
+    init_worker_by_lua 'kong.init_worker()';
 
     server {
       server_name _;
-      listen {{proxy_port}};
-      listen {{proxy_ssl_port}} ssl;
+      listen {{proxy_listen}};
+      listen {{proxy_listen_ssl}} ssl;
 
-      ssl_certificate_by_lua 'kong.exec_plugins_certificate()';
+      ssl_certificate_by_lua 'kong.ssl_certificate()';
 
       ssl_certificate {{ssl_cert}};
       ssl_certificate_key {{ssl_key}};
@@ -95,7 +92,7 @@ nginx: |
         set $upstream_url nil;
 
         # Authenticate the user and load the API info
-        access_by_lua 'kong.exec_plugins_access()';
+        access_by_lua 'kong.access()';
 
         # Proxy the request
         # Proxy the request
@@ -107,13 +104,13 @@ nginx: |
         proxy_pass_header Server;
 
         # Add additional response headers
-        header_filter_by_lua 'kong.exec_plugins_header_filter()';
+        header_filter_by_lua 'kong.header_filter()';
 
         # Change the response body
-        body_filter_by_lua 'kong.exec_plugins_body_filter()';
+        body_filter_by_lua 'kong.body_filter()';
 
         # Log the request
-        log_by_lua 'kong.exec_plugins_log()';
+        log_by_lua 'kong.log()';
       }
 
       location /robots.txt {
@@ -131,7 +128,7 @@ nginx: |
     }
 
     server {
-      listen {{admin_api_port}};
+      listen {{admin_api_listen}};
 
       client_max_body_size 10m;
       client_body_buffer_size 10m;
