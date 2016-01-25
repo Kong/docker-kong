@@ -17,8 +17,8 @@ This is the official Docker image for [Kong][kong-site-url].
 - `0.5.2` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.2/Dockerfile))*
 - `0.5.3` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.3/Dockerfile))*
 - `0.5.4` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.4/Dockerfile))*
-- `0.6.0rc3` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.6.0rc3/Dockerfile))*
-- `latest` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.5.4/Dockerfile))*
+- `0.6.0` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.6.0/Dockerfile))*
+- `latest` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.6.0/Dockerfile))*
 
 # What is Kong?
 
@@ -37,13 +37,20 @@ First, Kong requires a running Cassandra cluster before it starts. You can eithe
 Start a Cassandra container by doing so:
 
 ```shell
-$ docker run -d -p 9042:9042 --name cassandra mashape/cassandra
+$ docker run -d -p 9042:9042 --name cassandra cassandra:2.2.4
 ```
 
 Once Cassandra is running, we can start a Kong container and link it to the Cassandra container:
 
 ```shell
-$ docker run -d -p 8000:8000 -p 8001:8001 --name kong --link cassandra:cassandra mashape/kong
+$ docker run -d --name kong \
+    --link cassandra:cassandra \
+    -p 8000:8000 \
+    -p 8443:8443 \
+    -p 8001:8001 \
+    -p 7946:7946 \
+    -p 7946:7946/udp \
+    mashape/kong
 ```
 
 If everything went well, and if you created your container with the default ports, Kong should be listening on your host's `8000` ([proxy][kong-docs-proxy-port]) and `8001` ([admin api][kong-docs-admin-api-port]) ports.
@@ -58,7 +65,10 @@ This container stores the [Kong configuration file](http://getkong.org/docs/late
 $ docker run -d \
     -v /path/to/your/kong/configuration/directory/:/etc/kong/ \
     -p 8000:8000 \
+    -p 8443:8443 \
     -p 8001:8001 \
+    -p 7946:7946 \
+    -p 7946:7946/udp \
     --name kong \
     mashape/kong
 ```
