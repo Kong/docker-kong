@@ -1,7 +1,7 @@
 FROM centos:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.6.0
+ENV KONG_VERSION 0.6.1
 
 RUN yum install -y epel-release
 RUN yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
