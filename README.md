@@ -52,6 +52,7 @@ $ docker run -d --name kong \
     -p 8001:8001 \
     -p 7946:7946 \
     -p 7946:7946/udp \
+    --security-opt seccomp:unconfined \
     mashape/kong
 ```
 
@@ -71,6 +72,7 @@ $ docker run -d \
     -p 8001:8001 \
     -p 7946:7946 \
     -p 7946:7946/udp \
+    --security-opt seccomp:unconfined \
     --name kong \
     mashape/kong
 ```
