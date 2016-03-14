@@ -15,3 +15,4 @@ services:
     - 8001:8001
   depends_on:
     - cassandra
+  security_opt: ["seccomp:unconfined"]
