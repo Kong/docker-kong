@@ -1,7 +1,11 @@
-database: cassandra
+postgres:
+  host: "kong-database"
+  port: 5432
+  database: kong
+  user: kong
 cassandra:
   contact_points:
-    - "cassandra:9042"
+    - "kong-database:9042"
 nginx: |
   {{user}}
   worker_processes auto;
