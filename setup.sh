@@ -6,5 +6,3 @@ if [ -z "$DATABASE" ]; then
 fi
 
 echo -e '\ndatabase: "'$DATABASE'"' >> /etc/kong/kong.yml
-
-cat /etc/kong/kong.yml
