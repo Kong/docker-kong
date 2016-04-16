@@ -67,7 +67,7 @@ Once the database is running, we can start a Kong container and link it to the d
 
 ```shell
 $ docker run -d --name kong \
-    -e "DATABASE=cassandra" \ # or "DATABASE=postgres"
+    -e "DATABASE=cassandra" \
     --link kong-database:kong-database \
     -p 8000:8000 \
     -p 8443:8443 \
