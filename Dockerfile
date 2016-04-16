@@ -11,12 +11,9 @@ VOLUME ["/etc/kong/"]
 
 COPY config.docker/kong.yml /etc/kong/kong.yml
 
-# Set the database to use
-RUN if [ -z "$DATABASE" ]; then \
-  DATABASE="cassandra"; \
-fi; \
-echo -e 'database: "'$DATABASE'"' >> /etc/kong/kong.yml;
+ADD setup.sh setup.sh
+RUN chmod +x setup.sh
 
-CMD kong start
+CMD ./setup.sh && kong start
 
 EXPOSE 8000 8443 8001 7946
