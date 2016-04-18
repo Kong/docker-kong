@@ -1,8 +1,6 @@
 #!/bin/sh
 
 # Setting up the proper database
-if [ -z "$DATABASE" ]; then
-  DATABASE="cassandra"
+if [ -n "$DATABASE" ]; then
+  echo -e '\ndatabase: "'$DATABASE'"' >> /etc/kong/kong.yml
 fi
-
-echo -e '\ndatabase: "'$DATABASE'"' >> /etc/kong/kong.yml
