@@ -3,8 +3,8 @@ MAINTAINER Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.8.1
 
-RUN yum install -y epel-release
-RUN yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
+RUN yum install -y epel-release && \
+    yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
     yum clean all
 
 VOLUME ["/etc/kong/"]
