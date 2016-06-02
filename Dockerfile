@@ -7,9 +7,7 @@ RUN yum install -y epel-release && \
     yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
     yum clean all
 
-VOLUME ["/etc/kong/"]
-
-COPY config.docker/kong.yml /etc/kong/kong.yml
+COPY config.docker/kong.yml /etc/kong/
 
 ADD setup.sh setup.sh
 RUN chmod +x setup.sh
