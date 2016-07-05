@@ -1,6 +1,14 @@
 #!/bin/sh
 
 # Setting params from environment
+DNS_RESOLVER=${DNS_RESOLVER:-dnsmasq}
+DNS_IP=${DNS_IP:-127.0.0.1}
+DNS_PORT=${DNS_PORT:-8053}
+DNSMASQ_PORT=${DNSMASQ_PORT:-8053}
+CLUSTER_IP=${CLUSTER_IP:-0.0.0.0}
+CLUSTER_PORT=${CLUSTER_PORT:-7946}
+ADVERTISE_IP=${ADVERTISE_IP:-}
+ADBERTISE_PORT=${ADBERTISE_PORT:-}
 DATABASE=${DATABASE:-cassandra}
 POSTGRES_HOST=${POSTGRES_HOST:-kong-database}
 POSTGRES_PORT=${POSTGRES_PORT:-5432}
@@ -22,6 +30,23 @@ CASSANDRA_SSL_VERIFY=${CASSANDRA_SSL_VERIFY:-false}
 CASSANDRA_SSL_CERTIFICATE_AUTHORITY=${CASSANDRA_SSL_CERTIFICATE_AUTHORITY:-} # ex. export CASSANDRA_SSL_CERTIFICATE_AUTHORITY="\/path\/to\/user\.pem"
 CASSANDRA_USERNAME=${CASSANDRA_USERNAME:-cassandra}
 CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD:-cassandra}
+
+# Setting up the dns resolber in kubernetes
+sed -i "s/DNS_RESOLVER/$DNS_RESOLVER/g" /etc/kong/kong.yml
+sed -i "s/DNS_IP/$DNS_IP/g" /etc/kong/kong.yml
+sed -i "s/DNS_PORT/$DNS_PORT/g" /etc/kong/kong.yml
+sed -i "s/DNSMASQ_PORT/$DNSMASQ_PORT/g" /etc/kong/kong.yml
+
+# Setting up the cluster in kubernetes
+sed -i "s/CLUSTER_IP/$CLUSTER_IP/g" /etc/kong/kong.yml
+sed -i "s/CLUSTER_PORT/$CLUSTER_PORT/g" /etc/kong/kong.yml
+if [ -n "$ADVERTISE_IP" ] && [ -n "$ADBERTISE_PORT" ]; then
+  sed -i "s/ADVERTISE_IP/$ADVERTISE_IP/g" /etc/kong/kong.yml
+  sed -i "s/ADBERTISE_PORT/$ADBERTISE_PORT/g" /etc/kong/kong.yml
+else
+  sed -i "s/cluster://g" /etc/kong/kong.yml
+  sed -i "s/advertise: \"ADVERTISE_IP\:ADBERTISE_PORT\"//g" /etc/kong/kong.yml
+fi
 
 # Setting up the postgres
 sed -i "s/POSTGRES_HOST/$POSTGRES_HOST/g" /etc/kong/kong.yml

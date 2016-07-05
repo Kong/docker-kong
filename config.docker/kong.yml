@@ -1,3 +1,12 @@
+dns_resolver: DNS_RESOLVER
+dns_resolvers_available:
+  server:
+    address: "DNS_IP:DNS_PORT"
+  dnsmasq:
+    port: DNSMASQ_PORT
+cluster_listen: "CLUSTER_IP:CLUSTER_PORT"
+cluster:
+  advertise: "ADVERTISE_IP:ADBERTISE_PORT"
 database: "DATABASE"
 postgres:
   host: "POSTGRES_HOST"
