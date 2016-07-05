@@ -1,11 +1,37 @@
+dns_resolver: DNS_RESOLVER
+dns_resolvers_available:
+  server:
+    address: "DNS_IP:DNS_PORT"
+  dnsmasq:
+    port: DNSMASQ_PORT
+cluster_listen: "CLUSTER_IP:CLUSTER_PORT"
+cluster:
+  advertise: "ADVERTISE_IP:ADBERTISE_PORT"
+database: "DATABASE"
 postgres:
-  host: "kong-database"
-  port: 5432
-  database: kong
-  user: kong
+  host: "POSTGRES_HOST"
+  port: POSTGRES_PORT
+  database: POSTGRES_DATABASE
+  user: POSTGRES_USER
+  password: POSTGRES_PASSWORD
 cassandra:
   contact_points:
-    - "kong-database:9042"
+    - "CASSANDRA_CONTACT_POINTS_HOST:CASSANDRA_CONTACT_POINTS_PORT"
+  port: CASSANDRA_PORT
+  keyspace: CASSANDRA_KEYSPACE
+  timeout: CASSANDRA_TIMEOUT
+  replication_strategy: CASSANDRA_REPLICATION_STRATEGY
+  replication_factor: CASSANDRA_REPLICATION_FACTOR
+  data_centers:
+    dc1: CASSANDRA_DATA_CENTERS_DC1
+    dc2: CASSANDRA_DATA_CENTERS_DC2
+  consistency: CASSANDRA_CONSISTENCY
+  ssl:
+    enabled: CASSANDRA_SSL_ENABLED
+    verify: CASSANDRA_SSL_VERIFY
+    certificate_authority: "CASSANDRA_SSL_CERTIFICATE_AUTHORITY"
+  username: CASSANDRA_USERNAME
+  password: CASSANDRA_PASSWORD
 nginx: |
   {{user}}
   worker_processes auto;
