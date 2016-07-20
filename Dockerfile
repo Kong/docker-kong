@@ -8,9 +8,8 @@ RUN yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSI
 
 COPY config.docker/kong.yml /etc/kong/
 
-ADD setup.sh setup.sh
-RUN chmod +x setup.sh
-
-CMD ./setup.sh && kong start
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8000 8443 8001 7946
+CMD ["kong", "start"]
