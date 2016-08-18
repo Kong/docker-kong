@@ -89,7 +89,7 @@ You can now read the docs at [getkong.org/docs][kong-docs-url] to learn more abo
 
 ## 2. Use Kong with a custom configuration (and a custom Cassandra/PostgreSQL cluster)
 
-This container stores the [Kong configuration file](http://getkong.org/docs/latest/configuration/) in a [Data Volume][docker-data-volume]. You can store this file on your host (name it `kong.yml` and place it in a directory) and mount it as a volume by doing so:
+This container stores the [Kong configuration file](http://getkong.org/docs/latest/configuration/) in a [Data Volume][docker-data-volume]. You can store this file on your host (name it `kong.conf` and place it in a directory) and mount it as a volume by doing so:
 
 ```shell
 $ docker run -d \
