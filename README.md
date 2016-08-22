@@ -24,7 +24,8 @@ This is the official Docker image for [Kong][kong-site-url].
 - `0.8.1` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.8.1/Dockerfile))*
 - `0.8.2` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.8.2/Dockerfile))*
 - `0.8.3` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.8.3/Dockerfile))*
-- `latest` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.8.3/Dockerfile))*
+- `0.9.0` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.9.0/Dockerfile))*
+- `latest` - *([Dockerfile](https://github.com/Mashape/docker-kong/blob/0.9.0/Dockerfile))*
 
 # What is Kong?
 
@@ -66,11 +67,11 @@ docker run -d --name kong-database \
 
 ### Start Kong
 
-Once the database is running, we can start a Kong container and link it to the database container, and configuring the `DATABASE` environment variable with either `cassandra` or `postgres` depending on which database you decided to use:
+Once the database is running, we can start a Kong container and link it to the database container, and configuring the `KONG_DATABASE` environment variable with either `cassandra` or `postgres` depending on which database you decided to use:
 
 ```shell
 $ docker run -d --name kong \
-    -e "DATABASE=cassandra" \
+    -e "KONG_DATABASE=cassandra" \
     --link kong-database:kong-database \
     -p 8000:8000 \
     -p 8443:8443 \
@@ -89,11 +90,13 @@ You can now read the docs at [getkong.org/docs][kong-docs-url] to learn more abo
 
 ## 2. Use Kong with a custom configuration (and a custom Cassandra/PostgreSQL cluster)
 
-This container stores the [Kong configuration file](http://getkong.org/docs/latest/configuration/) in a [Data Volume][docker-data-volume]. You can store this file on your host (name it `kong.yml` and place it in a directory) and mount it as a volume by doing so:
+You can override any property of the [Kong configuration file](http://getkong.org/docs/latest/configuration/) with environment variables. Just prepend any Kong configuration property with the `KONG_` prefix, for example:
 
 ```shell
 $ docker run -d \
-    -v /path/to/your/kong/configuration/directory/:/etc/kong/ \
+    -e "KONG_LOG_LEVEL=info" \
+    -e "KONG_CUSTOM_PLUGINS=helloworld" \
+    -e "KONG_PG_HOST=1.1.1.1" \
     -p 8000:8000 \
     -p 8443:8443 \
     -p 8001:8001 \
@@ -103,8 +106,6 @@ $ docker run -d \
     --name kong \
     mashape/kong
 ```
-
-When attached this way you can edit your configuration file from your host machine and restart your container. You can also make the container point to a different Cassandra/PostgreSQL instance, so no need to link it to a Cassandra/PostgreSQL container.
 
 ## Reload Kong in a running container
 
