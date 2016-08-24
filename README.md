@@ -72,6 +72,8 @@ Once the database is running, we can start a Kong container and link it to the d
 ```shell
 $ docker run -d --name kong \
     -e "KONG_DATABASE=cassandra" \
+    -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+    -e "KONG_PG_HOST=kong-database" \
     --link kong-database:kong-database \
     -p 8000:8000 \
     -p 8443:8443 \
@@ -81,8 +83,6 @@ $ docker run -d --name kong \
     --security-opt seccomp:unconfined \
     mashape/kong
 ```
-
-**Note:** If Docker complains that `--security-opt` is an invalid option, just remove it and re-execute the command (it was introduced in Docker 1.3).
 
 If everything went well, and if you created your container with the default ports, Kong should be listening on your host's `8000` ([proxy][kong-docs-proxy-port]), `8443` ([proxy SSL][kong-docs-proxy-ssl-port]) and `8001` ([admin api][kong-docs-admin-api-port]) ports. Port `7946` ([cluster][kong-docs-cluster-port]) is being used only by other Kong nodes.
 
