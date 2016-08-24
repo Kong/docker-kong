@@ -66,4 +66,5 @@ kong:
     - 7946/udp
   environment:
     - KONG_DATABASE=postgres
+    - KONG_PG_HOST=kong-database
   
