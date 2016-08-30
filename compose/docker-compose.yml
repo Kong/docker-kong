@@ -1,0 +1,70 @@
+##################################################################
+#              Docker Compose file that starts Kong              #
+##################################################################
+
+# Load Balancing
+consul:
+  image: progrium/consul:latest
+  command: -server -bootstrap -ui-dir /ui
+  restart: always
+  mem_limit: 128m
+  ports:
+    - 8500:8500
+  expose:
+    - 53
+    - 8300
+    - 8301
+    - 8302
+    - 8400
+    - 8500
+  dns:
+    - 127.0.0.1
+
+nginx-lb:
+  build: nginx/
+  mem_limit: 128m
+  ports:
+    - 8000:8000
+    - 8443:8443
+    - 8001:8001
+  expose:
+    - 8000
+    - 8443
+    - 8001
+  links:
+    - consul:consul
+  restart: always
+  command: >
+      /bin/containerpilot
+      -config file:///etc/containerpilot/containerpilot.json
+      nginx -g "daemon off;"
+
+# Kong Database
+
+kong-database:
+  image: postgres:9.4
+  ports:
+    - 5432
+  environment:
+    - POSTGRES_USER=kong
+    - POSTGRES_DB=kong
+
+# Kong
+
+kong:
+  build: kong/
+  restart: always
+  links:
+    - kong-database:kong-database
+    - consul
+  ports:
+    - 8000
+    - 8443
+    - 8001
+  expose:
+    - 7946
+    - 7946/udp
+  environment:
+    - KONG_DATABASE=postgres
+    - KONG_PG_HOST=kong-database
+  
