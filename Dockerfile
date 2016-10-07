@@ -10,7 +10,8 @@ RUN yum install -y epel-release && \
     yum install -y https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
     yum clean all
 
-VOLUME ["/etc/kong/"]
+RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.1.3/dumb-init_1.1.3_amd64 && \
+    chmod +x /usr/local/bin/dumb-init
 
 COPY config.docker/kong.yml /etc/kong/kong.yml
 
@@ -21,3 +22,4 @@ ENTRYPOINT echo "Waiting for cassandra on host ${CASSANDRA_HOST} and port ${CASS
            kong start
 
 EXPOSE 8000 8443 8001 7946
+CMD ["kong", "start"]
