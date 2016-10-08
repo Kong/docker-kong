@@ -1,7 +1,7 @@
 FROM centos:7
 MAINTAINER Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.9.2
+ENV KONG_VERSION 0.9.3
 
 RUN yum install -y wget https://github.com/Mashape/kong/releases/download/$KONG_VERSION/kong-$KONG_VERSION.el7.noarch.rpm && \
     yum clean all
