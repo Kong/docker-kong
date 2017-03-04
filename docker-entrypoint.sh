@@ -10,6 +10,8 @@ mkfifo -m 666 /tmp/logpipe
 # This child process will still receive signals as per https://github.com/Yelp/dumb-init#session-behavior
 cat <> /tmp/logpipe 1>&2 &
 
+# NOTE, to configure the `File Log` plugin to route logs to Docker logging, direct `config.path` at `/tmp/logpipe`
+
 # Disabling nginx daemon mode
 export KONG_NGINX_DAEMON="off"
 
