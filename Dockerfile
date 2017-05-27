@@ -12,5 +12,11 @@ RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+# ensure Kong logs go to the log pipe from our entrypoint and so to docker logging
+RUN mkdir -p /usr/local/kong/logs \
+    && ln -sf /tmp/logpipe /usr/local/kong/logs/access.log \
+    && ln -sf /tmp/logpipe /usr/local/kong/logs/serf.log \
+    && ln -sf /tmp/logpipe /usr/local/kong/logs/error.log
+
 EXPOSE 8000 8443 8001 7946
 CMD ["kong", "start"]
