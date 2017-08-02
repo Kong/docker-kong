@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 # Kong
 services:
   kong-database:
@@ -6,19 +6,28 @@ services:
     environment:
       - POSTGRES_USER=kong
       - POSTGRES_DB=kong
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
   kong:
-    build: kong
+    image: kong:latest
     depends_on:
-      - kong-database
+      kong-database:
+        condition: service_healthy
     environment:
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=kong-database
-
+    healthcheck:
+      test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
+      interval: 5s
+      retries: 10
   nginx:
     build: nginx
     depends_on:
-      - kong
+      kong:
+        condition: service_healthy
     expose:
       - 8000
       - 8001
