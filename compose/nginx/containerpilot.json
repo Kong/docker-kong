@@ -30,6 +30,11 @@
       "name": "kong-8001",
       "poll": 4,
       "onChange": "/bin/reload-nginx.sh onChange"
+    },
+    {
+      "name": "kong-8444",
+      "poll": 4,
+      "onChange": "/bin/reload-nginx.sh onChange"
     }
   ]
 }

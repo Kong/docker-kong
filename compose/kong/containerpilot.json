@@ -21,6 +21,13 @@
       "health": "/usr/bin/curl -o /dev/null --fail -s http://localhost:8001/status",
       "poll": 3,
       "ttl": 10
+    },
+    {
+      "name": "kong-8444",
+      "port": 8444,
+      "health": "/usr/bin/curl -o /dev/null -s https://localhost:8444/ --insecure",
+      "poll": 3,
+      "ttl": 10
     }
   ]
 }
