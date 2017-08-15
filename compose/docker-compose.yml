@@ -11,11 +11,22 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+  kong-migration:
+    image: kong:latest
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=kong-database
+    command: kong migrations up
   kong:
     image: kong:latest
     depends_on:
       kong-database:
         condition: service_healthy
+      kong-migration:
+        condition: service_started
     environment:
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=kong-database
