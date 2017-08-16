@@ -6,7 +6,7 @@ ENV KONG_VERSION 0.11.0rc2
 RUN apk update \
 	&& apk add --virtual .build-deps wget tar ca-certificates \
 	&& apk add libgcc openssl pcre perl \
-	&& wget https://cl.ly/3W0Y3h0H3Y1Y/download/kong-$KONG_VERSION.apk.tar.gz -O - | tar xz -C /tmp \
+	&& wget "https://bintray.com/kong/kong-community-edition-alpine-tar/download_file?file_path=kong-community-edition-0.11.0.apk.tar.gz" -O - | tar xz -C /tmp \
 	&& cp -R /tmp/usr / \
 	&& rm -rf /tmp/usr \
 	&& apk del .build-deps \
