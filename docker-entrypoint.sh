@@ -8,6 +8,8 @@ export KONG_NGINX_DAEMON="off"
 export KONG_PREFIX="/usr/local/kong"
 
 # Prepare Kong prefix
-kong prepare -p "/usr/local/kong"
+if [ "$1" = "/usr/local/openresty/nginx/sbin/nginx" ]; then
+	kong prepare -p "/usr/local/kong"
+fi
 
 exec "$@"
