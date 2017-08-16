@@ -27,4 +27,4 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # add Nginx virtualhost template that we'll overwrite
 COPY nginx.conf.ctmpl /etc/containerpilot/nginx.conf.ctmpl
 
-EXPOSE 8000 8443 8001
+EXPOSE 8000 8443 8001 8444
