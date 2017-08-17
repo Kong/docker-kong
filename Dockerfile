@@ -1,10 +1,16 @@
-FROM centos:7
+FROM alpine
 MAINTAINER Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.11.0
 
-RUN yum install -y wget https://bintray.com/kong/kong-community-edition-rpm/download_file?file_path=dists%2Fkong-community-edition-$KONG_VERSION.el7.noarch.rpm && \
-    yum clean all
+RUN apk update \
+	&& apk add --virtual .build-deps wget tar ca-certificates \
+	&& apk add libgcc openssl pcre perl \
+	&& wget "https://bintray.com/kong/kong-community-edition-alpine-tar/download_file?file_path=kong-community-edition-$KONG_VERSION.apk.tar.gz" -O - | tar xz -C /tmp \
+	&& cp -R /tmp/usr / \
+	&& rm -rf /tmp/usr \
+	&& apk del .build-deps \
+	&& rm -rf /var/cache/apk/*
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
