@@ -1,5 +1,4 @@
 version: '2.1'
-# Kong
 services:
   kong-database:
     image: postgres:9.4
@@ -30,20 +29,19 @@ services:
     environment:
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=kong-database
+      - VIRTUAL_HOST=localhost
     healthcheck:
       test: ["CMD-SHELL", "curl -I -s -L http://127.0.0.1:8000 || exit 1"]
       interval: 5s
       retries: 10
   nginx:
-    build: nginx
+    image: jwilder/nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx.tmpl:/app/nginx.tmpl
     depends_on:
       kong:
         condition: service_healthy
-    expose:
-      - 8000
-      - 8001
-      - 8443
     ports:
       - 8000:8000
       - 8001:8001
-      - 8443:8443
