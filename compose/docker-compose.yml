@@ -44,7 +44,7 @@ services:
         nginx -g "daemon off;"
 
   kong-database:
-    image: postgres:9.4
+    image: postgres:9.5
     environment:
       - POSTGRES_USER=kong
       - POSTGRES_DB=kong
