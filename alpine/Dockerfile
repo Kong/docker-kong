@@ -1,5 +1,5 @@
 FROM alpine:3.6
-MAINTAINER Marco Palladino, marco@mashape.com
+LABEL maintainer Marco Palladino, marco@mashape.com
 
 ENV KONG_VERSION 0.11.1
 ENV KONG_SHA256 2291f92a935d850fe850394834c7737e99a82c37b0024637b4e17adfa1a4ef28
