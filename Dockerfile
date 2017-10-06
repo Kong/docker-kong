@@ -5,6 +5,7 @@ ENV KONG_VERSION 0.11.0
 ENV KONG_SHA256 34cfd44f61a4da5d39ad7b59bad7b4790451065ff8c8c3d000b6258ab6961949
 
 RUN apk update \
+	&& apk upgrade \
 	&& apk add --virtual .build-deps wget tar ca-certificates \
 	&& apk add libgcc openssl pcre perl \
 	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-community-edition-alpine-tar/download_file?file_path=kong-community-edition-$KONG_VERSION.apk.tar.gz" \
