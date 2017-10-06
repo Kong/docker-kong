@@ -4,6 +4,7 @@ MAINTAINER Marco Palladino, marco@mashape.com
 COPY *kong.tar.gz kong.tar.gz
 
 RUN apk update \
+	&& apk upgrade \
 	&& apk add --virtual .build-deps wget tar ca-certificates \
 	&& apk add libgcc openssl pcre perl \
 	&& tar -xzf kong.tar.gz -C /tmp \
