@@ -35,13 +35,18 @@ services:
       interval: 5s
       retries: 10
   nginx:
-    image: jwilder/nginx-proxy
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx.tmpl:/app/nginx.tmpl
+      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       kong:
         condition: service_healthy
     ports:
       - 8000:8000
       - 8001:8001
+      - 8443:8443
+      - 8444:8444
