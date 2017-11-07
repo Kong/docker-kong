@@ -13,6 +13,8 @@ RUN apk update \
 	&& rm -f kong.tar.gz \
 	&& cp -R /tmp/usr / \
 	&& rm -rf /tmp/usr \
+	&& cp -R /tmp/etc / \
+	&& rm -rf /tmp/etc \
 	&& apk del .build-deps \
 	&& rm -rf /var/cache/apk/*
 
