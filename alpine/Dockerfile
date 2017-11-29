@@ -12,6 +12,8 @@ RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& rm -f kong.tar.gz \
 	&& cp -R /tmp/usr / \
 	&& rm -rf /tmp/usr \
+	&& cp -R /tmp/etc / \
+	&& rm -rf /tmp/etc \
 	&& apk del .build-deps
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
