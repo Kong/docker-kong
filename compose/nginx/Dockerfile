@@ -20,6 +20,7 @@ RUN export CP_SHA1=198d96c8d7bfafb1ab6df96653c29701510b833c \
 # add ContainerPilot configuration and onChange handler
 COPY containerpilot.json /etc/containerpilot/containerpilot.json
 COPY reload-nginx.sh /bin/reload-nginx.sh
+RUN chmod +x /bin/reload-nginx.sh
 
 # add Nginx virtualhost configuration
 COPY nginx.conf /etc/nginx/nginx.conf
