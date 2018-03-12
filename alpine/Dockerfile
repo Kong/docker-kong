@@ -1,8 +1,8 @@
 FROM alpine:3.6
 LABEL maintainer Marco Palladino, marco@mashape.com
 
-ENV KONG_VERSION 0.12.3
-ENV KONG_SHA256 e7750f4987b7bff485387a0bc95eb51609f7abc5faea76c9598a16f1da023faa
+ENV KONG_VERSION 0.13.0rc2
+ENV KONG_SHA256 b1168e19b606c4b2cc8071464c42ed7d3f37dfbd421ab1fab9fa1e1c8dd19f5d
 
 RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata \
