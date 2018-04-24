@@ -1,5 +1,8 @@
 FROM kong
 
+# make sure curl is installed
+RUN apk add --no-cache curl
+
 # get ContainerPilot release
 ENV CONTAINERPILOT_VERSION 2.7.2
 RUN export CP_SHA1=e886899467ced6d7c76027d58c7f7554c2fb2bcc \
