@@ -1,15 +1,14 @@
 #!/bin/sh
 set -e
 
-# Disabling nginx daemon mode
-export KONG_NGINX_DAEMON="off"
+if [[ "$1" == "kong" && "$2" =~ "start" ]]; then
+  export KONG_NGINX_DAEMON=off
+  PREFIX=${KONG_PREFIX:=/usr/local/kong}
 
-# Setting default prefix (override any existing variable)
-export KONG_PREFIX="/usr/local/kong"
-
-# Prepare Kong prefix
-if [ "$1" = "/usr/local/openresty/nginx/sbin/nginx" ]; then
-	kong prepare -p "/usr/local/kong"
+  kong prepare -p $PREFIX &&
+    exec /usr/local/openresty/nginx/sbin/nginx \
+      -p $PREFIX \
+      -c nginx.conf
 fi
 
 exec "$@"
