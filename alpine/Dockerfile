@@ -23,4 +23,4 @@ EXPOSE 8000 8443 8001 8444
 
 STOPSIGNAL SIGTERM
 
-CMD ["kong", "start"]
+CMD ["kong", "docker-start"]
