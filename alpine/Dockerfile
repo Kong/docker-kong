@@ -14,7 +14,13 @@ RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& rm -rf /tmp/usr \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
-	&& apk del .build-deps
+	&& apk del .build-deps \
+	# OpenShift specific. OpenShift runs containers using an arbitrarily assigned user ID.
+	# This user doesn't have access to change file permissions during runtime, they have to be changed during image building.
+	# https://docs.okd.io/latest/creating_images/guidelines.html#use-uid
+	&& mkdir -p "/usr/local/kong" \
+	&& chgrp -R 0 "/usr/local/kong" \
+	&& chmod -R g=u "/usr/local/kong"
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
