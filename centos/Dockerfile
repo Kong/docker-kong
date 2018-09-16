@@ -1,5 +1,5 @@
 FROM centos:7
-MAINTAINER Marco Palladino, marco@mashape.com
+LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
 ENV KONG_VERSION 0.14.1
 

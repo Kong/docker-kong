@@ -1,5 +1,5 @@
 FROM alpine:3.6
-LABEL maintainer Marco Palladino, marco@mashape.com
+LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
 ENV KONG_VERSION 0.14.1
 ENV KONG_SHA256 e29937c5117ac2debcffe0d0016996dd5f0c516ef628f1edc029138715981387
