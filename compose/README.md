@@ -24,7 +24,7 @@ $ docker-compose scale kong=3
 
 Kong will be available through the `nginx-lb` instance on port `8000`, `8443` and `8001`. You can customize the template with your own environment variables or datastore configuration.
 
-Kong's documentation can be found at [getkong.org/docs][kong-docs-url].
+Kong's documentation can be found at [https://docs.konghq.com/][kong-docs-url].
 
 ## Issues
 
