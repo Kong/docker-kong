@@ -36,6 +36,6 @@ You are invited to contribute new features, fixes, or updates, large or small; w
 
 Before you start to code, we recommend discussing your plans through a [GitHub issue][github-new-issue], especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
 
-[kong-site-url]: http://getkong.org
-[kong-docs-url]: http://getkong.org/docs
-[github-new-issue]: https://github.com/Mashape/docker-kong/issues/new
+[kong-site-url]: https://konghq.com/
+[kong-docs-url]: https://docs.konghq.com/
+[github-new-issue]: https://github.com/Kong/docker-kong/issues/new
