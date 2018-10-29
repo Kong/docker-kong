@@ -49,7 +49,7 @@ services:
       - POSTGRES_USER=kong
       - POSTGRES_DB=kong
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "kong"]
       interval: 10s
       timeout: 5s
       retries: 5
