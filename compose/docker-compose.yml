@@ -3,10 +3,10 @@ services:
   kong-database:
     image: postgres:9.5
     environment:
-      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_USER=${PG_USER:-kong}
       - POSTGRES_DB=kong
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${PG_USER}"]
+      test: ["CMD", "pg_isready", "-U", "${PG_USER:-kong}"]
       interval: 30s
       timeout: 30s
       retries: 3
@@ -21,6 +21,7 @@ services:
       - KONG_DATABASE=postgres
       - KONG_PG_HOST=kong-database
       - KONG_PG_DATABASE=kong
+      - KONG_PG_USER=${PG_USER:-kong}
       - KONG_ADMIN_LISTEN=0.0.0.0:8001        
     ports:
       - "8000:8000"
