@@ -1,6 +1,6 @@
 version: '2.1'
 services:
-  kong-ce:
+  kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong start --run-migrations
     depends_on:
