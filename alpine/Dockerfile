@@ -17,6 +17,7 @@ RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk del .build-deps
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY graceful-exit.sh /graceful-exit.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8000 8443 8001 8444
