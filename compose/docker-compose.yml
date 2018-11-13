@@ -1,4 +1,10 @@
 version: '2.1'
+
+volumes:
+    kong_data: {}
+
+networks:
+  kong-net:
 services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -31,14 +37,15 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
-    links:
-      - db:db
+    networks:
+      - kong-net
     ports:
       - "8000:8000/tcp"
       - "8001:8001/tcp"
       - "8443:8443/tcp"
       - "8444:8444/tcp"
     restart: on-failure
+  
   db:
     image: postgres:9.5
     environment:
@@ -53,3 +60,7 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
+    networks:
+      - kong-net
+    volumes:
+      - kong_data:/var/lib/postgresql/data
