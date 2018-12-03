@@ -26,6 +26,24 @@ services:
       - "8443:8443/tcp"
       - "8444:8444/tcp"
     restart: on-failure
+  konga:
+    image: pantsel/konga:next #(or latest)
+    container_name: konga
+    depends_on:
+      - kong
+    ports:
+      - 1337:1337
+    links:
+      - db:db
+      - kong:kong
+    environment:
+      DB_ADAPTER: postgres
+      DB_HOST: db
+      DB_DATABASE: postgres
+      DB_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      DB_USER: ${KONG_PG_USER:-kong}
+      NODE_ENV: development
+
   db:
     image: postgres:9.5
     environment:
@@ -40,3 +58,5 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
+
+
