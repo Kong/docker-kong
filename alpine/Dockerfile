@@ -1,8 +1,8 @@
 FROM alpine:3.6
-LABEL maintainer Marco Palladino, marco@mashape.com
+LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 0.14.1
-ENV KONG_SHA256 e29937c5117ac2debcffe0d0016996dd5f0c516ef628f1edc029138715981387
+ENV KONG_VERSION 1.0.0rc3
+ENV KONG_SHA256 4af1b014cb9a827149c74d3fe795fab6a96892cf07eb7bafc197d7c23b0bd2a4
 
 RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata curl \
@@ -14,7 +14,13 @@ RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& rm -rf /tmp/usr \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
-	&& apk del .build-deps
+	&& apk del .build-deps \
+	# OpenShift specific. OpenShift runs containers using an arbitrarily assigned user ID.
+	# This user doesn't have access to change file permissions during runtime, they have to be changed during image building.
+	# https://docs.okd.io/latest/creating_images/guidelines.html#use-uid
+	&& mkdir -p "/usr/local/kong" \
+	&& chgrp -R 0 "/usr/local/kong" \
+	&& chmod -R g=u "/usr/local/kong"
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
