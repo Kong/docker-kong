@@ -2,7 +2,7 @@ FROM alpine:3.6
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
 ENV KONG_VERSION 1.0.0rc3
-ENV KONG_SHA256 4af1b014cb9a827149c74d3fe795fab6a96892cf07eb7bafc197d7c23b0bd2a4
+ENV KONG_SHA256 a71ecdc90dd9af72a9305b4007753d237e1b982a912902ac687cfa119cac865e
 
 RUN apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata curl \
