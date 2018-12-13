@@ -1,8 +1,21 @@
 version: '2.1'
 services:
+  kong-migrations:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations bootstrap
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+    links:
+      - db:db
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    command: kong start --run-migrations
     depends_on:
       db:
         condition: service_healthy
