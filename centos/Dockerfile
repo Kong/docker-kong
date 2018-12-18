@@ -1,7 +1,7 @@
 FROM centos:7
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 1.0.0rc4
+ENV KONG_VERSION 1.0.0
 
 RUN useradd --uid 1337 kong \
     && yum install -y https://bintray.com/kong/kong-community-edition-rpm/download_file?file_path=centos/7/kong-community-edition-$KONG_VERSION.el7.noarch.rpm \
