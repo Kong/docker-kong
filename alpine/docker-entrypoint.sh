@@ -7,9 +7,15 @@ if [[ "$1" == "kong" ]]; then
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
 
   if [[ "$2" == "docker-start" ]]; then
-    kong prepare -p "$PREFIX"
+    chown kong "$PREFIX"
+    su-exec kong kong prepare -p "$PREFIX"
+    
+    setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
 
-    exec /usr/local/openresty/nginx/sbin/nginx \
+    chmod 777 /proc/self/fd/1
+    chmod 777 /proc/self/fd/2
+
+    su-exec kong /usr/local/openresty/nginx/sbin/nginx \
       -p "$PREFIX" \
       -c nginx.conf
   fi
