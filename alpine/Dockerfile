@@ -6,9 +6,8 @@ ENV KONG_SHA256 f2adc4e40a4a33c657955d6d9ec034d80827f915bb9fe8c2ac2a36aed7edf13b
 
 RUN adduser -Su 1337 kong \
 	&& mkdir -p "/usr/local/kong" \
-	&& chown kong "/usr/local/kong" \
-	&& apk add --no-cache --virtual .build-deps wget tar ca-certificates libcap \
-	&& apk add --no-cache libgcc openssl pcre perl tzdata curl \
+	&& apk add --no-cache --virtual .build-deps wget tar ca-certificates \
+	&& apk add --no-cache libgcc openssl pcre perl tzdata curl libcap su-exec \
 	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-community-edition-alpine-tar/download_file?file_path=kong-community-edition-$KONG_VERSION.apk.tar.gz" \
 	&& echo "$KONG_SHA256 *kong.tar.gz" | sha256sum -c - \
 	&& tar -xzf kong.tar.gz -C /tmp \
@@ -17,12 +16,9 @@ RUN adduser -Su 1337 kong \
 	&& rm -rf /tmp/usr \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
-	&& setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx \
 	&& apk del .build-deps
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-
-USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
