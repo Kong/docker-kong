@@ -46,14 +46,27 @@ end
 
 local platforms = {
   {
-    check = "apk -V",     -- check for alpine
-    commands = {          -- run once before anything else
+    check = "apk -V",         -- check for alpine
+    commands = {              -- run before anything else in build container
       "apk update",
       "apk add git",
       "apk add zip",
     },
+    target_commands = {       -- run before installing in the target image
+    },
+  }, {
+    check = "yum --version",  -- check for CentOS
+    commands = {              -- run before anything else in build container
+      "yum -y install git",
+      "yum -y install unzip",
+      "yum -y install zip",
+    },
+    target_commands = {       -- run before installing in the target image
+      "yum -y install unzip",
+    },
   },
 }
+
 
 local function prep_platform()
   for _, platform in ipairs(platforms) do
@@ -69,7 +82,7 @@ local function prep_platform()
           fail(("failed executing '%s'"):format(cmd))
         end
       end
-      return
+      return platform.target_commands
     end
   end
   stderr("WARNING: no platform match!")
@@ -189,7 +202,7 @@ end
 -- Do the actual work
 -- **********************************************************
 header("Set up platform")
-prep_platform()
+local target_commands = prep_platform()
 
 
 header("Get arguments")
@@ -265,6 +278,7 @@ chmod +x /docker-entrypoint.sh
 
 # install the rocks
 %s
+%s
 
 # clean up by deleting all the temporary stuff
 rm -rf /plugins
@@ -276,6 +290,7 @@ for _, filename in ipairs(files("/plugins/"), "*.rock") do
 end
 script = script:format(
   table.concat(plugins, ","),
+  table.concat(target_commands, "\n"),
   table.concat(t, "\n")
 )
 assert(writefile("/plugins/install_plugins.sh", script))
