@@ -15,4 +15,3 @@ FROM ${KONG_BASE}
 
 COPY --from=build /plugins /plugins
 RUN /plugins/install_plugins.sh
-RUN cat /docker-entrypoint.sh
