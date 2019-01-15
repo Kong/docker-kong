@@ -8,7 +8,7 @@ ARG SU_EXEC_URL="https://github.com/ncopa/su-exec/archive/v${SU_EXEC_VERSION}.ta
 
 RUN yum install -y -q gcc make \
 && curl -sL "${SU_EXEC_URL}" | tar -C /tmp -zxf - \ 
- && make -C "/tmp/su-exec-${SU_EXEC_VERSION}" \
+&& make -C "/tmp/su-exec-${SU_EXEC_VERSION}" \
 && cp "/tmp/su-exec-${SU_EXEC_VERSION}/su-exec" /usr/bin \
 && rm -fr "/tmp/su-exec-${SU_EXEC_VERSION}" \
 && yum autoremove -y -q gcc make \

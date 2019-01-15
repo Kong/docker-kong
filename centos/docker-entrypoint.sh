@@ -26,7 +26,7 @@ if [[ "$1" == "kong" ]]; then
       setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
     fi
 
-    su-exec kong /usr/local/openresty/nginx/sbin/nginx \
+    exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
       -p "$PREFIX" \
       -c nginx.conf
   fi
