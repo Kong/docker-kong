@@ -19,4 +19,5 @@ script:
       echo "\tVersion built is $version_built";
       exit 1;
     fi
+  - docker run -ti kong-$BASE luarocks install version
   - popd
