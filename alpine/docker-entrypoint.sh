@@ -23,10 +23,8 @@ if [[ "$1" == "kong" ]]; then
         || has_transparent "$KONG_PROXY_LISTEN" \
         || has_transparent "$KONG_ADMIN_LISTEN";
     then
-      setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
+      setcap cap_net_raw,cap_net_bind_service=+ep /usr/local/openresty/nginx/sbin/nginx
     fi
-
-    setcap CAP_NET_BIND_SERVICE=+ep /usr/local/openresty/nginx/sbin/nginx
 
     exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
       -p "$PREFIX" \
