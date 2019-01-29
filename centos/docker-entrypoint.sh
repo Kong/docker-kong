@@ -18,31 +18,22 @@ if [[ "$1" == "kong" ]]; then
     chmod o+w /proc/self/fd/1
     chmod o+w /proc/self/fd/2
 
-    set_cap_net_raw=false
-    set_cap_net_bind_service=false
+    caps=""
 
-    if [ ! -z ${SET_CAP_NET_RAW} ] \
+    if [ -n "${SET_CAP_NET_RAW}" ] \
         || has_transparent "$KONG_STREAM_LISTEN" \
         || has_transparent "$KONG_PROXY_LISTEN" \
         || has_transparent "$KONG_ADMIN_LISTEN";
     then
-      set_cap_net_raw=true
-    fi
-    
-    if [ ! -z ${SET_CAP_NET_BIND_SERVICE} ];
-    then
-      set_cap_net_bind_service=true
+      caps="${caps:+"${caps}",}cap_net_raw"
     fi
 
-    if $set_cap_net_raw&&$set_cap_net_bind_service;
-    then
-      setcap cap_net_raw,cap_net_bind_service=+ep /usr/local/openresty/nginx/sbin/nginx
-    elif $set_cap_net_raw;
-    then
-      setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
-    elif $set_cap_net_bind_service;
-    then
-      setcap cap_net_bind_service=+ep /usr/local/openresty/nginx/sbin/nginx
+    if [ -n "${SET_CAP_NET_BIND_SERVICE}" ] ; then
+      caps="${caps:+"${caps}",}cap_net_bind_service"
+    fi
+
+    if [ -n "${caps}" ] ; then
+      setcap "${caps}=+ep" /usr/local/openresty/nginx/sbin/nginx
     fi
 
     exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
