@@ -6,7 +6,7 @@ ENV KONG_VERSION 1.0.2
 ARG SU_EXEC_VERSION=0.2
 ARG SU_EXEC_URL="https://github.com/ncopa/su-exec/archive/v${SU_EXEC_VERSION}.tar.gz"
 
-RUN yum install -y -q gcc make \
+RUN yum install -y -q gcc make unzip \
 && curl -sL "${SU_EXEC_URL}" | tar -C /tmp -zxf - \
 && make -C "/tmp/su-exec-${SU_EXEC_VERSION}" \
 && cp "/tmp/su-exec-${SU_EXEC_VERSION}/su-exec" /usr/bin \
