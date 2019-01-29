@@ -7,6 +7,7 @@ local exec = require("pl.utils").execute
 local files = require("pl.dir").getfiles
 local directories = require("pl.dir").getdirectories
 local writefile = require("pl.utils").writefile
+local readfile = require("pl.utils").readfile
 local is_dir = require("pl.path").isdir
 local is_file = require("pl.path").isfile
 
@@ -120,6 +121,7 @@ end
 
 local function get_plugins()
   local plugins = {}
+  local cnt = 0
 
   for i = 1, 2 do
     local pattern, paths, extension
@@ -140,12 +142,14 @@ local function get_plugins()
           local plugin_name = dir:sub(#path + 1, -1)
           if is_file(dir .. "/handler" .. extension) then
             plugins[plugin_name] = true
+            cnt = cnt + 1
           end
         end
       end
     end
   end
 
+  stdout("Found ", cnt, " plugins installed")
   return plugins
 end
 
@@ -159,11 +163,14 @@ local function get_rocks()
   end
 
   local rocks = {}
+  local cnt = 0
   for _, rock in ipairs(lines(sout)) do
+    cnt = cnt + 1
     local name, spec = rock:match("^(.-)\t(.-)\t")
     local rock_id = name.."-"..spec
     rocks[rock_id] = { name = name, spec = spec }
   end
+  stdout("Found ", cnt, " rocks installed")
   return rocks
 end
 
@@ -198,6 +205,19 @@ local function pack_rocks(rocks)
 end
 
 
+local function check_custom_template()
+  local filename = "/plugins/custom_nginx.conf"
+  local t = assert(readfile(filename))
+  if t:gsub("\n", ""):gsub("\t", ""):gsub(" ","") == "" then
+    -- it's the empty_file, delete it
+    os.remove(filename)
+    stdout("No custom template found")
+    return
+  end
+  stdout("Found a custom template")
+end
+
+
 -- **********************************************************
 -- Do the actual work
 -- **********************************************************
@@ -215,6 +235,10 @@ local pre_installed_rocks = get_rocks()
 
 header("Get existing plugin list")
 local pre_installed_plugins = get_plugins()
+
+
+header("Getting custom template")
+check_custom_template()
 
 
 header("Install the requested plugins")
@@ -251,7 +275,6 @@ end
 
 
 header("Pack newly installed rocks")
-assert(exec("mkdir /plugins"))
 pack_rocks(added_rocks)
 
 
@@ -261,6 +284,8 @@ local script = [=[
 
 # replace the entry point
 mv /docker-entrypoint.sh /old-entrypoint.sh
+
+################### new entrypoint script ###################
 cat <<'EOF' >> /docker-entrypoint.sh
 #!/bin/sh
 set -e
@@ -272,9 +297,24 @@ if [[ "$KONG_PLUGINS" == "" ]]; then
   fi
 fi
 
-exec /old-entrypoint.sh "$@"
+# prefix the custom template option, since the last one on the command line
+# wins, so the user can still override this template
+INITIAL="$1 $2"
+if [ -f /custom_nginx.conf ]; then
+  INITIAL="$1 $2 --nginx-conf=/custom_nginx.conf"
+fi
+shift 2
+
+exec /old-entrypoint.sh $INITIAL "$@"
 EOF
+#############################################################
+
 chmod +x /docker-entrypoint.sh
+
+# install custom template if it is provided
+if [ -f /plugins/custom_nginx.conf ]; then
+  mv /plugins/custom_nginx.conf /custom_nginx.conf
+fi
 
 # install the rocks
 %s
@@ -285,8 +325,10 @@ rm -rf /plugins
 ]=]
 local t = {}
 local cmd = "luarocks install --deps-mode=none %s && rm %s"
-for _, filename in ipairs(files("/plugins/"), "*.rock") do
-  table.insert(t, cmd:format(filename, filename))
+for _, filename in ipairs(files("/plugins/")) do
+  if filename:find("%.rock$") then
+    table.insert(t, cmd:format(filename, filename))
+  end
 end
 script = script:format(
   table.concat(plugins, ","),
@@ -298,5 +340,5 @@ assert(exec("chmod +x /plugins/install_plugins.sh"))
 stdout(script)
 
 
-header("Completed")
+header("Completed packing rocks and/or  template")
 
