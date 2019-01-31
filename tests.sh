@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set +e
 
 pushd $BASE
 version_given="$(grep 'ENV KONG_VERSION' Dockerfile | awk '{print $3}' | tr -d '[:space:]')"
@@ -21,9 +21,10 @@ pushd compose
 docker-compose up -d
 until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
 
-kong_user="$(docker-compose exec kong ps aux | sed -n 2p | awk '{print $1}')"
-if [[ "$kong_user" != "kong" ]]; then
+docker-compose exec kong ps aux | sed -n 2p | grep -q kong
+if [ $? -ne 0 ]; then
   echo "Kong is not running as the Kong user";
-  echo "\tRunning instead as $kong_user";
+  echo "\tRunning instead as ";
+  docker-compose exec kong ps aux | sed -n 2p
   exit 1;
 fi
