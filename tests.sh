@@ -34,3 +34,10 @@ if [ $? -ne 0 ]; then
   docker-compose exec kong ps aux | sed -n 2p
   exit 1;
 fi
+popd
+
+#####################################################
+# Run Kong functional tests
+
+pushd kong-build-tools
+TEST_HOST=`hostname --ip-address` make run_tests

@@ -9,7 +9,7 @@ env:
     - BASE="alpine" KONG_DOCKER_TAG="kong-alpine"
 
 before_script:
-  - docker build -t kong-$BASE $BASE/
+  - make build
 script:
   - make test
   
