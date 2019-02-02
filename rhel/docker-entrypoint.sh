@@ -9,7 +9,7 @@ if [[ "$1" == "kong" ]]; then
 
   if [[ "$2" == "docker-start" ]]; then
     shift 2
-    kong prepare -p $PREFIX $@
+    kong prepare -p $PREFIX "$@"
 
     exec /usr/local/openresty/nginx/sbin/nginx \
       -p $PREFIX \

@@ -12,7 +12,7 @@ if [[ "$1" == "kong" ]]; then
 
   if [[ "$2" == "docker-start" ]]; then
     shift 2
-    kong prepare -p "$PREFIX" $@
+    kong prepare -p "$PREFIX" "$@"
     chown -R kong "$PREFIX"
 
     # workaround for https://github.com/moby/moby/issues/31243
