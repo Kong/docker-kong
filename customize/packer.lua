@@ -175,8 +175,8 @@ local function get_rocks()
 end
 
 
-local function install_plugins(plugins)
-  local cmd = "luarocks install --tree=system %s"
+local function install_plugins(plugins, lr_flag)
+  local cmd = "luarocks install --tree=system %s " .. lr_flag
   for _, rock in ipairs(plugins) do
     stdout(cmd:format(rock))
 
@@ -205,10 +205,20 @@ local function pack_rocks(rocks)
 end
 
 
+local function is_empty_file(filename)
+  local t = readfile(filename)
+  if t then
+    if t:gsub("\n", ""):gsub("\t", ""):gsub(" ","") == "" then
+      return true
+    end
+  end
+  return false
+end
+
+
 local function check_custom_template()
   local filename = "/plugins/custom_nginx.conf"
-  local t = assert(readfile(filename))
-  if t:gsub("\n", ""):gsub("\t", ""):gsub(" ","") == "" then
+  if is_empty_file(filename) then
     -- it's the empty_file, delete it
     os.remove(filename)
     stdout("No custom template found")
@@ -218,12 +228,48 @@ local function check_custom_template()
 end
 
 
+local function start_rocks_server()
+  if is_empty_file("/rocks-server") then
+    stdout("No custom rocks found, using public luarocks.org as server")
+    return ""
+  end
+  assert(exec("luarocks-admin make_manifest /rocks-server"))
+  stdout("Local LuaRocks server manifest created")
+  assert(exec("mkdir /nginx"))
+  assert(exec("mkdir /nginx/logs"))
+  assert(writefile("/nginx/nginx.conf", [[
+events {
+}
+
+http {
+    server {
+        listen 127.0.0.1:8080;
+
+        location / {
+            root /rocks-server;
+        }
+    }
+}
+]]))
+  assert(exec("touch /nginx/logs/error.log"))
+  assert(exec("/usr/local/openresty/nginx/sbin/nginx " ..
+              "-c /nginx/nginx.conf " ..
+              "-p /nginx"))
+  stdout("Nginx started as local LuaRocks server")
+  stdout("List of locally available rocks:")
+  assert(exec("luarocks search --all --porcelain --only-server=http://localhost:8080"))
+  return " --only-server=http://localhost:8080 "
+end
+
+
 -- **********************************************************
 -- Do the actual work
 -- **********************************************************
 header("Set up platform")
 local target_commands = prep_platform()
 
+header("Set up LuaRocks server")
+local lr_flag = start_rocks_server()
 
 header("Get arguments")
 local rocks = get_args()
@@ -242,7 +288,7 @@ check_custom_template()
 
 
 header("Install the requested plugins")
-install_plugins(rocks)
+install_plugins(rocks, lr_flag)
 
 
 header("Get post-install rocks list and get the delta")

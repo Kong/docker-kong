@@ -31,6 +31,9 @@ dependencies.
  - `KONG_BASE` the base image to use, defaults to `kong:latest`.
  - `PLUGINS` a comma-separated list of LuaRocks rocks to add to the image. All
    dependencies will also be installed.
+ - `ROCKS_DIR` a local directory where the allowed plugins/rocks are located. If
+   specified, only rocks from this location will be allowed to be installed. If
+   not specified, then the public `luarocks.org` server is used.
  - `TEMPLATE` the custom configuration template to use
 
 Note that the `PLUGINS` entries are simply LuaRocks commands used as:
