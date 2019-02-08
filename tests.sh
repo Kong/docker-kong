@@ -39,5 +39,10 @@ popd
 #####################################################
 # Run Kong functional tests
 
+git clone https://github.com/Kong/kong.git
+pushd kong
+git checkout $version_given
+popd
+
 pushd kong-build-tools
-TEST_HOST=`hostname --ip-address` make run_tests
+TEST_HOST=`hostname --ip-address` KONG_VERSION=$version_given make run_tests

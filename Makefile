@@ -1,4 +1,4 @@
-KONG_BUILD_TOOLS?=be2c7b3
+KONG_BUILD_TOOLS?=master
 BASE?=centos
 
 build:
