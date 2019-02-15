@@ -25,7 +25,7 @@ popd
 # Validate Kong is running as the Kong user
 pushd compose
 docker-compose up -d
-until docker-compose ps | grep compose_kong_1 | grep -q "healthy"; do sleep 1; done
+until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
 
 docker-compose exec kong ps aux | sed -n 2p | grep -q kong
 if [ $? -ne 0 ]; then
@@ -43,6 +43,7 @@ pushd compose
 HOST=`hostname --ip-address`:8001
 while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${HOST})" != 200 ]]; do
   docker ps -a
+  docker-compose ps
   docker-compose up -d
 done
 popd
