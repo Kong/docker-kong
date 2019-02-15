@@ -16,8 +16,8 @@ if [[ "$1" == "kong" ]]; then
     chown -R kong "$PREFIX"
 
     # workaround for https://github.com/moby/moby/issues/31243
-    chmod o+w /proc/self/fd/1
-    chmod o+w /proc/self/fd/2
+    chmod o+w /proc/self/fd/1 || true
+    chmod o+w /proc/self/fd/2 || true
 
     if [ ! -z ${SET_CAP_NET_RAW} ] \
         || has_transparent "$KONG_STREAM_LISTEN" \
