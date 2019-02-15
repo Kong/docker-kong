@@ -31,14 +31,27 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
+      VIRTUAL_HOST: ${KONG_EXTERNAL_ACCESS:-localhost}
     links:
       - db:db
-    ports:
-      - "8000:8000/tcp"
-      - "8001:8001/tcp"
-      - "8443:8443/tcp"
-      - "8444:8444/tcp"
+    healthcheck:
+      test: ["CMD-SHELL", "kong health"]
+      interval: 5s
+      retries: 10
     restart: on-failure
+  nginx:
+    image: jwilder/nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx.tmpl:/app/nginx.tmpl
+    depends_on:
+      kong:
+        condition: service_healthy
+    ports:
+      - 8000:8000
+      - 8001:8001
+      - 8443:8443
+      - 8444:8444
   db:
     image: postgres:9.5
     environment:

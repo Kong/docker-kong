@@ -17,8 +17,80 @@
 	{{ end }}
 {{ end }}
 
+# If we receive X-Forwarded-Proto, pass it through; otherwise, pass along the
+# scheme used to connect to this server
+map $http_x_forwarded_proto $proxy_x_forwarded_proto {
+  default $http_x_forwarded_proto;
+  ''      $scheme;
+}
+
+# If we receive X-Forwarded-Port, pass it through; otherwise, pass along the
+# server port the client connected to
+map $http_x_forwarded_port $proxy_x_forwarded_port {
+  default $http_x_forwarded_port;
+  ''      $server_port;
+}
+
+# If we receive Upgrade, set Connection to "upgrade"; otherwise, delete any
+# Connection header that may have been passed to this server
+map $http_upgrade $proxy_connection {
+  default upgrade;
+  '' close;
+}
+
+# Apply fix for very long server names
+server_names_hash_bucket_size 128;
+
+# Default dhparam
+ssl_dhparam /etc/nginx/dhparam/dhparam.pem;
+
+# Set appropriate X-Forwarded-Ssl header
+map $scheme $proxy_x_forwarded_ssl {
+  default off;
+  https on;
+}
+
+gzip_types text/plain text/css application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+log_format vhost '$host $remote_addr - $remote_user [$time_local] '
+                 '"$request" $status $body_bytes_sent '
+                 '"$http_referer" "$http_user_agent"';
+
+access_log off;
+
+{{ if $.Env.RESOLVERS }}
+resolver {{ $.Env.RESOLVERS }};
+{{ end }}
+
+{{ if (exists "/etc/nginx/proxy.conf") }}
+include /etc/nginx/proxy.conf;
+{{ else }}
+# HTTP 1.1 support
+proxy_http_version 1.1;
+proxy_buffering off;
+proxy_set_header Host $http_host;
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection $proxy_connection;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
+proxy_set_header X-Forwarded-Ssl $proxy_x_forwarded_ssl;
+proxy_set_header X-Forwarded-Port $proxy_x_forwarded_port;
+
+# Mitigate httpoxy attack (see README for details)
+proxy_set_header Proxy "";
+{{ end }}
 
 {{ $enable_ipv6 := eq (or ($.Env.ENABLE_IPV6) "") "true" }}
+server {
+	server_name _; # This is just an invalid value which will never trigger on a real hostname.
+	listen 80;
+	{{ if $enable_ipv6 }}
+	listen [::]:80;
+	{{ end }}
+	access_log /var/log/nginx/access.log vhost;
+	return 503;
+}
 
 {{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
 
@@ -26,117 +98,127 @@
 {{ $is_regexp := hasPrefix "~" $host }}
 {{ $upstream_name := when $is_regexp (sha1 $host) $host }}
 
-stream {
-  # {{ $host }}
-  upstream {{ $upstream_name }}8000 {
-  {{ range $container := $containers }}
-          {{ $addrLen := len $container.Addresses }}
-  
-          {{ range $knownNetwork := $CurrentContainer.Networks }}
-                  {{ range $containerNetwork := $container.Networks }}
-                          {{ if (and (ne $containerNetwork.Name "ingress") (or (eq $knownNetwork.Name $containerNetwork.Name) (eq $knownNetwork.Name "host"))) }}
-                                  {{ $port := coalesce $container.Env.VIRTUAL_PORT "8000" }}
-                                  {{ $address := where $container.Addresses "Port" $port | first }}
-                                  {{ template "upstream" (dict "Container" $container "Address" $address "Network" $containerNetwork) }}
-                          {{ end }}
-                  {{ end }}
-          {{ end }}
-  {{ end }}
-  }
-  
-  upstream {{ $upstream_name }}8001 {
-  {{ range $container := $containers }}
-          {{ $addrLen := len $container.Addresses }}
-  
-          {{ range $knownNetwork := $CurrentContainer.Networks }}
-                  {{ range $containerNetwork := $container.Networks }}
-                          {{ if (and (ne $containerNetwork.Name "ingress") (or (eq $knownNetwork.Name $containerNetwork.Name) (eq $knownNetwork.Name "host"))) }}
-                                  {{ $port := coalesce $container.Env.VIRTUAL_PORT "8001" }}
-                                  {{ $address := where $container.Addresses "Port" $port | first }}
-                                  {{ template "upstream" (dict "Container" $container "Address" $address "Network" $containerNetwork) }}
-                          {{ end }}
-                  {{ end }}
-          {{ end }}
-  {{ end }}
-  }
-  
-  upstream {{ $upstream_name }}8443 {
-  {{ range $container := $containers }}
-          {{ $addrLen := len $container.Addresses }}
-  
-          {{ range $knownNetwork := $CurrentContainer.Networks }}
-                  {{ range $containerNetwork := $container.Networks }}
-                          {{ if (and (ne $containerNetwork.Name "ingress") (or (eq $knownNetwork.Name $containerNetwork.Name) (eq $knownNetwork.Name "host"))) }}
-                                  {{ $port := coalesce $container.Env.VIRTUAL_PORT "8443" }}
-                                  {{ $address := where $container.Addresses "Port" $port | first }}
-                                  {{ template "upstream" (dict "Container" $container "Address" $address "Network" $containerNetwork) }}
-                          {{ end }}
-                  {{ end }}
-          {{ end }}
-  {{ end }}
-  }
-  
-  upstream {{ $upstream_name }}8444 {
-  {{ range $container := $containers }}
-          {{ $addrLen := len $container.Addresses }}
-  
-          {{ range $knownNetwork := $CurrentContainer.Networks }}
-                  {{ range $containerNetwork := $container.Networks }}
-                          {{ if (and (ne $containerNetwork.Name "ingress") (or (eq $knownNetwork.Name $containerNetwork.Name) (eq $knownNetwork.Name "host"))) }}
-                                  {{ $port := coalesce $container.Env.VIRTUAL_PORT "8444" }}
-                                  {{ $address := where $container.Addresses "Port" $port | first }}
-                                  {{ template "upstream" (dict "Container" $container "Address" $address "Network" $containerNetwork) }}
-                          {{ end }}
-                  {{ end }}
-          {{ end }}
-  {{ end }}
-  }
-  
-  {{ $default_host := or ($.Env.DEFAULT_HOST) "" }}
-  {{ $default_server := index (dict $host "" $default_host "default_server") $host }}
-  
-  {{/* Get the VIRTUAL_PROTO defined by containers w/ the same vhost, falling back to "http" */}}
-  {{ $proto := trim (or (first (groupByKeys $containers "Env.VIRTUAL_PROTO")) "http") }}
-  
-  {{/* Get the HTTPS_METHOD defined by containers w/ the same vhost, falling back to "redirect" */}}
-  {{ $https_method := or (first (groupByKeys $containers "Env.HTTPS_METHOD")) "redirect" }}
-  
-  {{/* Get the first cert name defined by containers w/ the same vhost */}}
-  {{ $certName := (first (groupByKeys $containers "Env.CERT_NAME")) }}
-  
-  {{/* Get the best matching cert  by name for the vhost. */}}
-  {{ $vhostCert := (closest (dir "/etc/nginx/certs") (printf "%s.crt" $host))}}
-  
-  {{/* vhostCert is actually a filename so remove any suffixes since they are added later */}}
-  {{ $vhostCert := trimSuffix ".crt" $vhostCert }}
-  {{ $vhostCert := trimSuffix ".key" $vhostCert }}
-  
-  {{/* Use the cert specified on the container or fallback to the best vhost match */}}
-  {{ $cert := (coalesce $certName $vhostCert) }}
-  
-  {{ $is_https := (and (ne $https_method "nohttps") (ne $cert "") (exists (printf "/etc/nginx/certs/%s.crt" $cert)) (exists (printf "/etc/nginx/certs/%s.key" $cert))) }}
-  
-    
-  server {
-  	listen 8000 {{ $default_server }};
-    proxy_pass {{ trim $upstream_name }}8000;
-  }
-  
-  server {
-  	listen 8001 {{ $default_server }};
-    proxy_pass {{ trim $upstream_name }}8001;
-  }
-  
-  server {
-  	listen 8443 {{ $default_server }};
-    proxy_pass {{ trim $upstream_name }}8443;
-  }
-  
-  server {
-  	listen 8444 {{ $default_server }};
-  	proxy_pass {{ trim $upstream_name }}8444;
-  }
-  
-  
-  {{ end }}
+# {{ $host }}
+upstream {{ $upstream_name }}8000 {
+{{ range $container := $containers }}
+        {{ $addrLen := len $container.Addresses }}
+
+        {{ range $knownNetwork := $CurrentContainer.Networks }}
+                {{ range $containerNetwork := $container.Networks }}
+                        {{ if (and (ne $containerNetwork.Name "ingress") (or (eq $knownNetwork.Name $containerNetwork.Name) (eq $knownNetwork.Name "host"))) }}
+                                {{ $port := coalesce $container.Env.VIRTUAL_PORT "8000" }}
+                                {{ $address := where $container.Addresses "Port" $port | first }}
+                                {{ template "upstream" (dict "Container" $container "Address" $address "Network" $containerNetwork) }}
+                        {{ end }}
+                {{ end }}
+        {{ end }}
+{{ end }}
 }
+
+upstream {{ $upstream_name }}8001 {
+{{ range $container := $containers }}
+        {{ $addrLen := len $container.Addresses }}
+
+        {{ range $knownNetwork := $CurrentContainer.Networks }}
+                {{ range $containerNetwork := $container.Networks }}
+                        {{ if (and (ne $containerNetwork.Name "ingress") (or (eq $knownNetwork.Name $containerNetwork.Name) (eq $knownNetwork.Name "host"))) }}
+                                {{ $port := coalesce $container.Env.VIRTUAL_PORT "8001" }}
+                                {{ $address := where $container.Addresses "Port" $port | first }}
+                                {{ template "upstream" (dict "Container" $container "Address" $address "Network" $containerNetwork) }}
+                        {{ end }}
+                {{ end }}
+        {{ end }}
+{{ end }}
+}
+
+{{ $default_host := or ($.Env.DEFAULT_HOST) "" }}
+{{ $default_server := index (dict $host "" $default_host "default_server") $host }}
+
+{{/* Get the VIRTUAL_PROTO defined by containers w/ the same vhost, falling back to "http" */}}
+{{ $proto := trim (or (first (groupByKeys $containers "Env.VIRTUAL_PROTO")) "http") }}
+
+{{/* Get the HTTPS_METHOD defined by containers w/ the same vhost, falling back to "redirect" */}}
+{{ $https_method := or (first (groupByKeys $containers "Env.HTTPS_METHOD")) "redirect" }}
+
+{{/* Get the first cert name defined by containers w/ the same vhost */}}
+{{ $certName := (first (groupByKeys $containers "Env.CERT_NAME")) }}
+
+{{/* Get the best matching cert  by name for the vhost. */}}
+{{ $vhostCert := (closest (dir "/etc/nginx/certs") (printf "%s.crt" $host))}}
+
+{{/* vhostCert is actually a filename so remove any suffixes since they are added later */}}
+{{ $vhostCert := trimSuffix ".crt" $vhostCert }}
+{{ $vhostCert := trimSuffix ".key" $vhostCert }}
+
+{{/* Use the cert specified on the container or fallback to the best vhost match */}}
+{{ $cert := (coalesce $certName $vhostCert) }}
+
+{{ $is_https := (and (ne $https_method "nohttps") (ne $cert "") (exists (printf "/etc/nginx/certs/%s.crt" $cert)) (exists (printf "/etc/nginx/certs/%s.key" $cert))) }}
+
+server {
+	server_name {{ $host }};
+	listen 8000 {{ $default_server }};
+	{{ if $enable_ipv6 }}
+	listen [::]:8000 {{ $default_server }};
+	{{ end }}
+	access_log /var/log/nginx/access.log vhost;
+
+	{{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
+	include {{ printf "/etc/nginx/vhost.d/%s" $host }};
+	{{ else if (exists "/etc/nginx/vhost.d/default") }}
+	include /etc/nginx/vhost.d/default;
+	{{ end }}
+
+	location / {
+		{{ if eq $proto "uwsgi" }}
+		include uwsgi_params;
+		uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
+		{{ else }}
+		proxy_pass {{ trim $proto }}://{{ trim $upstream_name }}8000;
+		{{ end }}
+		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
+		auth_basic	"Restricted {{ $host }}";
+		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
+		{{ end }}
+                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+                include /etc/nginx/vhost.d/default_location;
+                {{ end }}
+	}
+}
+
+server {
+        server_name {{ $host }};
+        listen 8001 {{ $default_server }};
+        {{ if $enable_ipv6 }}
+        listen [::]:8001 {{ $default_server }};
+        {{ end }}
+        access_log /var/log/nginx/access.log vhost;
+
+        {{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
+        include {{ printf "/etc/nginx/vhost.d/%s" $host }};
+        {{ else if (exists "/etc/nginx/vhost.d/default") }}
+        include /etc/nginx/vhost.d/default;
+        {{ end }}
+
+        location / {
+                {{ if eq $proto "uwsgi" }}
+                include uwsgi_params;
+                uwsgi_pass {{ trim $proto }}://{{ trim $upstream_name }};
+                {{ else }}
+                proxy_pass {{ trim $proto }}://{{ trim $upstream_name }}8001;
+                {{ end }}
+                {{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
+                auth_basic      "Restricted {{ $host }}";
+                auth_basic_user_file    {{ (printf "/etc/nginx/htpasswd/%s" $host) }};
+                {{ end }}
+                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+                include /etc/nginx/vhost.d/default_location;
+                {{ end }}
+        }
+}
+
+{{ end }}
