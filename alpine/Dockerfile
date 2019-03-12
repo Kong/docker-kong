@@ -17,6 +17,7 @@ RUN adduser -Su 1337 -g root kong  \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
 	&& apk del .build-deps \
+	&& chown -R kong /usr/local/kong \
 	&& chgrp -R 0 /usr/local/kong \
 	&& chmod -R g=u /usr/local/kong
 
