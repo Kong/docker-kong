@@ -4,7 +4,7 @@ LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 ENV KONG_VERSION 1.1.0rc1
 ENV KONG_SHA256 72abd186181b5ebb263c4e12db5d89cac529e2b5ca858015d44a34d560755b35
 
-RUN adduser -Su 1337 kong \
+RUN adduser -Su 1337 -g root kong  \
 	&& mkdir -p "/usr/local/kong" \
 	&& apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata curl libcap su-exec \
