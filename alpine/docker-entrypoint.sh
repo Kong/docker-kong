@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -ex
 
 export KONG_NGINX_DAEMON=off
 
@@ -27,7 +27,7 @@ if [[ "$1" == "kong" ]]; then
       setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
     fi
 
-    exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
+    /usr/local/openresty/nginx/sbin/nginx \
       -p "$PREFIX" \
       -c nginx.conf
   fi

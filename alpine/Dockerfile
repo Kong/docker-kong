@@ -6,6 +6,7 @@ ENV KONG_SHA256 72abd186181b5ebb263c4e12db5d89cac529e2b5ca858015d44a34d560755b35
 
 RUN adduser -Su 1337 kong \
 	&& mkdir -p "/usr/local/kong" \
+	&& chown -R kong "/usr/local/kong" \
 	&& apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata curl libcap su-exec \
 	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-community-edition-alpine-tar/download_file?file_path=kong-community-edition-$KONG_VERSION.apk.tar.gz" \
@@ -25,5 +26,7 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 8000 8443 8001 8444
 
 STOPSIGNAL SIGTERM
+
+USER kong
 
 CMD ["kong", "docker-start"]
