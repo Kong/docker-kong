@@ -16,9 +16,13 @@ RUN adduser -Su 1337 kong \
 	&& rm -rf /tmp/usr \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
-	&& apk del .build-deps
+	&& apk del .build-deps \
+	&& chgrp -R 0 /usr/local/kong \
+	&& chmod -R g=u /usr/local/kong
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
