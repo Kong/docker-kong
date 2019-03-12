@@ -13,11 +13,6 @@ if [[ "$1" == "kong" ]]; then
   if [[ "$2" == "docker-start" ]]; then
     shift 2
     kong prepare -p "$PREFIX" "$@"
-    chown -R kong "$PREFIX"
-
-    # workaround for https://github.com/moby/moby/issues/31243
-    chmod o+w /proc/self/fd/1
-    chmod o+w /proc/self/fd/2
 
     if [ ! -z ${SET_CAP_NET_RAW} ] \
         || has_transparent "$KONG_STREAM_LISTEN" \
@@ -27,7 +22,7 @@ if [[ "$1" == "kong" ]]; then
       setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
     fi
 
-    exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
+    /usr/local/openresty/nginx/sbin/nginx \
       -p "$PREFIX" \
       -c nginx.conf
   fi
