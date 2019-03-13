@@ -20,6 +20,7 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
     links:
       - db:db
+    restart: on-failure
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     depends_on:
