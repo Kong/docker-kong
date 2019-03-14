@@ -26,6 +26,8 @@ popd
 pushd compose
 docker-compose up -d
 until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
+sleep 10
+until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
 
 docker-compose exec kong ps aux | sed -n 2p | grep -q kong
 if [ $? -ne 0 ]; then
