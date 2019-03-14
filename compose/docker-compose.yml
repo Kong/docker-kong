@@ -20,6 +20,9 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
     links:
       - db:db
+    networks:
+      - kong-net
+    restart: on-failure
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     depends_on:
@@ -45,7 +48,6 @@ services:
       - "8443:8443/tcp"
       - "8444:8444/tcp"
     restart: on-failure
-  
   db:
     image: postgres:9.5
     environment:
