@@ -21,6 +21,13 @@ RUN adduser -Su 1337 -g root kong  \
 	&& chgrp -R 0 /usr/local/kong \
 	&& chmod -R g=u /usr/local/kong
 
+# for transparent proxy usage enable setcup for kong
+RUN chown kong /usr/local/openresty/nginx/sbin/ \
+	&& cp /usr/local/openresty/nginx/sbin/nginx /usr/local/openresty/nginx/sbin/nginx-transparent \
+	&& cp /usr/local/openresty/nginx/sbin/nginx /usr/local/openresty/nginx/sbin/nginx-non-transparent \
+	&& rm /usr/local/openresty/nginx/sbin/nginx \
+    && setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx-transparent
+
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 USER kong

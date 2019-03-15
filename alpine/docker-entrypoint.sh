@@ -12,19 +12,30 @@ if [[ "$1" == "kong" ]]; then
 
   if [[ "$2" == "docker-start" ]]; then
     shift 2
-    kong prepare -p "$PREFIX" "$@"
+
+    if [ -f "/usr/local/openresty/nginx/sbin/nginx" ]
+    then
+      rm /usr/local/openresty/nginx/sbin/nginx
+    fi 
 
     if [ ! -z ${SET_CAP_NET_RAW} ] \
         || has_transparent "$KONG_STREAM_LISTEN" \
         || has_transparent "$KONG_PROXY_LISTEN" \
         || has_transparent "$KONG_ADMIN_LISTEN";
     then
-      setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
-    fi
-
-    /usr/local/openresty/nginx/sbin/nginx \
+      ln -s /usr/local/openresty/nginx/sbin/nginx-transparent /usr/local/openresty/nginx/sbin/nginx
+      kong prepare -p "$PREFIX" "$@"
+      exec /usr/local/openresty/nginx/sbin/nginx \
       -p "$PREFIX" \
       -c nginx.conf
+    else
+      ln -s /usr/local/openresty/nginx/sbin/nginx-non-transparent /usr/local/openresty/nginx/sbin/nginx
+      ls -al /usr/local/openresty/nginx/sbin/
+      kong prepare -p "$PREFIX" "$@"
+      exec /usr/local/openresty/nginx/sbin/nginx \
+      -p "$PREFIX" \
+      -c nginx.conf
+    fi
   fi
 fi
 
