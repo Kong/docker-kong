@@ -16,7 +16,7 @@ RUN yum install -y -q gcc make unzip \
 && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 
 RUN useradd --uid 1337 kong \
-    && yum install -y https://bintray.com/kong/kong-community-edition-rpm/download_file?file_path=centos/7/kong-community-edition-$KONG_VERSION.el7.noarch.rpm \
+    && yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=kong-$KONG_VERSION.el7.noarch.rpm \
     && yum clean all
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
