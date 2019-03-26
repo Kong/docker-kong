@@ -55,6 +55,8 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx.tmpl:/app/nginx.tmpl
+    networks:
+      - kong-net
     depends_on:
       kong:
         condition: service_healthy
