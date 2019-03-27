@@ -15,12 +15,10 @@ if [[ "$version_given" != "$version_built" ]]; then
   exit 1;
 fi
 
-####################################################
 # Test LuaRocks is functional for installing rocks
 docker run -ti kong-$BASE /bin/sh -c "luarocks install version"
 popd
 
-####################################################
 # Validate Kong is running as the Kong user
 pushd compose
 docker-compose up -d
