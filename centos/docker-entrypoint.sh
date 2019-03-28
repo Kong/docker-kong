@@ -20,8 +20,8 @@ if [[ "$1" == "kong" ]]; then
 
     if [ "$(id -u)" != "0" ]; then
       exec /usr/local/openresty/nginx/sbin/nginx \
-      -p "$PREFIX" \
-      -c nginx.conf
+        -p "$PREFIX" \
+        -c nginx.conf
     else
       if [ ! -z ${SET_CAP_NET_RAW} ] \
           || has_transparent "$KONG_STREAM_LISTEN" \
@@ -30,6 +30,7 @@ if [[ "$1" == "kong" ]]; then
       then
         setcap cap_net_raw=+ep /usr/local/openresty/nginx/sbin/nginx
       fi
+      chown -R kong:0 /usr/local/kong
       exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
         -p "$PREFIX" \
         -c nginx.conf

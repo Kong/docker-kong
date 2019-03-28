@@ -19,8 +19,7 @@ RUN useradd --uid 1337 kong \
 	&& mkdir -p "/usr/local/kong" \
 	&& yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.noarch.rpm \
 	&& yum clean all \
-	&& chown -R kong /usr/local/kong \
-	&& chgrp -R 0 /usr/local/kong \
+	&& chown -R kong:0 /usr/local/kong \
 	&& chmod -R g=u /usr/local/kong
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
