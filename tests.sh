@@ -26,7 +26,7 @@ popd
 pushd compose
 docker-compose up -d
 until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
-
+sleep 10
 docker-compose exec kong ps aux | sed -n 2p | grep -q kong
 if [ $? -ne 0 ]; then
   echo "Kong is not running as the Kong user";
@@ -52,6 +52,7 @@ pushd compose
 docker-compose stop
 KONG_USER=1001 docker-compose up -d
 until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
+sleep 10
 docker-compose exec kong ps aux | sed -n 2p | grep -q 1001
 if [ $? -ne 0 ]; then
   echo "Kong is not running as the overridden 1001 user";
