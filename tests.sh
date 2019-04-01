@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +e
+set -e
 
 ####################################################
 # Test the proper version was buid
@@ -17,8 +17,7 @@ fi
 
 ####################################################
 # Test LuaRocks is functional for installing rocks
-docker run -ti kong-$BASE luarocks install version
-
+docker run -ti kong-$BASE /bin/sh -c "luarocks install version"
 popd
 
 ####################################################
