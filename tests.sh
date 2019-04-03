@@ -23,11 +23,15 @@ popd
 pushd swarm
 docker swarm init
 docker stack deploy -c docker-compose.yml kong
-until docker service ps kong_kong | grep 'Running about a minute ago'; do sleep 1; done
+until curl -I localhost:8001 | grep 'Server: openresty';  do
+  docker stack ps kong
+  sleep 5
+done
 curl -I localhost:8001
 docker stack rm kong
 sleep 10
 docker swarm leave --force
+popd
 
 # Validate Kong is running as the Kong user
 pushd compose

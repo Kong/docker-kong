@@ -4,7 +4,9 @@ volumes:
     kong_data: {}
 
 networks:
-  kong-net:
+  db-net:
+    external: false
+
 services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -15,10 +17,8 @@ services:
       KONG_PG_HOST: db
       KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
-    links:
-      - db:db
     networks:
-      - kong-net
+      - db-net
     deploy:
       restart_policy:
         condition: on-failure
@@ -39,7 +39,7 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
     networks:
-      - kong-net
+      - db-net
     ports:
       - "8000:8000/tcp"
       - "8001:8001/tcp"
@@ -63,7 +63,7 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - kong-net
+      - db-net
     volumes:
       - kong_data:/var/lib/postgresql/data
     deploy:
