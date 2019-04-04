@@ -2,7 +2,6 @@
 
 set -e
 
-####################################################
 # Test the proper version was buid
 pushd $BASE
 version_given="$(grep 'ENV KONG_VERSION' Dockerfile | awk '{print $3}' | tr -d '[:space:]')"
@@ -15,12 +14,25 @@ if [[ "$version_given" != "$version_built" ]]; then
   exit 1;
 fi
 
-####################################################
 # Test LuaRocks is functional for installing rocks
 docker run -ti kong-$BASE /bin/sh -c "luarocks install version"
 popd
 
-####################################################
+# Docker swarm test
+
+pushd swarm
+docker swarm init
+docker stack deploy -c docker-compose.yml kong
+until curl -I localhost:8001 | grep 'Server: openresty';  do
+  docker stack ps kong
+  sleep 5
+done
+curl -I localhost:8001
+docker stack rm kong
+sleep 10
+docker swarm leave --force
+popd
+
 # Validate Kong is running as the Kong user
 pushd compose
 docker-compose up -d
@@ -35,7 +47,6 @@ if [ $? -ne 0 ]; then
 fi
 popd
 
-#####################################################
 # Run Kong functional tests
 
 git clone https://github.com/Kong/kong.git
