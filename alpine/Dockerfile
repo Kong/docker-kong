@@ -1,14 +1,14 @@
 FROM alpine:3.6
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 1.1.0rc2
-ENV KONG_SHA256 a4e2c7aead3ddb4e1443fd5f7d42e22caa251a8c46937b01eaae50fd8655d528
+ENV KONG_VERSION 1.1.2
+ENV KONG_SHA256 0d7509fa2ef653b4aba14a1a1fd20339bccb4f8d386429102c42b7af6d8b6bdb
 
 RUN adduser -Su 1337 kong \
 	&& mkdir -p "/usr/local/kong" \
 	&& apk add --no-cache --virtual .build-deps wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata curl libcap su-exec \
-	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-community-edition-alpine-tar/download_file?file_path=kong-community-edition-$KONG_VERSION.apk.tar.gz" \
+	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.apk.tar.gz" \
 	&& echo "$KONG_SHA256 *kong.tar.gz" | sha256sum -c - \
 	&& tar -xzf kong.tar.gz -C /tmp \
 	&& rm -f kong.tar.gz \
@@ -16,7 +16,9 @@ RUN adduser -Su 1337 kong \
 	&& rm -rf /tmp/usr \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
-	&& apk del .build-deps
+	&& apk del .build-deps \
+	&& chown -R kong:0 /usr/local/kong \
+	&& chmod -R g=u /usr/local/kong
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
