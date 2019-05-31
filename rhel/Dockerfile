@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/rhel7
 
 MAINTAINER Kong
 
-ENV KONG_VERSION 1.2.0rc1
+ENV KONG_VERSION 1.2.0rc2
 
 LABEL name="Kong" \
       vendor="Kong" \
