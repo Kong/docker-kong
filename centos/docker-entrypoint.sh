@@ -11,10 +11,9 @@ if [[ "$1" == "kong" ]]; then
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
 
   if [[ "$2" == "docker-start" ]]; then
-    kong prepare -p "$PREFIX"
-    chown -R kong "$PREFIX"
+    shift 2
+    kong prepare -p "$PREFIX" "$@"
 
-    # workaround for https://github.com/moby/moby/issues/31243
     chmod o+w /proc/self/fd/1
     chmod o+w /proc/self/fd/2
 
@@ -35,10 +34,6 @@ if [[ "$1" == "kong" ]]; then
     if [ -n "${caps}" ] ; then
       setcap "${caps}=+ep" /usr/local/openresty/nginx/sbin/nginx
     fi
-
-    exec su-exec kong /usr/local/openresty/nginx/sbin/nginx \
-      -p "$PREFIX" \
-      -c nginx.conf
   fi
 fi
 

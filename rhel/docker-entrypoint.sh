@@ -8,7 +8,8 @@ if [[ "$1" == "kong" ]]; then
   mkdir -p $PREFIX
 
   if [[ "$2" == "docker-start" ]]; then
-    kong prepare -p $PREFIX
+    shift 2
+    kong prepare -p $PREFIX "$@"
 
     exec /usr/local/openresty/nginx/sbin/nginx \
       -p $PREFIX \

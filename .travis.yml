@@ -5,18 +5,11 @@ services:
 
 env:
   matrix:
-    - BASE="centos"
-    - BASE="alpine"
+    - BASE="centos" KONG_DOCKER_TAG="kong-centos"
+    - BASE="alpine" KONG_DOCKER_TAG="kong-alpine"
 
+before_script:
+  - make build
 script:
-  - pushd $BASE
-  - docker build -t kong-$BASE .
-  - version_given="$(grep 'ENV KONG_VERSION' Dockerfile | awk '{print $3}' | tr -d '[:space:]')"
-  - version_built="$(docker run -ti kong-$BASE kong version | tr -d '[:space:]')"
-  - if [[ "$version_given" != "$version_built" ]]; then
-      echo "Kong version mismatch:";
-      echo "\tVersion given is $version_given";
-      echo "\tVersion built is $version_built";
-      exit 1;
-    fi
-  - popd
+  - make test
+  

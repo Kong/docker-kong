@@ -1,34 +1,31 @@
-version: '2.1'
+version: '3'
 
 volumes:
     kong_data: {}
 
 networks:
-  kong-net:
+  db-net:
+    external: false
+
 services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_HOST: db
       KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
-    links:
-      - db:db
     networks:
-      - kong-net
-    restart: on-failure
+      - db-net
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 2s
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-root}"
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ERROR_LOG: /dev/stderr
@@ -42,13 +39,16 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
     networks:
-      - kong-net
+      - db-net
     ports:
       - "8000:8000/tcp"
       - "8001:8001/tcp"
       - "8443:8443/tcp"
       - "8444:8444/tcp"
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
   db:
     image: postgres:9.5
     environment:
@@ -60,10 +60,13 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-    restart: on-failure
     stdin_open: true
     tty: true
     networks:
-      - kong-net
+      - db-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
