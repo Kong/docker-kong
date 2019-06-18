@@ -2,8 +2,8 @@ local split = require("pl.utils").split
 local pretty = require("pl.pretty").write
 local strip = require("pl.stringx").strip
 local lines = require("pl.stringx").splitlines
-local execex = require("pl.utils").executeex
-local exec = require("pl.utils").execute
+local _execex = require("pl.utils").executeex
+local _exec = require("pl.utils").execute
 local files = require("pl.dir").getfiles
 local directories = require("pl.dir").getdirectories
 local writefile = require("pl.utils").writefile
@@ -67,6 +67,18 @@ local platforms = {
     },
   },
 }
+
+
+local execex = function(cmd, ...)
+  stdout("\027[32m", "[packer exec] ", cmd, "\027[0m")
+  return _execex(cmd, ...)
+end
+
+
+local exec = function(cmd, ...)
+  stdout("\027[32m", "[packer exec] ", cmd, "\027[0m")
+  return _exec(cmd, ...)
+end
 
 
 local function prep_platform()
@@ -386,5 +398,5 @@ assert(exec("chmod +x /plugins/install_plugins.sh"))
 stdout(script)
 
 
-header("Completed packing rocks and/or  template")
+header("Completed packing rocks and/or template")
 
