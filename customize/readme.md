@@ -7,7 +7,8 @@ and/or a custom template file to it.
 docker build \
    --build-arg KONG_BASE="kong:0.14.1-alpine" \
    --build-arg PLUGINS="kong-http-to-https,kong-upstream-jwt" \
-   --build-arg TEMPLATE="/mykong/nginx.conf"
+   --build-arg TEMPLATE="/mykong/nginx.conf" \
+   --build-arg "KONG_LICENSE_DATA=$KONG_LICENSE_DATA" \
    --tag "your_new_image" .
 ```
 
@@ -23,8 +24,14 @@ template will automatically be applied. So there is no need to specify the
 environment variable `KONG_PLUGINS` nor the `--nginx-conf` command line
 switch to enable them.
 
-This is based on the LuaRocks packagemanager to include all plugin
-dependencies.
+# Curated list of plugins
+
+This tool is based on the LuaRocks packagemanager to include all plugin
+dependencies. The `ROCKS_DIR` variable allows you to only use a curated list of
+rocks to be used (instead of the public ones).
+
+It will generate a local LuaRocks server, and not allow any public ones to be
+used. For an example of how to use it see the `example.sh` script.
 
 ## Arguments:
 
@@ -35,6 +42,8 @@ dependencies.
    specified, only rocks from this location will be allowed to be installed. If
    not specified, then the public `luarocks.org` server is used.
  - `TEMPLATE` the custom configuration template to use
+ - `KONG_LICENSE_DATA` this is required when the base image is an Enterprise
+   version of Kong.
 
 Note that the `PLUGINS` entries are simply LuaRocks commands used as:
 `luarocks install <entry>`. So anything that LuaRocks accepts can be added
