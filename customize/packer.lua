@@ -351,7 +351,11 @@ set -e
 if [[ "$KONG_PLUGINS" == "" ]]; then
   if [[ "$KONG_CUSTOM_PLUGINS" == "" ]]; then
     export KONG_CUSTOM_PLUGINS="%s"
-    export KONG_PLUGINS="bundled,$KONG_CUSTOM_PLUGINS"
+    if [[ "$KONG_CUSTOM_PLUGINS" == "" ]]; then
+      export KONG_PLUGINS="bundled"
+    else
+      export KONG_PLUGINS="bundled,$KONG_CUSTOM_PLUGINS"
+    fi
   fi
 fi
 
