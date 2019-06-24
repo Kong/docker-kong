@@ -39,8 +39,8 @@ pointing to the latest Kong code, the process can be semi-automated as follows:
 4. Run `./submit.sh -p x.y.z`
 
    Once the internal PR is merged, this script will do the same
-   for the [official-images][https://github.com/docker-library/official-images]
-   repository. It will clone [Kong's fork][https://github.com/kong/official-images],
+   for the [official-images](https://github.com/docker-library/official-images)
+   repository. It will clone [Kong's fork](https://github.com/kong/official-images),
    create a branch, modify the relevant files automatically,
    give you a chance to review the changes and press "y", then
    it will push the branch and open a browser with the PR
