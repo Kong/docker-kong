@@ -49,6 +49,11 @@ services:
       restart_policy:
         condition: on-failure
         delay: 10s
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
   db:
     image: postgres:9.5
     environment:

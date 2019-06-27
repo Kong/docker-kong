@@ -22,12 +22,23 @@ popd
 
 pushd swarm
 docker swarm init
-docker stack deploy -c docker-compose.yml kong
+KONG_DOCKER_TAG=kong:1.0 docker stack deploy -c docker-compose.yml kong
 until curl -I localhost:8001 | grep 'Server: openresty';  do
   docker stack ps kong
   sleep 5
 done
-curl -I localhost:8001
+
+docker stack deploy -c docker-compose.yml kong
+sleep 5
+until docker stack ps kong | grep kong_kong | grep kong:latest | grep -q Ready; do
+  docker stack ps kong
+  docker service ps kong_kong
+  sleep 5
+done
+sleep 5
+curl -I localhost:8001 | grep 'Server: openresty'
+exit 123
+
 docker stack rm kong
 sleep 10
 docker swarm leave --force
