@@ -31,7 +31,7 @@ done
 
 docker stack deploy -c docker-compose.yml kong
 sleep 5
-until docker ps | grep kong:1.0 | grep -q healthy; do
+until docker ps | grep kong | grep -q healthy; do
   docker stack ps kong
   docker service ps kong_kong
   sleep 10
