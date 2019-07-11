@@ -23,6 +23,23 @@ services:
     networks:
       - kong-net
     restart: on-failure
+  kong-migrations-up:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations up
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+    links:
+      - db:db
+    networks:
+      - kong-net
+    restart: on-failure
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-root}"
@@ -48,6 +65,11 @@ services:
       - "8001:8001/tcp"
       - "8443:8443/tcp"
       - "8444:8444/tcp"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     restart: on-failure
   db:
     image: postgres:9.5
