@@ -22,6 +22,12 @@ popd
 
 pushd swarm
 docker swarm init
+KONG_DOCKER_TAG=kong:1.0 docker stack deploy -c docker-compose.yml kong
+until curl -I localhost:8001 | grep 'Server: openresty';  do
+  docker stack ps kong
+  sleep 5
+done
+# Make sure upgrading in place works
 docker stack deploy -c docker-compose.yml kong
 until curl -I localhost:8001 | grep 'Server: openresty';  do
   docker stack ps kong
