@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 # Test the proper version was buid
 pushd $BASE
@@ -27,22 +26,22 @@ KONG_DOCKER_TAG=kong:1.0 docker stack deploy -c docker-compose.yml kong
 until docker ps | grep kong:1.0 | grep -q healthy;  do
   docker stack ps kong
   docker service ps kong_kong
-  sleep 10
+  sleep 20
 done
 
-docker stack deploy -c docker-compose.yml kong
-sleep 5
-until docker ps | grep kong:latest | grep -q healthy; do
+KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
+sleep 20
+until docker ps | grep ${KONG_DOCKER_TAG}:latest | grep -q healthy; do
   docker stack ps kong
   docker service ps kong_kong
-  sleep 10
+  sleep 20
 done
 
-sleep 5
+sleep 20
 curl -I localhost:8001 | grep 'Server: openresty'
 
 docker stack rm kong
-sleep 10
+sleep 20
 docker swarm leave --force
 docker volume prune -f
 popd
@@ -50,8 +49,8 @@ popd
 # Validate Kong is running as the Kong user
 pushd compose
 docker-compose up -d
-until docker-compose ps | grep compose_kong_1 | grep -q "healthy"; do sleep 1; done
-sleep 10
+until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
+sleep 20
 docker-compose exec kong ps aux | sed -n 2p | grep -q kong
 if [ $? -ne 0 ]; then
   echo "Kong is not running as the Kong user";
@@ -75,8 +74,8 @@ popd
 pushd compose
 docker-compose stop
 KONG_USER=1001 docker-compose up -d
-until docker-compose ps | grep compose_kong_1 | grep -q "healthy"; do sleep 1; done
-sleep 10
+until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
+sleep 20
 docker-compose exec kong ps aux | sed -n 2p | grep -q 1001
 if [ $? -ne 0 ]; then
   echo "Kong is not running as the overridden 1001 user";
