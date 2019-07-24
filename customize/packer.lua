@@ -201,6 +201,12 @@ local function install_plugins(plugins, lr_flag)
   end
 end
 
+local function create_plugins_directory() 
+  local ok = exec("mkdir plugins")
+  if not ok then
+    fail(("failed to create plugins dir"))
+  end
+end
 
 local function pack_rocks(rocks)
   local cmd = "cd /plugins && luarocks pack %s %s"
@@ -331,6 +337,8 @@ for plugin_name in pairs(get_plugins()) do
   end
 end
 
+header("Creare plugins directory")
+create_plugins_directory() 
 
 header("Pack newly installed rocks")
 pack_rocks(added_rocks)
@@ -403,4 +411,3 @@ stdout(script)
 
 
 header("Completed packing rocks and/or template")
-
