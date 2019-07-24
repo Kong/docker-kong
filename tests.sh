@@ -68,7 +68,7 @@ git checkout $version_given
 popd
 
 pushd kong-build-tools
-TEST_HOST=`hostname --ip-address` KONG_VERSION=$version_given make run_tests
+TEST_HOST='127.0.1.1' KONG_VERSION=$version_given make run_tests
 popd
 
 pushd compose
