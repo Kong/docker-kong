@@ -7,6 +7,12 @@ has_transparent() {
   echo "$1" | grep -E "[^\s,]+\s+transparent\b" >/dev/null
 }
 
+# override UID of kong user
+
+if [[ ! -z "${KONG_UID}" ]]; then
+  /usr/sbin/usermod -u ${KONG_UID} kong
+fi
+
 if [[ "$1" == "kong" ]]; then
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
 
