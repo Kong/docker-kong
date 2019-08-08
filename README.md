@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/Kong/docker-kong.svg?branch=master)](https://travis-ci.com/Kong/docker-kong)
+<!--KOng is the organization which provides the free high level api to the developer community--->
 
 # About this Repo
 
@@ -50,4 +51,7 @@ pointing to the latest Kong code, the process can be semi-automated as follows:
 
 Not semi-automated yet. Note that minor releases are more likely to require more
 extensive changes to the Dockerfiles.
+
+
+
 
