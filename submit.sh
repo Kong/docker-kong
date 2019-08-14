@@ -3,6 +3,7 @@ set -e
 
 mode=
 version=
+force=
 
 while [ "$1" ]
 do
@@ -12,6 +13,9 @@ do
       ;;
    -m)
       mode=minor
+      ;;
+   -f)
+      force=yes
       ;;
    [0-9]*)
       version=$1
@@ -46,11 +50,29 @@ git checkout master
 
 if ! grep -q "ENV KONG_VERSION $version$" alpine/Dockerfile
 then
-   echo "****************************************"
-   echo "Error: this script should be run only after the"
-   echo "desired release is merged in master of docker-kong."
-   echo "****************************************"
-   exit 1
+   if [[ "$force" = "yes" ]]
+   then
+      echo "Forcing to use the tag even though it is not in master."
+
+      git checkout "$version"
+
+      if ! grep -q "ENV KONG_VERSION $version$" alpine/Dockerfile
+      then
+         echo "****************************************"
+         echo "Error: version in Dockerfile doesn't match required version."
+         echo "****************************************"
+         exit 1
+      fi
+   else
+      echo "****************************************"
+      echo "Error: this script should be run only after the"
+      echo "desired release is merged in master of docker-kong."
+      echo ""
+      echo "For making releases based on old versions,"
+      echo "Use -f to override and submit from the tag anyway."
+      echo "****************************************"
+      exit 1
+   fi
 fi
 
 xy=${version%.*}
