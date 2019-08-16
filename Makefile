@@ -8,6 +8,6 @@ build:
 test:
 	if cd kong-build-tools; \
 	then git pull; \
-	else git clone https://github.com/Kong/kong-build-tools.git; fi
+	else git clone --single-branch --branch 1.0.3 https://github.com/Kong/kong-build-tools.git; fi
 	cd kong-build-tools && git reset --hard $(KONG_BUILD_TOOLS)
 	BASE=$(BASE) ./tests.sh
