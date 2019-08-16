@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:latest
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
 ENV KONG_VERSION 1.0.4
