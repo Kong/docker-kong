@@ -11,6 +11,9 @@ do
    -p)
       mode=patch
       ;;
+   -r)
+      mode=rc
+      ;;
    -m)
       mode=minor
       ;;
@@ -28,6 +31,7 @@ function usage() {
    echo "usage: $0 <-p|-m> <version>"
    echo "   -p for patch release (x.y.Z)"
    echo "   -m for minor release (x.Y.0)"
+   echo "   -r for release candidate (x.Y.0rcZ)"
    echo "example: $0 -p 1.1.2"
 }
 
@@ -47,6 +51,7 @@ then
 fi
 
 git checkout master
+git pull
 
 if ! grep -q "ENV KONG_VERSION $version$" alpine/Dockerfile
 then
@@ -78,11 +83,21 @@ fi
 xy=${version%.*}
 z=${version#$xy.}
 
+if [ "$mode" = "rc" ]
+then
+   rc=${version#*rc}
+   z=${z%rc*}
+fi
+
 commit=$(git show "$version" | grep "^commit" | head -n 1 | cut -b8-48)
 
 if [ "$mode" = "patch" ]
 then
    prev="$xy.$[z-1]"
+   prevcommit=$(git show "$prev" | grep "^commit" | head -n 1 | cut -b8-48)
+elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
+then
+   prev="$xy.${z}rc$[rc-1]"
    prevcommit=$(git show "$prev" | grep "^commit" | head -n 1 | cut -b8-48)
 fi
 
@@ -106,6 +121,23 @@ then
         s|$prevcommit|$commit|;
         s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
    mv library/kong.new library/kong
+
+elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
+then
+   sed "s|$prev-alpine|$version-alpine|;
+        s|$prev-centos|$version-centos|;
+        s|, ${xy}rc$[rc-1]|, ${xy}rc${rc}|;
+        s|$prev,|$version,|;
+        s|$prevcommit|$commit|;
+        s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
+   mv library/kong.new library/kong
+
+elif [ "$mode" = "rc" -a "$rc" -eq 1 ]
+then
+   echo "****************************************"
+   echo "Error: rc1 automation is not implemented yet."
+   echo "****************************************"
+   exit 1
 
 elif [ "$mode" = "minor" ]
 then
