@@ -23,9 +23,17 @@ mv rhel/Dockerfile.new rhel/Dockerfile
 sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," alpine/Dockerfile > alpine/Dockerfile.new
 mv alpine/Dockerfile.new alpine/Dockerfile
 
-apk="kong-$version.apk.tar.gz"
+apk="kong-$version.amd64.apk.tar.gz"
 
-curl -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk"
+curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk" || {
+   rm -f "$apk"
+   echo "****************************************"
+   echo "Failed to download Alpine package."
+   echo "Are the release artifact successfully deployed in Bintray?"
+   echo "If so, did their URL change? (update the Dockerfiles then!)"
+   echo "****************************************"
+   exit 1
+}
 
 alpinesha=$(sha256sum "$apk" | cut -b1-64)
 
