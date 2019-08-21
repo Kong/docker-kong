@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi7/ubi
 
 MAINTAINER Kong
 
-ENV KONG_VERSION 1.3.0rc2
+ENV KONG_VERSION 1.3.0
 
 LABEL name="Kong" \
       vendor="Kong" \
