@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+gawk --version &> /dev/null || {
+   echo "gawk is required to run this script."
+   exit 1
+}
+
 mode=
 version=
 force=
@@ -141,10 +146,53 @@ then
 
 elif [ "$mode" = "minor" ]
 then
-   echo "****************************************"
-   echo "Error: minor release update automation is not implemented yet."
-   echo "****************************************"
-   exit 1
+   gawk '
+      BEGIN {
+         reset = 0
+         not_yet_first = 1
+      }
+      /^Tags/ {
+         if (not_yet_first == 1) {
+            not_yet_first = 0
+            before_first = 1
+         }
+      }
+      /Tags: .*[0-9]rc[0-9].*/ {
+         in_rc_tag = 1
+      }
+      /^ *$/ {
+         if (in_rc_tag == 1) {
+            reset = 1
+         }
+      }
+      {
+         if (before_first == 1) {
+            v = "'$version'"
+            xy = "'$xy'"
+            commit = "'$commit'"
+            print "Tags: " v "-alpine, " v ", " xy ", latest"
+            print "GitCommit: " commit
+            print "GitFetch: refs/tags/" v
+            print "Directory: alpine"
+            print ""
+            print "Tags: " v "-centos, " xy "-centos"
+            print "GitCommit: " commit
+            print "GitFetch: refs/tags/" v
+            print "Constraints: !aufs"
+            print "Directory: centos"
+            print ""
+            before_first = 0
+         } else if (!(in_rc_tag == 1)) {
+            gsub(", latest", "")
+            print
+         }
+         if (reset == 1) {
+            in_rc_tag = 0
+            reset = 0
+         }
+      }
+   ' library/kong > library/kong.new
+   mv library/kong.new library/kong
 fi
 
 echo "****************************************"
@@ -164,4 +212,7 @@ git push --set-upstream origin release/$version
 
 pr="https://github.com/Kong/official-images/pull/new/release/$version"
 
-( open "$pr" || xdg-open "$pr" || firefox "$pr" ) &
+( open "$pr" &> /dev/null \
+|| xdg-open "$pr" &> /dev/null \
+|| firefox "$pr" &> /dev/null \
+|| echo -n "\n\n Now open $pr in your favorite browser!\n\n" ) &
