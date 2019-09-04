@@ -12,8 +12,12 @@ if [[ "$1" == "kong" ]]; then
 
   if [[ "$2" == "docker-start" ]]; then
     shift 2
-    kong prepare -p "$PREFIX" "$@"
-    
+    if [ "$(id -u)" != "0" ]; then
+        kong prepare -p "$PREFIX" "$@"
+    else
+        su-exec kong kong prepare -p "$PREFIX" "$@"
+    fi
+
     # workaround for https://github.com/moby/moby/issues/31243
     chmod o+w /proc/self/fd/1 || true
     chmod o+w /proc/self/fd/2 || true
