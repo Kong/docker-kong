@@ -7,6 +7,11 @@ env:
   matrix:
     - BASE="centos" KONG_DOCKER_TAG="kong-centos"
     - BASE="alpine" KONG_DOCKER_TAG="kong-alpine"
+    - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu"
+
+matrix:
+  allow_failures:
+    - env: BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu"
 
 before_script:
   - make build
