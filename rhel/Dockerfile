@@ -14,7 +14,7 @@ LABEL name="Kong" \
 
 COPY LICENSE /licenses/
 
-RUN yum install -y wget https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.noarch.rpm && \
+RUN yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.noarch.rpm && \
     yum clean all && \
     # OpenShift specific. OpenShift runs containers using an arbitrarily assigned user ID.
     # This user doesn't have access to change file permissions during runtime, they have to be changed during image building.
