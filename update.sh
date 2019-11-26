@@ -23,6 +23,9 @@ mv rhel/Dockerfile.new rhel/Dockerfile
 sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," alpine/Dockerfile > alpine/Dockerfile.new
 mv alpine/Dockerfile.new alpine/Dockerfile
 
+sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," ubuntu/Dockerfile > ubuntu/Dockerfile.new
+mv ubuntu/Dockerfile.new ubuntu/Dockerfile
+
 apk="kong-$version.amd64.apk.tar.gz"
 
 curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk" || {

@@ -1,10 +1,11 @@
 version: '2.1'
 
 volumes:
-    kong_data: {}
+  kong_data: {}
 
 networks:
   kong-net:
+
 services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -18,14 +19,13 @@ services:
       KONG_PG_HOST: db
       KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
-    links:
-      - db:db
     networks:
       - kong-net
     restart: on-failure
+
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    command: kong migrations up
+    command: kong migrations up && kong migrations finish
     depends_on:
       db:
         condition: service_healthy
@@ -35,11 +35,10 @@ services:
       KONG_PG_HOST: db
       KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
-    links:
-      - db:db
     networks:
       - kong-net
     restart: on-failure
+
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
@@ -71,6 +70,7 @@ services:
       timeout: 10s
       retries: 10
     restart: on-failure
+    
   db:
     image: postgres:9.5
     environment:

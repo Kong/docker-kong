@@ -1,7 +1,7 @@
 FROM centos:7
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 1.3.0
+ENV KONG_VERSION 1.4.0
 
 RUN yum install -y -q unzip \
 	&& yum clean all -q \

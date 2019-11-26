@@ -25,7 +25,7 @@ services:
         delay: 2s
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    command: kong migrations up
+    command: kong migrations up && kong migrations finish
     environment:
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
