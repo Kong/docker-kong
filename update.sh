@@ -10,6 +10,19 @@ fi
 
 version=$1
 
+function red() {
+   echo -e "\033[1;31m$@\033[0m"
+}
+
+function die() {
+   red "*** $@"
+   echo "See also: $0 --help"
+   echo
+   exit 1
+}
+
+hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
+
 git stash
 git checkout master
 git checkout -B release/$version
@@ -58,7 +71,4 @@ fi
 git commit -av -m "chore(*) bump to Kong $version"
 git push --set-upstream origin release/$version
 
-pr="https://github.com/Kong/docker-kong/pull/new/release/$version"
-
-( open "$pr" || xdg-open "$pr" || firefox "$pr" ) &
-
+hub pull-request -b master -h "$branch" -m "Release: $version"

@@ -10,9 +10,21 @@ mode=
 version=
 force=
 
+function usage() {
+   echo "usage: $0 <-p|-m> <version>"
+   echo "   -p for patch release (x.y.Z)"
+   echo "   -m for minor release (x.Y.0)"
+   echo "   -r for release candidate (x.Y.0rcZ)"
+   echo "example: $0 -p 1.1.2"
+}
+
 while [ "$1" ]
 do
    case "$1" in
+   --help)
+      usage
+      exit 0
+      ;;
    -p)
       mode=patch
       ;;
@@ -32,27 +44,27 @@ do
    shift
 done
 
-function usage() {
-   echo "usage: $0 <-p|-m> <version>"
-   echo "   -p for patch release (x.y.Z)"
-   echo "   -m for minor release (x.Y.0)"
-   echo "   -r for release candidate (x.Y.0rcZ)"
-   echo "example: $0 -p 1.1.2"
+function red() {
+   echo -e "\033[1;31m$@\033[0m"
 }
+
+function die() {
+   red "*** $@"
+   echo "See also: $0 --help"
+   echo
+   exit 1
+}
+
+hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
 if [ "$mode" = "" ]
 then
-   echo "Error: mode flag is mandatory"
-   echo
-   usage
-   exit 1
+   die "Error: mode flag is mandatory"
 fi
 
 if ! [ "$version" ]
 then
-   echo "Error: missing version"
-   usage
-   exit 1
+   die "Error: missing version"
 fi
 
 git checkout master
@@ -68,10 +80,7 @@ then
 
       if ! grep -q "ENV KONG_VERSION $version$" alpine/Dockerfile
       then
-         echo "****************************************"
-         echo "Error: version in Dockerfile doesn't match required version."
-         echo "****************************************"
-         exit 1
+         die "Error: version in Dockerfile doesn't match required version."
       fi
    else
       echo "****************************************"
@@ -81,7 +90,7 @@ then
       echo "For making releases based on old versions,"
       echo "Use -f to override and submit from the tag anyway."
       echo "****************************************"
-      exit 1
+      die "Failed."
    fi
 fi
 
@@ -139,10 +148,7 @@ then
 
 elif [ "$mode" = "rc" -a "$rc" -eq 1 ]
 then
-   echo "****************************************"
-   echo "Error: rc1 automation is not implemented yet."
-   echo "****************************************"
-   exit 1
+   die "Error: rc1 automation is not implemented yet."
 
 elif [ "$mode" = "minor" ]
 then
@@ -210,9 +216,4 @@ fi
 git commit -av -m "kong $version"
 git push --set-upstream origin release/$version
 
-pr="https://github.com/Kong/official-images/pull/new/release/$version"
-
-( open "$pr" &> /dev/null \
-|| xdg-open "$pr" &> /dev/null \
-|| firefox "$pr" &> /dev/null \
-|| echo -n "\n\n Now open $pr in your favorite browser!\n\n" ) &
+hub pull-request -b docker-library:master -h "$branch" -m "bump Kong to $version"
