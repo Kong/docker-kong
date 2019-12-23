@@ -1,7 +1,7 @@
 FROM ubuntu:xenial
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 1.4.2
+ENV KONG_VERSION 2.0.0rc1
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl perl unzip \
