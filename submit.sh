@@ -150,7 +150,49 @@ then
 
 elif [ "$mode" = "rc" -a "$rc" -eq 1 ]
 then
-   die "Error: rc1 automation is not implemented yet."
+   gawk '
+      BEGIN {
+         reset = 0
+         not_yet_first = 1
+      }
+      /^Tags/ {
+         if (not_yet_first == 1) {
+            not_yet_first = 0
+            before_first = 1
+         }
+      }
+      {
+         if (before_first == 1) {
+            v = "'$version'"
+            xy = "'$xy'"
+            commit = "'$commit'"
+            print "Tags: " v "-alpine, " v
+            print "GitCommit: " commit
+            print "GitFetch: refs/tags/" v
+            print "Directory: alpine"
+            print "Architectures: amd64"
+            print ""
+            print "Tags: " v "-ubuntu"
+            print "GitCommit: " commit
+            print "GitFetch: refs/tags/" v
+            print "Directory: ubuntu"
+            print "Architectures: amd64, arm64v8"
+            print ""
+            print "Tags: " v "-centos"
+            print "GitCommit: " commit
+            print "GitFetch: refs/tags/" v
+            print "Constraints: !aufs"
+            print "Directory: centos"
+            print "Architectures: amd64"
+            print ""
+            print
+            before_first = 0
+         } else {
+            print
+         }
+      }
+   ' library/kong > library/kong.new
+   mv library/kong.new library/kong
 
 elif [ "$mode" = "minor" ]
 then
@@ -226,4 +268,4 @@ fi
 git commit -av -m "kong $version"
 git push --set-upstream origin release/$version
 
-hub pull-request -b docker-library:master -h "$branch" -m "bump Kong to $version"
+hub pull-request -b docker-library:master -h "release/$version" -m "bump Kong to $version"
