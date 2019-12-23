@@ -25,6 +25,7 @@ hub --version &> /dev/null || die "hub is not in PATH. Get it from https://githu
 
 git stash
 git checkout master
+git pull
 git checkout -B release/$version
 
 sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," centos/Dockerfile > centos/Dockerfile.new
