@@ -131,6 +131,7 @@ if [ "$mode" = "patch" ]
 then
    sed "s|$prev-alpine|$version-alpine|;
         s|$prev-centos|$version-centos|;
+        s|$prev-ubuntu|$version-ubuntu|;
         s|$prev,|$version,|;
         s|$prevcommit|$commit|;
         s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
@@ -140,6 +141,7 @@ elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
 then
    sed "s|$prev-alpine|$version-alpine|;
         s|$prev-centos|$version-centos|;
+        s|$prev-ubuntu|$version-ubuntu|;
         s|, ${xy}rc$[rc-1]|, ${xy}rc${rc}|;
         s|$prev,|$version,|;
         s|$prevcommit|$commit|;
@@ -180,12 +182,20 @@ then
             print "GitCommit: " commit
             print "GitFetch: refs/tags/" v
             print "Directory: alpine"
+            print "Architectures: amd64"
+            print ""
+            print "Tags: " v "-ubuntu, " xy "-ubuntu"
+            print "GitCommit: " commit
+            print "GitFetch: refs/tags/" v
+            print "Directory: ubuntu"
+            print "Architectures: amd64, arm64v8"
             print ""
             print "Tags: " v "-centos, " xy "-centos"
             print "GitCommit: " commit
             print "GitFetch: refs/tags/" v
             print "Constraints: !aufs"
             print "Directory: centos"
+            print "Architectures: amd64"
             print ""
             before_first = 0
          } else if (!(in_rc_tag == 1)) {
