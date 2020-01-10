@@ -258,7 +258,7 @@ git diff
 echo "****************************************"
 
 echo "Everything looks all right? (y/n)"
-echo "(Answering y will commit, push the branch, and open a browser with the PR)"
+echo "(Answering y will commit, push the branch, and submit the PR)"
 read
 if ! [ "$REPLY" == "y" ]
 then
