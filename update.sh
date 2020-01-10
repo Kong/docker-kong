@@ -30,8 +30,11 @@ function die() {
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
 git stash
-git checkout $prev_tag
-git pull
+git checkout "$prev_tag"
+if [ "$prev_tag" = "master" ]
+then
+   git pull
+fi
 git checkout -B release/$version
 
 sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," centos/Dockerfile > centos/Dockerfile.new
@@ -43,20 +46,27 @@ mv rhel/Dockerfile.new rhel/Dockerfile
 sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," alpine/Dockerfile > alpine/Dockerfile.new
 mv alpine/Dockerfile.new alpine/Dockerfile
 
-sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," ubuntu/Dockerfile > ubuntu/Dockerfile.new
-mv ubuntu/Dockerfile.new ubuntu/Dockerfile
+if [ -e ubuntu/Dockerfile ]
+then
+   sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," ubuntu/Dockerfile > ubuntu/Dockerfile.new
+   mv ubuntu/Dockerfile.new ubuntu/Dockerfile
+fi
 
 apk="kong-$version.amd64.apk.tar.gz"
 
-curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk" || {
-   rm -f "$apk"
-   echo "****************************************"
-   echo "Failed to download Alpine package."
-   echo "Are the release artifact successfully deployed in Bintray?"
-   echo "If so, did their URL change? (update the Dockerfiles then!)"
-   echo "****************************************"
-   exit 1
-}
+if ! curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk"
+then
+   apk="kong-$version.apk.tar.gz"
+   curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk" || {
+      rm -f "$apk"
+      echo "****************************************"
+      echo "Failed to download Alpine package."
+      echo "Are the release artifact successfully deployed in Bintray?"
+      echo "If so, did their URL change? (update the Dockerfiles then!)"
+      echo "****************************************"
+      exit 1
+   }
+fi
 
 alpinesha=$(sha256sum "$apk" | cut -b1-64)
 
