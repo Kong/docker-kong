@@ -41,7 +41,7 @@ services:
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    user: "${KONG_USER:-root}"
+    user: "${KONG_USER:-kong}"
     depends_on:
       db:
         condition: service_healthy

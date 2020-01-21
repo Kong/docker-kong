@@ -15,7 +15,7 @@ if [[ "$version_given" != "$version_built" ]]; then
 fi
 
 # Test LuaRocks is functional for installing rocks
-docker run -ti kong-$BASE /bin/sh -c "luarocks install version"
+docker run -ti --user=root kong-$BASE /bin/sh -c "luarocks install version"
 popd
 
 # Docker swarm test
