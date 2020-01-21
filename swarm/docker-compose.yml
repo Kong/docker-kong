@@ -40,7 +40,7 @@ services:
         delay: 2s
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    user: "${KONG_USER:-root}"
+    user: "${KONG_USER:-kong}"
     environment:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ERROR_LOG: /dev/stderr

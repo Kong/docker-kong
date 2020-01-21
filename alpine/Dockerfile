@@ -5,7 +5,7 @@ ENV KONG_VERSION 2.0.0rc2
 ENV KONG_SHA256 fcfa87d8bdd3d8216e782f595ca4bfb1f38f83ae4a65722fff95781a54ed7f88
 
 
-RUN adduser -Su 1337 kong \
+RUN adduser -S kong \
 	&& mkdir -p "/usr/local/kong" \
 	&& apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \
 	&& apk add --no-cache libgcc openssl pcre perl tzdata libcap su-exec zip \
@@ -17,9 +17,10 @@ RUN adduser -Su 1337 kong \
 	&& rm -rf /tmp/usr \
 	&& cp -R /tmp/etc / \
 	&& rm -rf /tmp/etc \
-	&& apk del .build-deps \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chmod -R g=u /usr/local/kong
+
+USER kong
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
