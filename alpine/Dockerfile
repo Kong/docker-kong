@@ -1,22 +1,37 @@
+FROM ubuntu:bionic AS downloader
+
+RUN apt-get update \
+    && apt-get install -y curl
+
+ARG EDITION=community
+ENV EDITION $EDITION
+
+ARG BINTRAY_USER
+ENV BINTRAY_USER $BINTRAY_USER
+
+ARG BINTRAY_KEY
+ENV BINTRAY_KEY $BINTRAY_KEY
+
+RUN set -eux; \
+	case "${EDITION##*-}" in \
+		community) VERSION='2.0.0'; KONG_SHA='5af1178111958b2e325c5b18690f4e7ddf064d28139ff38188b1e2e432ea99ff'; URL='https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-'$VERSION'.amd64.apk.tar.gz' ;; \
+		enterprise) VERSION='1.3.0.1'; KONG_SHA='64a0ceabad26edfdab1173f3485859f14477485023ab6fdd2019fd6893c97bbb'; URL='https://kong.bintray.com/kong-enterprise-edition-alpine-tar/kong-enterprise-edition-'$VERSION'.apk.tar.gz' ;; \
+	esac; \
+	\
+	curl -L -u$BINTRAY_USER:$BINTRAY_KEY "$URL" -o kong.tar.gz; \
+	echo "${KONG_SHA} kong.tar.gz" | sha256sum -c -; \
+	mkdir /kong; \
+	tar -C /kong -xzf kong.tar.gz
+
 FROM alpine:3.10
-LABEL maintainer="Kong Core Team <team-core@konghq.com>"
+LABEL maintainer="Kong <support@konghq.com>"
 
-ENV KONG_VERSION 2.0.0
-ENV KONG_SHA256 5af1178111958b2e325c5b18690f4e7ddf064d28139ff38188b1e2e432ea99ff
+COPY --from=DOWNLOADER /kong/usr/local /usr/local
+COPY --from=DOWNLOADER /kong/etc /etc
 
-
-RUN adduser -S kong \
-	&& mkdir -p "/usr/local/kong" \
-	&& apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \
-	&& apk add --no-cache libgcc openssl pcre perl tzdata libcap su-exec zip \
-	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" \
-	&& echo "$KONG_SHA256 *kong.tar.gz" | sha256sum -c - \
-	&& tar -xzf kong.tar.gz -C /tmp \
-	&& rm -f kong.tar.gz \
-	&& cp -R /tmp/usr / \
-	&& rm -rf /tmp/usr \
-	&& cp -R /tmp/etc / \
-	&& rm -rf /tmp/etc \
+RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
+    && adduser -S kong \
+    && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chmod -R g=u /usr/local/kong
 

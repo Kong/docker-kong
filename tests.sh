@@ -4,7 +4,7 @@ set -e
 
 # Test the proper version was buid
 pushd $BASE
-version_given="$(grep 'ENV KONG_VERSION' Dockerfile | awk '{print $3}' | tr -d '[:space:]')"
+version_given="$(grep VERSION Dockerfile | grep community | awk -F\' '{print $2}')"
 version_built="$(docker run -ti --rm kong-$BASE kong version | tr -d '[:space:]')"
 
 if [[ "$version_given" != "$version_built" ]]; then
@@ -14,8 +14,6 @@ if [[ "$version_given" != "$version_built" ]]; then
   exit 1;
 fi
 
-# Test LuaRocks is functional for installing rocks
-docker run -ti --user=root kong-$BASE /bin/sh -c "luarocks install version"
 popd
 
 # Docker swarm test
@@ -58,21 +56,7 @@ if [ $? -ne 0 ]; then
   docker-compose exec kong ps aux | sed -n 2p
   exit 1;
 fi
-popd
 
-# Run Kong functional tests
-
-git clone https://github.com/Kong/kong.git
-pushd kong
-git checkout $version_given
-popd
-
-pushd kong-build-tools
-TEST_HOST='127.0.1.1' KONG_VERSION=$version_given make run_tests
-popd
-
-pushd compose
-docker-compose stop
 KONG_USER=1001 docker-compose up -d
 until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
 sleep 20
@@ -83,4 +67,18 @@ if [ $? -ne 0 ]; then
   docker-compose exec kong ps aux | sed -n 2p
   exit 1;
 fi
+docker-compose stop
+
+popd
+
+# Run Kong functional tests
+
+git clone https://github.com/Kong/kong.git || true
+pushd kong
+git checkout $version_given
+popd
+
+pushd kong-build-tools
+rm -rf test/tests/03-go-plugins
+KONG_VERSION=$version_given KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_TAG=$BASE make test
 popd
