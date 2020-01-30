@@ -9,10 +9,10 @@ RUN yum install -y -q unzip \
 
 RUN useradd kong \
 	&& mkdir -p "/usr/local/kong" \
-	&& yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm \
-	&& yum clean all \
 	&& chown -R kong:0 /usr/local/kong \
-	&& chmod -R g=u /usr/local/kong
+	&& chmod -R g=u /usr/local/kong \
+	&& yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm \
+	&& yum clean all
 
 USER kong
 
