@@ -20,11 +20,17 @@ COPY $TEMPLATE /plugins/custom_nginx.conf
 COPY $ROCKS_DIR /rocks-server
 COPY packer.lua /packer.lua
 
-RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS"
+USER root
 
+RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS"
 
 
 FROM ${KONG_BASE}
 
 COPY --from=build /plugins /plugins
+
+USER root
+
 RUN /plugins/install_plugins.sh
+
+USER kong
