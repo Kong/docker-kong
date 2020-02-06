@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 # Test the proper version was buid
 pushd $BASE
@@ -84,4 +85,13 @@ popd
 pushd kong-build-tools
 rm -rf test/tests/03-go-plugins
 KONG_VERSION=$version_given KONG_TEST_CONTAINER_NAME=kong-$BASE KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_TAG=$BASE make test
+popd
+
+pushd customize
+docker build \
+  --build-arg KONG_BASE="kong-$BASE" \
+  --build-arg PLUGINS="kong-http-to-https,kong-upstream-jwt" \
+  --tag "customize" .
+
+docker run -it --rm customize kong version
 popd
