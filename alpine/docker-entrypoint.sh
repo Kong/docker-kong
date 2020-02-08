@@ -7,7 +7,7 @@ if [[ "$1" == "kong" ]]; then
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
 
   if [[ "$2" == "docker-start" ]]; then
-    kong prepare -p "$PREFIX"
+    kong prepare -p "$PREFIX" "$@"
 
     ln -sf /dev/stdout $PREFIX/logs/access.log
     ln -sf /dev/stdout $PREFIX/logs/admin_access.log
