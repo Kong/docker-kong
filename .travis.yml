@@ -1,4 +1,4 @@
-sudo: required
+language: generic
 
 services:
   - docker
@@ -14,4 +14,9 @@ before_script:
   - make build
 script:
   - make test
-  
+
+deploy:
+  provider: script
+  script: BASE="rhel" KONG_DOCKER_TAG="kong-rhel" TAG=$TRAVIS_TAG make release-rhel
+  on:
+    tags: true

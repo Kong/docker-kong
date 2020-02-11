@@ -30,6 +30,7 @@ RUN set -eux; \
 	tar -C /kong -xzf kong.tar.gz
 
 FROM alpine:3.10
+
 LABEL maintainer="Kong <support@konghq.com>"
 
 COPY --from=DOWNLOADER /kong/usr/local /usr/local
