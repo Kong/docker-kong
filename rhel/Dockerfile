@@ -14,8 +14,14 @@ ENV BINTRAY_KEY $BINTRAY_KEY
 
 RUN set -eux; \
 	case "${EDITION##*-}" in \
-		community) VERSION='2.0.0'; KONG_SHA='0f1abc28d58e1092654ca9b58fbc725f560ca42ccab798cd55963ec5c5e0a317'; URL='https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-'$VERSION'.rhel7.amd64.rpm' ;; \
-		enterprise) VERSION='1.3.0.1'; KONG_SHA='ad6216aaf476a2806b208ca8a175a6c96013a6149042a64de57f3d702de266ce'; URL='https://kong.bintray.com/kong-enterprise-edition-rpm/rhel/7/kong-enterprise-edition-'$VERSION'.rhel7.noarch.rpm' ;; \
+		community) \
+		VERSION='2.0.0'; \
+		KONG_SHA='0f1abc28d58e1092654ca9b58fbc725f560ca42ccab798cd55963ec5c5e0a317'; \
+		URL='https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-'$VERSION'.rhel7.amd64.rpm' ;; \
+		enterprise) \
+		VERSION='1.3.0.1'; \
+		KONG_SHA='ad6216aaf476a2806b208ca8a175a6c96013a6149042a64de57f3d702de266ce'; \
+		URL='https://kong.bintray.com/kong-enterprise-edition-rpm/rhel/7/kong-enterprise-edition-'$VERSION'.rhel7.noarch.rpm' ;; \
 	esac; \
 	\
 	curl -L -u$BINTRAY_USER:$BINTRAY_KEY "$URL" -o /tmp/kong.rpm; \

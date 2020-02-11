@@ -14,8 +14,14 @@ ENV BINTRAY_KEY $BINTRAY_KEY
 
 RUN set -eux; \
 	case "${EDITION##*-}" in \
-		community) VERSION='2.0.0'; KONG_SHA='5af1178111958b2e325c5b18690f4e7ddf064d28139ff38188b1e2e432ea99ff'; URL='https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-'$VERSION'.amd64.apk.tar.gz' ;; \
-		enterprise) VERSION='1.3.0.1'; KONG_SHA='64a0ceabad26edfdab1173f3485859f14477485023ab6fdd2019fd6893c97bbb'; URL='https://kong.bintray.com/kong-enterprise-edition-alpine-tar/kong-enterprise-edition-'$VERSION'.apk.tar.gz' ;; \
+		community) \
+		VERSION='2.0.0'; \
+		KONG_SHA='5af1178111958b2e325c5b18690f4e7ddf064d28139ff38188b1e2e432ea99ff'; \
+		URL='https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-'$VERSION'.amd64.apk.tar.gz' ;; \
+		enterprise) \
+		VERSION='1.3.0.1'; \
+		KONG_SHA='64a0ceabad26edfdab1173f3485859f14477485023ab6fdd2019fd6893c97bbb'; \
+		URL='https://kong.bintray.com/kong-enterprise-edition-alpine-tar/kong-enterprise-edition-'$VERSION'.apk.tar.gz' ;; \
 	esac; \
 	\
 	curl -L -u$BINTRAY_USER:$BINTRAY_KEY "$URL" -o kong.tar.gz; \

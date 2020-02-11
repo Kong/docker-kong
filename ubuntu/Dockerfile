@@ -1,15 +1,21 @@
+FROM ubuntu:bionic AS downloader
+
+RUN apt-get update \
+    && apt-get install -y curl
+
+RUN VERSION='2.0.0' \
+    && curl -fsSLo /tmp/kong.deb https://bintray.com/kong/kong-deb/download_file?file_path=kong-$VERSION.xenial.$(dpkg --print-architecture).deb
+
 FROM ubuntu:xenial
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-# VERSION='2.0.0' community
+COPY --from=DOWNLOADER /tmp/kong.deb /tmp/kong.deb
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl perl unzip \
+    && apt-get install -y --no-install-recommends perl unzip \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSLo kong.deb https://bintray.com/kong/kong-deb/download_file?file_path=kong-2.0.0.xenial.$(dpkg --print-architecture).deb \
-    && apt-get purge -y --auto-remove ca-certificates curl \
-	&& dpkg -i kong.deb \
-	&& rm -rf kong.deb
+	&& dpkg -i /tmp/kong.deb \
+	&& rm -rf /tmp/kong.deb
 
 RUN useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
