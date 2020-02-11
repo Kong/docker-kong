@@ -29,13 +29,13 @@ function die() {
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-#git stash
-#git checkout "$prev_tag"
-#if [ "$prev_tag" = "master" ]
-#then
-#   git pull
-#fi
-#git checkout -B release/$version
+git stash
+git checkout "$prev_tag"
+if [ "$prev_tag" = "master" ]
+then
+   git pull
+fi
+git checkout -B release/$version
 
 sed -i -e "s/VERSION='$version'/VERSION='$prev_tag'/" */Dockerfile
 
@@ -51,6 +51,33 @@ pushd alpine
    sed -i -e 's/'$old_sha'/'$new_sha'/g' Dockerfile
    rm asset.old asset.new
 popd
+
+pushd centos
+   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$prev_tag'/g')
+   curl -f -L -o asset.new $URL
+   new_sha=$(sha256sum asset.new | cut -b1-64)
+   
+   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$version'/g')
+   curl -f -L -o asset.old $URL
+   old_sha=$(sha256sum asset.old | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' Dockerfile
+   rm asset.old asset.new
+popd
+
+pushd rhel
+   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$prev_tag'/g')
+   curl -f -L -o asset.new $URL
+   new_sha=$(sha256sum asset.new | cut -b1-64)
+   
+   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$version'/g')
+   curl -f -L -o asset.old $URL
+   old_sha=$(sha256sum asset.old | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' Dockerfile
+   rm asset.old asset.new
+popd
+
 
 exit 123
 
