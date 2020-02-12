@@ -35,7 +35,7 @@ RUN set -eux; \
 RUN mkdir /kong; \
 	tar -C /kong -xzf kong.tar.gz
 
-FROM alpine:3.10
+FROM alpine:3.11
 
 LABEL maintainer="Kong <support@konghq.com>"
 
