@@ -12,6 +12,9 @@ ENV BINTRAY_USER $BINTRAY_USER
 ARG BINTRAY_KEY
 ENV BINTRAY_KEY $BINTRAY_KEY
 
+ARG LOCAL_KONG_PACKAGE=empty-kong.tar.gz
+COPY $LOCAL_KONG_PACKAGE kong.tar.gz
+
 RUN set -eux; \
 	case "${EDITION##*-}" in \
 		community) \
@@ -22,11 +25,14 @@ RUN set -eux; \
 		VERSION='1.3.0.1'; \
 		KONG_SHA='64a0ceabad26edfdab1173f3485859f14477485023ab6fdd2019fd6893c97bbb'; \
 		URL='https://kong.bintray.com/kong-enterprise-edition-alpine-tar/kong-enterprise-edition-'$VERSION'.apk.tar.gz' ;; \
+		local) \
+		exit 0 ;; \
 	esac; \
 	\
 	curl -L -u$BINTRAY_USER:$BINTRAY_KEY "$URL" -o kong.tar.gz; \
-	echo "${KONG_SHA} kong.tar.gz" | sha256sum -c -; \
-	mkdir /kong; \
+	echo "${KONG_SHA} kong.tar.gz" | sha256sum -c -
+	
+RUN mkdir /kong; \
 	tar -C /kong -xzf kong.tar.gz
 
 FROM alpine:3.10
@@ -43,6 +49,8 @@ RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
 	&& chmod -R g=u /usr/local/kong
 
 USER kong
+
+RUN kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 

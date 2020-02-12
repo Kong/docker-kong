@@ -12,6 +12,9 @@ ENV BINTRAY_USER $BINTRAY_USER
 ARG BINTRAY_KEY
 ENV BINTRAY_KEY $BINTRAY_KEY
 
+ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
+
 RUN set -eux; \
 	case "${EDITION##*-}" in \
 		community) \
@@ -22,6 +25,8 @@ RUN set -eux; \
 		VERSION='1.3.0.1'; \
 		KONG_SHA='ad6216aaf476a2806b208ca8a175a6c96013a6149042a64de57f3d702de266ce'; \
 		URL='https://kong.bintray.com/kong-enterprise-edition-rpm/rhel/7/kong-enterprise-edition-'$VERSION'.rhel7.noarch.rpm' ;; \
+		local) \
+		exit 0 ;; \
 	esac; \
 	\
 	curl -L -u$BINTRAY_USER:$BINTRAY_KEY "$URL" -o /tmp/kong.rpm; \
@@ -55,6 +60,8 @@ RUN useradd kong \
 	&& chmod -R g=u /usr/local/kong
 
 USER kong
+
+RUN kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
