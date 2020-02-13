@@ -29,55 +29,61 @@ function die() {
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-git stash
-git checkout "$prev_tag"
-if [ "$prev_tag" = "master" ]
-then
-   git pull
-fi
-git checkout -B release/$version
-
-sed -i -e "s/VERSION='$version'/VERSION='$prev_tag'/" */Dockerfile
+#git stash
+#git checkout "$prev_tag"
+#if [ "$prev_tag" = "master" ]
+#then
+#   git pull
+#fi
+#git checkout -B release/$version
 
 pushd alpine
-   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$prev_tag'/g')
-   curl -f -L -o asset.new $URL
-   new_sha=$(sha256sum asset.new | cut -b1-64)
+   ./build-ce.sh
+   mv /tmp/kong.tar.gz /tmp/kong.tar.gz.old
+   old_sha=$(sha256sum /tmp/kong.tar.gz.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.tar.gz /tmp/kong.tar.gz.new
+   new_sha=$(sha256sum /tmp/kong.tar.gz.new | cut -b1-64)
    
-   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$version'/g')
-   curl -f -L -o asset.old $URL
-   old_sha=$(sha256sum asset.old | cut -b1-64)
-   
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' Dockerfile
-   rm asset.old asset.new
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.tar.gz.*
 popd
 
 pushd centos
-   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$prev_tag'/g')
-   curl -f -L -o asset.new $URL
-   new_sha=$(sha256sum asset.new | cut -b1-64)
+   ./build-ce.sh
+   mv /tmp/kong.rpm /tmp/kong.rpm.old
+   old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.rpm /tmp/kong.rpm.new
+   new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
    
-   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$version'/g')
-   curl -f -L -o asset.old $URL
-   old_sha=$(sha256sum asset.old | cut -b1-64)
-   
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' Dockerfile
-   rm asset.old asset.new
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.rpm.*
 popd
 
 pushd rhel
-   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$prev_tag'/g')
-   curl -f -L -o asset.new $URL
-   new_sha=$(sha256sum asset.new | cut -b1-64)
+   ./build-ce.sh
+   mv /tmp/kong.rpm /tmp/kong.rpm.old
+   old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.rpm /tmp/kong.rpm.new
+   new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
    
-   URL=$(grep "URL='http" Dockerfile | grep -v enterprise | awk -F\' '{ print $2 $3 $4 }' | sed 's/$VERSION/'$version'/g')
-   curl -f -L -o asset.old $URL
-   old_sha=$(sha256sum asset.old | cut -b1-64)
-   
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' Dockerfile
-   rm asset.old asset.new
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.rpm.*
 popd
 
+pushd ubuntu
+   ./build-ce.sh
+   mv /tmp/kong.deb /tmp/kong.deb.old
+   old_sha=$(sha256sum /tmp/kong.deb.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.deb /tmp/kong.deb.new
+   new_sha=$(sha256sum /tmp/kong.deb.new | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.deb.*
+popd
 
 exit 123
 
