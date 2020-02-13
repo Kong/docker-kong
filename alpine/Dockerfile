@@ -24,7 +24,7 @@ RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
 RUN mkdir /kong; \
 	tar -C /kong -xzf kong.tar.gz
 
-FROM alpine:3.10
+FROM alpine:3.11
 
 LABEL maintainer="Kong <support@konghq.com>"
 
