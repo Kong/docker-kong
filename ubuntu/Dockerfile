@@ -3,8 +3,23 @@ FROM ubuntu:bionic AS downloader
 RUN apt-get update \
     && apt-get install -y curl
 
-RUN VERSION='2.0.0' \
-    && curl -fsSLo /tmp/kong.deb https://bintray.com/kong/kong-deb/download_file?file_path=kong-$VERSION.xenial.$(dpkg --print-architecture).deb
+ARG BINTRAY_USER
+ENV BINTRAY_USER $BINTRAY_USER
+
+ARG BINTRAY_KEY
+ENV BINTRAY_KEY $BINTRAY_KEY
+
+ARG BUILD_SCRIPT=build-ce.sh
+COPY $BUILD_SCRIPT /tmp/build.sh
+
+ARG ASSET_LOCATION=bintray
+ENV ASSET_LOCATION $ASSET_LOCATION
+
+ARG LOCAL_KONG_PACKAGE=empty-kong.deb
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
+
+RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
+    . /tmp/build.sh
 
 FROM ubuntu:xenial
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
@@ -23,6 +38,8 @@ RUN useradd -ms /bin/bash kong \
 	&& chmod -R g=u /usr/local/kong
 
 USER kong
+
+RUN kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 

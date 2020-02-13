@@ -3,34 +3,23 @@ FROM ubuntu:bionic AS downloader
 RUN apt-get update \
     && apt-get install -y curl
 
-ARG EDITION=community
-ENV EDITION $EDITION
-
 ARG BINTRAY_USER
 ENV BINTRAY_USER $BINTRAY_USER
 
 ARG BINTRAY_KEY
 ENV BINTRAY_KEY $BINTRAY_KEY
 
+ARG BUILD_SCRIPT=build-ce.sh
+COPY $BUILD_SCRIPT /tmp/build.sh
+
+ARG ASSET_LOCATION=bintray
+ENV ASSET_LOCATION $ASSET_LOCATION
+
 ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
 COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
 
-RUN set -eux; \
-	case "${EDITION##*-}" in \
-		community) \
-		VERSION='2.0.0'; \
-		KONG_SHA='0f1abc28d58e1092654ca9b58fbc725f560ca42ccab798cd55963ec5c5e0a317'; \
-		URL='https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-'$VERSION'.rhel7.amd64.rpm' ;; \
-		enterprise) \
-		VERSION='1.3.0.1'; \
-		KONG_SHA='ad6216aaf476a2806b208ca8a175a6c96013a6149042a64de57f3d702de266ce'; \
-		URL='https://kong.bintray.com/kong-enterprise-edition-rpm/rhel/7/kong-enterprise-edition-'$VERSION'.rhel7.noarch.rpm' ;; \
-		local) \
-		exit 0 ;; \
-	esac; \
-	\
-	curl -L -u$BINTRAY_USER:$BINTRAY_KEY "$URL" -o /tmp/kong.rpm; \
-	echo "${KONG_SHA} /tmp/kong.rpm" | sha256sum -c -
+RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
+    . /tmp/build.sh
 
 FROM registry.access.redhat.com/ubi7/ubi
 
@@ -60,8 +49,6 @@ RUN useradd kong \
 	&& chmod -R g=u /usr/local/kong
 
 USER kong
-
-RUN kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
