@@ -1,3 +1,3 @@
-VERSION=${VERSION:-2.0.0} && \
+VERSION=${VERSION:-2.0.1} && \
 curl -L "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$VERSION.el7.amd64.rpm" -o /tmp/kong.rpm
-echo "5a7454cc205d3c6b0f24193e3b4f5192f2afb0cdfc217ec253b63afd316169d9  /tmp/kong.rpm" | sha256sum -c -
+echo "8b1c9b18fd6f2f149bd6cfa506d917d7920b547d480dd514248769e8fb47c6c5  /tmp/kong.rpm" | sha256sum -c -
