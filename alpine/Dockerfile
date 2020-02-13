@@ -16,13 +16,13 @@ ARG ASSET_LOCATION=bintray
 ENV ASSET_LOCATION $ASSET_LOCATION
 
 ARG LOCAL_KONG_PACKAGE=empty-kong.tar.gz
-COPY $LOCAL_KONG_PACKAGE kong.tar.gz
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.tar.gz
 
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
     . /tmp/build.sh
 	
 RUN mkdir /kong; \
-	tar -C /kong -xzf kong.tar.gz
+	tar -C /kong -xzf /tmp/kong.tar.gz
 
 FROM alpine:3.11
 
