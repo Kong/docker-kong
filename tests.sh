@@ -1,11 +1,10 @@
 #!/bin/bash
 
-set -e
-set -x
+set -ex
 
 # Test the proper version was buid
 pushd $BASE
-version_given="$(grep 'ENV KONG_VERSION' Dockerfile | awk '{print $3}' | tr -d '[:space:]')"
+version_given="$(grep -o -P '(?<=-).*(?=})' build-ce.sh)"
 version_built="$(docker run -ti --rm kong-$BASE kong version | tr -d '[:space:]')"
 
 if [[ "$version_given" != "$version_built" ]]; then
@@ -14,6 +13,7 @@ if [[ "$version_given" != "$version_built" ]]; then
   echo "\tVersion built is $version_built";
   exit 1;
 fi
+
 popd
 
 # Docker swarm test
@@ -56,10 +56,7 @@ if [ $? -ne 0 ]; then
   docker-compose exec kong ps aux | sed -n 2p
   exit 1;
 fi
-docker-compose stop
-popd
 
-pushd compose
 KONG_USER=1001 docker-compose up -d
 until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
 sleep 20
@@ -71,27 +68,17 @@ if [ $? -ne 0 ]; then
   exit 1;
 fi
 docker-compose stop
-docker-compose rm -f
-popd
 
+popd
 
 # Run Kong functional tests
 
-git clone https://github.com/Kong/kong.git
+git clone https://github.com/Kong/kong.git || true
 pushd kong
 git checkout $version_given
 popd
 
 pushd kong-build-tools
 rm -rf test/tests/03-go-plugins
-KONG_VERSION=$version_given KONG_TEST_CONTAINER_NAME=kong-$BASE KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_TAG=$BASE make test
-popd
-
-pushd customize
-docker build \
-  --build-arg KONG_BASE="kong-$BASE" \
-  --build-arg PLUGINS="kong-http-to-https,kong-upstream-jwt" \
-  --tag "customize" .
-
-docker run -it --rm customize kong version
+KONG_VERSION=$version_given KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_TAG=$BASE make test
 popd

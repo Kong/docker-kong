@@ -1,24 +1,41 @@
+FROM ubuntu:bionic AS downloader
+
+RUN apt-get update \
+    && apt-get install -y curl
+
+ARG BINTRAY_USER
+ENV BINTRAY_USER $BINTRAY_USER
+
+ARG BINTRAY_KEY
+ENV BINTRAY_KEY $BINTRAY_KEY
+
+ARG BUILD_SCRIPT=build-ce.sh
+COPY $BUILD_SCRIPT /tmp/build.sh
+
+ARG ASSET_LOCATION=bintray
+ENV ASSET_LOCATION $ASSET_LOCATION
+
+ARG LOCAL_KONG_PACKAGE=empty-kong.tar.gz
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.tar.gz
+
+RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
+    . /tmp/build.sh
+	
+RUN mkdir /kong; \
+	tar -C /kong -xzf /tmp/kong.tar.gz
+
 FROM alpine:3.11
-LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 2.0.1
-ENV KONG_SHA256 170e3f230640cef9e307fd8411287b05a1ba9162b3fc1b53417f199869dcf065
+LABEL maintainer="Kong <support@konghq.com>"
 
+COPY --from=DOWNLOADER /kong/usr/local /usr/local
+COPY --from=DOWNLOADER /kong/etc /etc
 
-RUN adduser -S kong \
-	&& mkdir -p "/usr/local/kong" \
+RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
+    && adduser -S kong \
+    && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
-	&& chmod -R g=u /usr/local/kong \
-	&& apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \
-	&& apk add --no-cache libgcc openssl pcre perl tzdata libcap su-exec zip \
-	&& wget -O kong.tar.gz "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" \
-	&& echo "$KONG_SHA256 *kong.tar.gz" | sha256sum -c - \
-	&& tar -xzf kong.tar.gz -C /tmp \
-	&& rm -f kong.tar.gz \
-	&& cp -R /tmp/usr / \
-	&& rm -rf /tmp/usr \
-	&& cp -R /tmp/etc / \
-	&& rm -rf /tmp/etc
+	&& chmod -R g=u /usr/local/kong
 
 USER kong
 

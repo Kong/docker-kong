@@ -7,6 +7,7 @@ env:
   matrix:
     - BASE="centos" KONG_DOCKER_TAG="kong-centos"
     - BASE="alpine" KONG_DOCKER_TAG="kong-alpine"
+    - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu"
     - BASE="rhel" KONG_DOCKER_TAG="kong-rhel"
 
 before_script:

@@ -1,19 +1,45 @@
+FROM ubuntu:bionic AS downloader
+
+RUN apt-get update \
+    && apt-get install -y curl
+
+ARG BINTRAY_USER
+ENV BINTRAY_USER $BINTRAY_USER
+
+ARG BINTRAY_KEY
+ENV BINTRAY_KEY $BINTRAY_KEY
+
+ARG BUILD_SCRIPT=build-ce.sh
+COPY $BUILD_SCRIPT /tmp/build.sh
+
+ARG ASSET_LOCATION=bintray
+ENV ASSET_LOCATION $ASSET_LOCATION
+
+ARG LOCAL_KONG_PACKAGE=empty-kong.deb
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
+
+RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
+    . /tmp/build.sh
+
 FROM ubuntu:xenial
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 2.0.1
+COPY --from=DOWNLOADER /tmp/kong.deb /tmp/kong.deb
 
-RUN useradd kong \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends perl unzip \
+    && rm -rf /var/lib/apt/lists/* \
+	&& dpkg -i /tmp/kong.deb \
+	&& rm -rf /tmp/kong.deb
+
+RUN useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
-	&& chmod -R g=u /usr/local/kong \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl perl unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSLo kong.deb https://bintray.com/kong/kong-deb/download_file?file_path=kong-${KONG_VERSION}.xenial.$(dpkg --print-architecture).deb \
-    && apt-get purge -y --auto-remove ca-certificates curl \
-    && dpkg -i kong.deb \
-    && rm -rf kong.deb
+	&& chmod -R g=u /usr/local/kong
+
+USER kong
+
+RUN kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 

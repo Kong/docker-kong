@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 if ! [ "$1" ]
 then
@@ -29,49 +29,55 @@ function die() {
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-git stash
-git checkout "$prev_tag"
-if [ "$prev_tag" = "master" ]
-then
-   git pull
-fi
-git checkout -B release/$version
+pushd alpine
+   ./build-ce.sh
+   mv /tmp/kong.tar.gz /tmp/kong.tar.gz.old
+   old_sha=$(sha256sum /tmp/kong.tar.gz.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.tar.gz /tmp/kong.tar.gz.new
+   new_sha=$(sha256sum /tmp/kong.tar.gz.new | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.tar.gz.*
+popd
 
-sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," centos/Dockerfile > centos/Dockerfile.new
-mv centos/Dockerfile.new centos/Dockerfile
+pushd centos
+   ./build-ce.sh
+   mv /tmp/kong.rpm /tmp/kong.rpm.old
+   old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.rpm /tmp/kong.rpm.new
+   new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.rpm.*
+popd
 
-sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," rhel/Dockerfile > rhel/Dockerfile.new
-mv rhel/Dockerfile.new rhel/Dockerfile
+pushd rhel
+   ./build-ce.sh
+   mv /tmp/kong.rpm /tmp/kong.rpm.old
+   old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.rpm /tmp/kong.rpm.new
+   new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.rpm.*
+popd
 
-sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," alpine/Dockerfile > alpine/Dockerfile.new
-mv alpine/Dockerfile.new alpine/Dockerfile
+pushd ubuntu
+   ./build-ce.sh
+   mv /tmp/kong.deb /tmp/kong.deb.old
+   old_sha=$(sha256sum /tmp/kong.deb.old | cut -b1-64)
+   VERSION=$prev_tag ./build-ce.sh || true
+   mv /tmp/kong.deb /tmp/kong.deb.new
+   new_sha=$(sha256sum /tmp/kong.deb.new | cut -b1-64)
+   
+   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   rm /tmp/kong.deb.*
+popd
 
-if [ -e ubuntu/Dockerfile ]
-then
-   sed "s,ENV KONG_VERSION .*,ENV KONG_VERSION $version," ubuntu/Dockerfile > ubuntu/Dockerfile.new
-   mv ubuntu/Dockerfile.new ubuntu/Dockerfile
-fi
-
-apk="kong-$version.amd64.apk.tar.gz"
-
-if ! curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk"
-then
-   apk="kong-$version.apk.tar.gz"
-   curl -f -L -o "$apk" "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=$apk" || {
-      rm -f "$apk"
-      echo "****************************************"
-      echo "Failed to download Alpine package."
-      echo "Are the release artifact successfully deployed in Bintray?"
-      echo "If so, did their URL change? (update the Dockerfiles then!)"
-      echo "****************************************"
-      exit 1
-   }
-fi
-
-alpinesha=$(sha256sum "$apk" | cut -b1-64)
-
-sed "s,ENV KONG_SHA256 .*,ENV KONG_SHA256 $alpinesha," alpine/Dockerfile > alpine/Dockerfile.new
-mv alpine/Dockerfile.new alpine/Dockerfile
+sed -i -e "s/$version/$prev_tag/" */build-ce.sh
 
 echo "****************************************"
 git diff

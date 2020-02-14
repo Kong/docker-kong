@@ -1,8 +1,29 @@
+FROM ubuntu:bionic AS downloader
+
+RUN apt-get update \
+    && apt-get install -y curl
+
+ARG BINTRAY_USER
+ENV BINTRAY_USER $BINTRAY_USER
+
+ARG BINTRAY_KEY
+ENV BINTRAY_KEY $BINTRAY_KEY
+
+ARG BUILD_SCRIPT=build-ce.sh
+COPY $BUILD_SCRIPT /tmp/build.sh
+
+ARG ASSET_LOCATION=bintray
+ENV ASSET_LOCATION $ASSET_LOCATION
+
+ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
+
+RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
+    . /tmp/build.sh
+
 FROM registry.access.redhat.com/ubi7/ubi
 
 MAINTAINER Kong
-
-ENV KONG_VERSION 2.0.1
 
 LABEL name="Kong" \
       vendor="Kong" \
@@ -12,15 +33,22 @@ LABEL name="Kong" \
       summary="Next-Generation API Platform for Modern Architectures" \
       description="Next-Generation API Platform for Modern Architectures"
 
+COPY --from=DOWNLOADER /tmp/kong.rpm /tmp/kong.rpm
 COPY LICENSE /licenses/
 
-RUN useradd kong && \
-    mkdir -p "/usr/local/kong" && \
-    chown -R kong:0 /usr/local/kong && \
-    chmod -R g=u /usr/local/kong && \
-    yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm && \
-    yum install -y -q unzip && \
-    yum clean all
+RUN yum install -y -q unzip \
+	&& yum clean all -q \
+	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
+
+RUN useradd kong \
+	&& mkdir -p "/usr/local/kong" \
+	&& yum install -y /tmp/kong.rpm \
+	&& yum clean all \
+	&& rm /tmp/kong.rpm \
+	&& chown -R kong:0 /usr/local/kong \
+	&& chmod -R g=u /usr/local/kong
+
+USER kong
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
