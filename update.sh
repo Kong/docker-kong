@@ -65,7 +65,7 @@ pushd rhel
    rm /tmp/kong.rpm.*
 popd
 
-sed -i -e "s/$prev_tag/$version/" */build-ce.sh
+sed -i -e "s/$version/$prev_tag/" */build-ce.sh
 
 echo "****************************************"
 git diff
