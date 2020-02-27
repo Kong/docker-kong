@@ -24,7 +24,7 @@ RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
 FROM ubuntu:xenial
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-COPY --from=DOWNLOADER /tmp/kong.deb /tmp/kong.deb
+COPY --from=downloader /tmp/kong.deb /tmp/kong.deb
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \
