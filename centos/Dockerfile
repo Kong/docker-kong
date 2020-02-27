@@ -24,7 +24,7 @@ RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
 FROM centos:7
 LABEL maintainer="Kong <support@konghq.com>"
 
-COPY --from=DOWNLOADER /tmp/kong.rpm /tmp/kong.rpm
+COPY --from=downloader /tmp/kong.rpm /tmp/kong.rpm
 
 RUN yum install -y -q unzip \
 	&& yum clean all -q \

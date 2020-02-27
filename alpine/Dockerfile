@@ -28,8 +28,8 @@ FROM alpine:3.11
 
 LABEL maintainer="Kong <support@konghq.com>"
 
-COPY --from=DOWNLOADER /kong/usr/local /usr/local
-COPY --from=DOWNLOADER /kong/etc /etc
+COPY --from=downloader /kong/usr/local /usr/local
+COPY --from=downloader /kong/etc /etc
 
 RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
     && adduser -S kong \

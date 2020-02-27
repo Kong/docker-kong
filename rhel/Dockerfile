@@ -33,7 +33,7 @@ LABEL name="Kong" \
       summary="Next-Generation API Platform for Modern Architectures" \
       description="Next-Generation API Platform for Modern Architectures"
 
-COPY --from=DOWNLOADER /tmp/kong.rpm /tmp/kong.rpm
+COPY --from=downloader /tmp/kong.rpm /tmp/kong.rpm
 COPY LICENSE /licenses/
 
 RUN yum install -y -q unzip \
