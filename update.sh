@@ -33,7 +33,7 @@ pushd alpine
    ./build-ce.sh
    mv /tmp/kong.tar.gz /tmp/kong.tar.gz.old
    old_sha=$(sha256sum /tmp/kong.tar.gz.old | cut -b1-64)
-   VERSION=$prev_tag ./build-ce.sh || true
+   VERSION=$version ./build-ce.sh || true
    mv /tmp/kong.tar.gz /tmp/kong.tar.gz.new
    new_sha=$(sha256sum /tmp/kong.tar.gz.new | cut -b1-64)
    
@@ -45,7 +45,7 @@ pushd centos
    ./build-ce.sh
    mv /tmp/kong.rpm /tmp/kong.rpm.old
    old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
-   VERSION=$prev_tag ./build-ce.sh || true
+   VERSION=$version ./build-ce.sh || true
    mv /tmp/kong.rpm /tmp/kong.rpm.new
    new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
    
@@ -57,7 +57,7 @@ pushd rhel
    ./build-ce.sh
    mv /tmp/kong.rpm /tmp/kong.rpm.old
    old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
-   VERSION=$prev_tag ./build-ce.sh || true
+   VERSION=$version ./build-ce.sh || true
    mv /tmp/kong.rpm /tmp/kong.rpm.new
    new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
    
@@ -65,7 +65,7 @@ pushd rhel
    rm /tmp/kong.rpm.*
 popd
 
-sed -i -e "s/$version/$prev_tag/" */build-ce.sh
+sed -i -e "s/$prev_tag/$version/" */build-ce.sh
 
 echo "****************************************"
 git diff
