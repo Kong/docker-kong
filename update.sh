@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 if ! [ "$1" ]
 then
@@ -63,18 +63,6 @@ pushd rhel
    
    sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
    rm /tmp/kong.rpm.*
-popd
-
-pushd ubuntu
-   ./build-ce.sh
-   mv /tmp/kong.deb /tmp/kong.deb.old
-   old_sha=$(sha256sum /tmp/kong.deb.old | cut -b1-64)
-   VERSION=$prev_tag ./build-ce.sh || true
-   mv /tmp/kong.deb /tmp/kong.deb.new
-   new_sha=$(sha256sum /tmp/kong.deb.new | cut -b1-64)
-   
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
-   rm /tmp/kong.deb.*
 popd
 
 sed -i -e "s/$version/$prev_tag/" */build-ce.sh
