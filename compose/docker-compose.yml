@@ -2,6 +2,7 @@ version: '2.1'
 
 volumes:
   kong_data: {}
+  konga_data: {}
 
 networks:
   kong-net:
@@ -89,3 +90,20 @@ services:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+  konga:
+    image: pantsel/konga
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+    stdin_open: true
+    volumes:
+    - konga_data:/app/kongadata
+    tty: true
+    networks:
+      - kong-net
+    ports:
+    - 1337:1337/tcp
+    labels:
+      io.rancher.container.pull_image: always
