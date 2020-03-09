@@ -1,7 +1,7 @@
 FROM ubuntu:xenial
 LABEL maintainer="Kong Core Team <team-core@konghq.com>"
 
-ENV KONG_VERSION 2.0.1
+ENV KONG_VERSION 2.0.2
 
 RUN useradd kong \
     && mkdir -p "/usr/local/kong" \
