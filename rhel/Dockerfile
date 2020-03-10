@@ -1,3 +1,4 @@
+ARG RESTY_IMAGE_TAG="7"
 FROM ubuntu:bionic AS downloader
 
 RUN apt-get update \
@@ -21,7 +22,7 @@ COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
     . /tmp/build.sh
 
-FROM registry.access.redhat.com/ubi7/ubi
+FROM registry.access.redhat.com/ubi${RESTY_IMAGE_TAG}/ubi
 
 MAINTAINER Kong
 

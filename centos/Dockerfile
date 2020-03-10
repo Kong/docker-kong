@@ -1,4 +1,5 @@
-FROM centos:7
+ARG RESTY_IMAGE_TAG="7"
+FROM centos:${RESTY_IMAGE_TAG}
 LABEL maintainer="Kong <support@konghq.com>"
 
 ARG BINTRAY_USER
