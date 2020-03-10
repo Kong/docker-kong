@@ -1,7 +1,4 @@
-FROM ubuntu:bionic AS downloader
-
-RUN apt-get update \
-    && apt-get install -y curl
+FROM ubuntu:xenial
 
 ARG BINTRAY_USER
 ENV BINTRAY_USER $BINTRAY_USER
@@ -19,12 +16,10 @@ ARG LOCAL_KONG_PACKAGE=empty-kong.deb
 COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
 
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    . /tmp/build.sh
-
-FROM ubuntu:xenial
-LABEL maintainer="Kong Core Team <team-core@konghq.com>"
-
-COPY --from=downloader /tmp/kong.deb /tmp/kong.deb
+    apt-get update \
+    && apt-get install -y curl && \
+    . /tmp/build.sh && \
+    apt-get purge -yf curl
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \

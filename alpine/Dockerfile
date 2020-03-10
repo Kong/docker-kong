@@ -1,7 +1,6 @@
-FROM ubuntu:bionic AS downloader
+FROM alpine:3.11
 
-RUN apt-get update \
-    && apt-get install -y curl
+LABEL maintainer="Kong <support@konghq.com>"
 
 ARG BINTRAY_USER
 ENV BINTRAY_USER $BINTRAY_USER
@@ -19,17 +18,15 @@ ARG LOCAL_KONG_PACKAGE=empty-kong.tar.gz
 COPY $LOCAL_KONG_PACKAGE /tmp/kong.tar.gz
 
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    . /tmp/build.sh
+    apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
+    . /tmp/build.sh && \
+    apk del .build-deps
 	
 RUN mkdir /kong; \
-	tar -C /kong -xzf /tmp/kong.tar.gz
-
-FROM alpine:3.11
-
-LABEL maintainer="Kong <support@konghq.com>"
-
-COPY --from=downloader /kong/usr/local /usr/local
-COPY --from=downloader /kong/etc /etc
+	tar -C /kong -xzf /tmp/kong.tar.gz && \
+	mv /kong/usr/local/* /usr/local && \
+	mv /kong/etc/* /etc && \
+	rm -rf /kong
 
 RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
     && adduser -S kong \

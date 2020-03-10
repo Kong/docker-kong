@@ -1,7 +1,5 @@
-FROM ubuntu:bionic AS downloader
-
-RUN apt-get update \
-    && apt-get install -y curl
+FROM centos:7
+LABEL maintainer="Kong <support@konghq.com>"
 
 ARG BINTRAY_USER
 ENV BINTRAY_USER $BINTRAY_USER
@@ -20,11 +18,6 @@ COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
 
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
     . /tmp/build.sh
-
-FROM centos:7
-LABEL maintainer="Kong <support@konghq.com>"
-
-COPY --from=downloader /tmp/kong.rpm /tmp/kong.rpm
 
 RUN yum install -y -q unzip \
 	&& yum clean all -q \
