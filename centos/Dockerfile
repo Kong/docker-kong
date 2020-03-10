@@ -30,11 +30,14 @@ RUN useradd kong \
 	&& yum clean all \
 	&& rm /tmp/kong.rpm \
 	&& chown -R kong:0 /usr/local/kong \
+	&& chown kong:0 /usr/local/bin/kong \
 	&& chmod -R g=u /usr/local/kong
 
-USER kong
-
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+RUN chmod 777 /docker-entrypoint.sh
+
+USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

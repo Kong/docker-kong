@@ -32,13 +32,16 @@ RUN apt-get update \
 RUN useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
+	&& chown kong:0 /usr/local/bin/kong \
 	&& chmod -R g=u /usr/local/kong
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+RUN chmod 777 /docker-entrypoint.sh
 
 USER kong
 
 RUN kong version
-
-COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

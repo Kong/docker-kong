@@ -32,11 +32,14 @@ RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
     && adduser -S kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
+	&& chown kong:0 /usr/local/bin/kong \
 	&& chmod -R g=u /usr/local/kong
 
-USER kong
-
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+RUN chmod 777 /docker-entrypoint.sh
+
+USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
