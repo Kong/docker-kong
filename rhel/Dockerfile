@@ -1,3 +1,4 @@
+ARG RESTY_IMAGE_TAG="7"
 FROM ubuntu:bionic AS downloader
 
 RUN apt-get update \
@@ -21,7 +22,7 @@ COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
     . /tmp/build.sh
 
-FROM registry.access.redhat.com/ubi7/ubi
+FROM registry.access.redhat.com/ubi${RESTY_IMAGE_TAG}/ubi
 
 MAINTAINER Kong
 
@@ -46,11 +47,12 @@ RUN useradd kong \
 	&& yum clean all \
 	&& rm /tmp/kong.rpm \
 	&& chown -R kong:0 /usr/local/kong \
+	&& chown kong:0 /usr/local/bin/kong \
 	&& chmod -R g=u /usr/local/kong
 
-USER kong
-
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

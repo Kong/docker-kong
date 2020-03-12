@@ -1,7 +1,6 @@
-FROM ubuntu:bionic AS downloader
-
-RUN apt-get update \
-    && apt-get install -y curl
+ARG RESTY_IMAGE_BASE="ubuntu"
+ARG RESTY_IMAGE_TAG="xenial"
+FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
 
 ARG BINTRAY_USER
 ENV BINTRAY_USER $BINTRAY_USER
@@ -19,12 +18,10 @@ ARG LOCAL_KONG_PACKAGE=empty-kong.deb
 COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
 
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    . /tmp/build.sh
-
-FROM ubuntu:xenial
-LABEL maintainer="Kong Core Team <team-core@konghq.com>"
-
-COPY --from=downloader /tmp/kong.deb /tmp/kong.deb
+    apt-get update \
+    && apt-get install -y curl && \
+    . /tmp/build.sh && \
+    apt-get purge -yf curl
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \
@@ -35,13 +32,14 @@ RUN apt-get update \
 RUN useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
+	&& chown kong:0 /usr/local/bin/kong \
 	&& chmod -R g=u /usr/local/kong
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 USER kong
 
 RUN kong version
-
-COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
