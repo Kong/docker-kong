@@ -37,8 +37,6 @@ RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip \
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN chmod 777 /docker-entrypoint.sh
-
 USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

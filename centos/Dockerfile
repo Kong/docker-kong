@@ -35,8 +35,6 @@ RUN useradd kong \
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN chmod 777 /docker-entrypoint.sh
-
 USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
