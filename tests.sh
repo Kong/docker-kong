@@ -18,14 +18,17 @@ popd
 
 # Docker swarm test
 
-pushd swarm
+pushd compose
 docker swarm init
-KONG_DOCKER_TAG=kong:1.0 docker stack deploy -c docker-compose.yml kong
-until docker ps | grep kong:1.0 | grep -q healthy;  do
+KONG_DOCKER_TAG=kong:1.5.0 docker stack deploy -c<(curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml) kong
+until docker ps | grep kong:1.5.0 | grep -q healthy;  do
   docker stack ps kong
   docker service ps kong_kong
   sleep 20
 done
+
+sleep 20
+curl -I localhost:8001 | grep 'Server: openresty'
 
 KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
 sleep 20

@@ -2,7 +2,7 @@ KONG_BUILD_TOOLS?=3.1.0
 BASE?=centos
 
 build:
-	docker build -t kong-$(BASE) $(BASE)/
+	docker build --no-cache -t kong-$(BASE) $(BASE)/
 
 .PHONY: test
 test:
