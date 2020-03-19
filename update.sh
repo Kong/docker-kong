@@ -62,6 +62,8 @@ pushd rhel
    new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
    
    sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
+   sed -i -e "s/$prev_tag/$version/" Dockerfile
+   
    rm /tmp/kong.rpm.*
 popd
 

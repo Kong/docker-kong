@@ -28,7 +28,7 @@ MAINTAINER Kong
 
 LABEL name="Kong" \
       vendor="Kong" \
-      version="${KONG_VERSION}" \
+      version="2.0.2" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \

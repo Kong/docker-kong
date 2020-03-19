@@ -15,8 +15,12 @@ before_script:
 script:
   - make test
 
-deploy:
-  provider: script
-  script: BASE="rhel" KONG_DOCKER_TAG="kong-rhel" TAG=$TRAVIS_TAG make release-rhel
-  on:
-    tags: true
+jobs:
+  include:
+    - stage: deploy
+      env:
+        - BASE=rhel
+        - KONG_DOCKER_TAG=kong-rhel
+        - TAG=$TRAVIS_TAG
+      script: make release-rhel
+      if: tag IS present
