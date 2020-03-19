@@ -1,5 +1,6 @@
+ARG RESTY_IMAGE_BASE="centos"
 ARG RESTY_IMAGE_TAG="7"
-FROM centos:${RESTY_IMAGE_TAG}
+FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
 LABEL maintainer="Kong <support@konghq.com>"
 
 ARG BINTRAY_USER
@@ -20,7 +21,7 @@ COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
     . /tmp/build.sh
 
-RUN yum install -y -q unzip \
+RUN yum install -y -q unzip shadow-utils \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 
