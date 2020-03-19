@@ -1,50 +1,58 @@
-version: '2.1'
+version: '3.7'
 
 volumes:
   kong_data: {}
 
 networks:
   kong-net:
+    external: false
 
 services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_HOST: db
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
     networks:
       - kong-net
     restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations up && kong migrations finish
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_HOST: db
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
     networks:
       - kong-net
     restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ERROR_LOG: /dev/stderr
@@ -53,10 +61,12 @@ services:
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_HOST: db
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
     networks:
       - kong-net
     ports:
@@ -70,22 +80,34 @@ services:
       timeout: 10s
       retries: 10
     restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     
   db:
     image: postgres:9.5
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
-      POSTGRES_PASSWORD: ${KONG_PG_PASSWORD:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
       interval: 30s
       timeout: 30s
       retries: 3
     restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
     stdin_open: true
     tty: true
     networks:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+
+secrets:
+  kong_postgres_password:
+    file: ./POSTGRES_PASSWORD
