@@ -29,7 +29,7 @@ done
 
 sleep 20
 curl -I localhost:8001 | grep 'Server: openresty'
-
+sed -i -e 's/127.0.0.1://g' docker-compose.yml
 KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
 sleep 20
 until docker ps | grep ${KONG_DOCKER_TAG}:latest | grep -q healthy; do
@@ -45,6 +45,7 @@ docker stack rm kong
 sleep 20
 docker swarm leave --force
 docker volume prune -f
+git checkout -- docker-compose.yml
 popd
 
 # Validate Kong is running as the Kong user
