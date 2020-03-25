@@ -1,0 +1,145 @@
+version: '3.7'
+
+volumes:
+ vault_postgres_policy: {}
+
+secrets:
+  postgres_password:
+    file: ./POSTGRES_PASSWORD
+
+x-postgres-config: &postgres-env
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: ${PG_DATABASE:-qwerty}
+
+networks:
+  vault:
+    external: false
+  consul:
+    external: false
+  postgres:
+    external: false
+
+services:
+  consul-bootstrap:
+    image: consul:${CONSUL_VERSION:-1.7.2}
+    ports:
+      - 8500:8500
+    networks:
+      - consul
+      - vault
+    command: "agent -server -bootstrap-expect 3 -ui -client 0.0.0.0 -node consul-bootstrap -bind '{{ GetInterfaceIP \"eth0\" }}'"
+    restart: on-failure
+
+  consul-backup: &consul-setup
+    image: consul:${CONSUL_VERSION:-1.7.2}
+    command: "agent -server -retry-join consul-bootstrap -client 0.0.0.0 -bind '{{ GetInterfaceIP \"eth0\" }}'"
+    networks:
+      - consul
+    depends_on:
+      - consul-bootstrap
+    restart: on-failure
+
+  consul-backup2:
+    <<: *consul-setup
+
+  vault:
+    image: vault:${VAULT_VERSION:-1.3.4}
+    command: vault server -config=/vault/config
+    environment: &vault-env
+      VAULT_ADDR: 'http://127.0.0.1:8200'
+      VAULT_LOCAL_CONFIG: >-
+        {
+            "ui": true,
+            "backend": {
+                "consul": {
+                    "address": "consul-bootstrap:8500",
+                    "path": "vault",
+                    "scheme": "http"
+                }
+            },
+            "default_lease_ttl": "168h",
+            "listener": {
+                "tcp": {
+                    "address": "0.0.0.0:8200",
+                    "tls_disable": "1"
+                }
+            },
+            "max_lease_ttl": "720h"
+        }
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - vault
+      - postgres
+    depends_on:
+      - consul-bootstrap
+      - consul-backup
+      - consul-backup2
+    restart: on-failure
+
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-9.5}
+    environment:
+      <<: *postgres-env
+      POSTGRES_USER: ${PG_USER:-123abc}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    restart: on-failure
+    networks:
+      - postgres
+    restart: on-failure
+
+  vault-setup:
+    build:
+      context: ./vault-postgresql
+      args:
+        VAULT_VERSION: ${VAULT_VERSION:-1.3.4}
+    volumes:
+      - vault_postgres_policy:/consul/db_policy
+    environment:
+      <<: *postgres-env
+      POSTGRES_USER: ${PG_USER:-123abc}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      <<: *vault-env
+    secrets:
+      - postgres_password
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - vault
+      - postgres
+    depends_on:
+      - consul-bootstrap
+      - consul-backup
+      - consul-backup2
+      - vault
+      - postgres
+    restart: on-failure
+
+  kong:
+    build:
+      context: ./kong
+    volumes:
+      - vault_postgres_policy:/consul/db_policy
+    ports:
+      - "8000:8000/tcp"
+      - "127.0.0.1:8001:8001/tcp"
+      - "8443:8443/tcp"
+      - "127.0.0.1:8444:8444/tcp"
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: postgres
+      KONG_PG_DATABASE: ${PG_DATABASE:-qwerty}
+    networks:
+      - consul
+      - vault
+      - postgres
+    depends_on:
+      - consul-bootstrap
+      - consul-backup
+      - consul-backup2
+      - vault
+      - postgres
+      - vault-setup
+    restart: on-failure     
