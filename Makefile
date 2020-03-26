@@ -1,4 +1,4 @@
-KONG_BUILD_TOOLS?=3.0.1
+KONG_BUILD_TOOLS?=origin/2.4.x
 BASE?=centos
 
 build:
@@ -16,3 +16,7 @@ release-rhel: build
 	echo $$RHEL_REGISTRY_KEY | docker login -u unused scan.connect.redhat.com --password-stdin
 	docker tag kong-rhel scan.connect.redhat.com/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong:$$TAG
 	docker push scan.connect.redhat.com/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong:$$TAG
+
+clean:
+	-rm -rf kong-build-tools
+	-rm -rf kong

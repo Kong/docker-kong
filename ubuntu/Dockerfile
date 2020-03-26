@@ -5,15 +5,15 @@ ENV KONG_VERSION 1.5.1
 
 RUN useradd kong \
     && mkdir -p "/usr/local/kong" \
-	&& chown -R kong:0 /usr/local/kong \
-	&& chmod -R g=u /usr/local/kong \
     && apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl perl unzip \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSLo kong.deb https://bintray.com/kong/kong-deb/download_file?file_path=kong-${KONG_VERSION}.xenial.$(dpkg --print-architecture).deb \
     && apt-get purge -y --auto-remove ca-certificates curl \
     && dpkg -i kong.deb \
-    && rm -rf kong.deb
+    && rm -rf kong.deb \
+    && chown -R kong:0 /usr/local/kong \
+    && chmod -R g=u /usr/local/kong
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
