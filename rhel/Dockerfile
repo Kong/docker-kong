@@ -14,14 +14,13 @@ LABEL name="Kong" \
 
 COPY LICENSE /licenses/
 
-RUN yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm && \
-    yum clean all && \
-    # OpenShift specific. OpenShift runs containers using an arbitrarily assigned user ID.
-    # This user doesn't have access to change file permissions during runtime, they have to be changed during image building.
-    # https://docs.okd.io/latest/creating_images/guidelines.html#use-uid
+RUN useradd kong && \
     mkdir -p "/usr/local/kong" && \
-    chgrp -R 0 "/usr/local/kong" && \
-    chmod -R g=u "/usr/local/kong"
+    chown -R kong:0 /usr/local/kong && \
+    chmod -R g=u /usr/local/kong && \
+    yum install -y https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm && \
+    yum install -y -q unzip && \
+    yum clean all
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 

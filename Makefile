@@ -1,4 +1,4 @@
-KONG_BUILD_TOOLS?=2.0.5
+KONG_BUILD_TOOLS?=3.0.1
 BASE?=centos
 
 build:
@@ -11,3 +11,8 @@ test:
 	else git clone https://github.com/Kong/kong-build-tools.git; fi
 	cd kong-build-tools && git reset --hard $(KONG_BUILD_TOOLS)
 	BASE=$(BASE) ./tests.sh
+
+release-rhel: build
+	echo $$RHEL_REGISTRY_KEY | docker login -u unused scan.connect.redhat.com --password-stdin
+	docker tag kong-rhel scan.connect.redhat.com/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong:$$TAG
+	docker push scan.connect.redhat.com/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong:$$TAG
