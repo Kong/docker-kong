@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeo pipefail
 
+test -f /consul/db_policy/data && exit 0
+
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
@@ -34,7 +36,6 @@ vault operator unseal $(grep 'Key 3:' keys.txt | awk '{print $NF}')
 vault login $(grep 'Initial Root Token:' keys.txt | awk '{print substr($NF, 1, length($NF))}')
 
 vault secrets enable database
-
 vault write database/config/$POSTGRES_DB \
     plugin_name=postgresql-database-plugin \
     allowed_roles="vaultrole" \
@@ -50,6 +51,7 @@ vault write database/roles/vaultrole \
     max_ttl="24h"
 
 vault policy write db_creds /tmp/db_creds.tpl
+touch /consul/db_policy/data
+vault token create -policy="db_creds" | grep "token " | awk '{print $2}' >> /consul/db_policy/data
 
-vault token create -policy="db_creds" | grep token | head -1 | awk '{print $2}' >> /consul/db_policy/data
-
+exit 0
