@@ -14,9 +14,9 @@ if [[ "$1" == "kong" ]]; then
     shift 2
     kong prepare -p "$PREFIX" "$@"
 
-    # workaround for https://github.com/moby/moby/issues/31243
-    chmod o+w /proc/self/fd/1 || true
-    chmod o+w /proc/self/fd/2 || true
+    ln -sf /dev/stdout $PREFIX/logs/access.log
+    ln -sf /dev/stdout $PREFIX/logs/admin_access.log
+    ln -sf /dev/stderr $PREFIX/logs/error.log
 
     if [ "$(id -u)" != "0" ]; then
       exec /usr/local/openresty/nginx/sbin/nginx \

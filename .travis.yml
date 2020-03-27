@@ -1,4 +1,4 @@
-sudo: required
+language: generic
 
 services:
   - docker
@@ -7,14 +7,15 @@ env:
   matrix:
     - BASE="centos" KONG_DOCKER_TAG="kong-centos"
     - BASE="alpine" KONG_DOCKER_TAG="kong-alpine"
-    - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu"
-
-matrix:
-  allow_failures:
-    - env: BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu"
+    - BASE="rhel" KONG_DOCKER_TAG="kong-rhel"
 
 before_script:
   - make build
 script:
   - make test
-  
+
+deploy:
+  provider: script
+  script: BASE="rhel" KONG_DOCKER_TAG="kong-rhel" TAG=$TRAVIS_TAG make release-rhel
+  on:
+    tags: true
