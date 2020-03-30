@@ -47,8 +47,8 @@ vault write database/roles/vaultrole \
     db_name=$POSTGRES_DB \
     creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
-    default_ttl="1h" \
-    max_ttl="24h"
+    default_ttl="1m" \
+    max_ttl="2h"
 
 vault policy write db_creds /tmp/db_creds.tpl
 touch /consul/db_policy/data

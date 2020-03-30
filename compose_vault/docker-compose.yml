@@ -77,6 +77,12 @@ services:
       - consul-backup2
     restart: on-failure
 
+  postgres_client:
+    image: postgres:${POSTGRES_VERSION:-9.5}
+    entrypoint: tail -f /dev/null
+    networks:
+      - postgres
+
   postgres:
     image: postgres:${POSTGRES_VERSION:-9.5}
     environment:
@@ -118,8 +124,7 @@ services:
     restart: on-failure
 
   kong:
-    build:
-      context: ./kong
+    image: temp
     volumes:
       - vault_postgres_policy:/consul/db_policy
     ports:
@@ -128,6 +133,9 @@ services:
       - "8443:8443/tcp"
       - "8444:8444/tcp"
     environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: '0.0.0.0:8001'
       KONG_DATABASE: postgres
       KONG_PG_HOST: postgres
       KONG_PG_DATABASE: ${PG_DATABASE:-qwerty}
