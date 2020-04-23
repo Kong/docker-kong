@@ -4,7 +4,7 @@ set -ex
 
 # Test the proper version was buid
 pushd $BASE
-version_given="$(grep -o -P '(?<=-).*(?=})' build-ce.sh)"
+version_given="$(grep 'ARG KONG_VERSION' Dockerfile | awk -F "=" '{print $2}')"
 version_built="$(docker run -ti --rm kong-$BASE kong version | tr -d '[:space:]')"
 
 if [[ "$version_given" != "$version_built" ]]; then

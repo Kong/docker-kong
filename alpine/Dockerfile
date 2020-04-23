@@ -2,26 +2,27 @@ FROM alpine:3.11
 
 LABEL maintainer="Kong <support@konghq.com>"
 
-ARG BINTRAY_USER
-ENV BINTRAY_USER $BINTRAY_USER
-
-ARG BINTRAY_KEY
-ENV BINTRAY_KEY $BINTRAY_KEY
-
-ARG BUILD_SCRIPT=build-ce.sh
-COPY $BUILD_SCRIPT /tmp/build.sh
-
-ARG ASSET_LOCATION=bintray
-ENV ASSET_LOCATION $ASSET_LOCATION
+ARG ASSET=ce
+ENV ASSET $ASSET
 
 ARG LOCAL_KONG_PACKAGE=empty-kong.tar.gz
 COPY $LOCAL_KONG_PACKAGE /tmp/kong.tar.gz
 
-RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
-    . /tmp/build.sh && \
-    apk del .build-deps
-	
+ARG KONG_VERSION=2.0.3
+ENV KONG_VERSION $KONG_VERSION
+
+ARG KONG_SHA256="db6a8ac847c347fb4d49c4763181c529bb9584187cdccdcc657ce00d605c99ac"
+ENV KONG_SHA256 $KONG_SHA256
+
+RUN set -ex; \
+    if [ "$ASSET" = "local" ] ; then exit 0 ; \
+    elif [ "$ASSET" = "ce" ] ; then \
+        apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
+        curl -L "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
+        echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
+        apk del .build-deps; \
+    fi
+
 RUN mkdir /kong; \
 	tar -C /kong -xzf /tmp/kong.tar.gz && \
 	mv /kong/usr/local/* /usr/local && \

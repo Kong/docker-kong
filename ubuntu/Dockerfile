@@ -1,27 +1,22 @@
-ARG RESTY_IMAGE_BASE="ubuntu"
-ARG RESTY_IMAGE_TAG="xenial"
-FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
+FROM ubuntu:xenial
 
-ARG BINTRAY_USER
-ENV BINTRAY_USER $BINTRAY_USER
-
-ARG BINTRAY_KEY
-ENV BINTRAY_KEY $BINTRAY_KEY
-
-ARG BUILD_SCRIPT=build-ce.sh
-COPY $BUILD_SCRIPT /tmp/build.sh
-
-ARG ASSET_LOCATION=bintray
-ENV ASSET_LOCATION $ASSET_LOCATION
+ARG ASSET=ce
+ENV ASSET $ASSET
 
 ARG LOCAL_KONG_PACKAGE=empty-kong.deb
 COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
 
-RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    apt-get update \
-    && apt-get install -y curl && \
-    . /tmp/build.sh && \
-    apt-get purge -yf curl
+ARG KONG_VERSION=2.0.3
+ENV KONG_VERSION $KONG_VERSION
+
+RUN set -ex; \
+    if [ "$ASSET" = "local" ] ; then exit 0 ; \
+    elif [ "$ASSET" = "ce" ] ; then \
+        apt-get update && \
+        apt-get install -y curl && \
+        curl -L "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb && \
+        apt-get purge -y curl; \
+    fi
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \

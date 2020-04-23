@@ -1,28 +1,9 @@
 ARG RESTY_IMAGE_TAG="7"
-FROM ubuntu:bionic AS downloader
-
-RUN apt-get update \
-    && apt-get install -y curl
-
-ARG BINTRAY_USER
-ENV BINTRAY_USER $BINTRAY_USER
-
-ARG BINTRAY_KEY
-ENV BINTRAY_KEY $BINTRAY_KEY
-
-ARG BUILD_SCRIPT=build-ce.sh
-COPY $BUILD_SCRIPT /tmp/build.sh
-
-ARG ASSET_LOCATION=bintray
-ENV ASSET_LOCATION $ASSET_LOCATION
-
-ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
-COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
-
-RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    . /tmp/build.sh
 
 FROM registry.access.redhat.com/ubi${RESTY_IMAGE_TAG}/ubi
+
+ARG RESTY_IMAGE_TAG="7"
+ENV RESTY_IMAGE_TAG $RESTY_IMAGE_TAG
 
 MAINTAINER Kong
 
@@ -34,10 +15,28 @@ LABEL name="Kong" \
       summary="Next-Generation API Platform for Modern Architectures" \
       description="Next-Generation API Platform for Modern Architectures"
 
-COPY --from=downloader /tmp/kong.rpm /tmp/kong.rpm
 COPY LICENSE /licenses/
 
-RUN yum install -y -q unzip \
+ARG ASSET=ce
+ENV ASSET $ASSET
+
+ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
+COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
+
+ARG KONG_VERSION=2.0.3
+ENV KONG_VERSION $KONG_VERSION
+
+ARG KONG_SHA256="886ce4e5b8cc3ecd38e82300114f151f4af440386397696602c041f65a7f2b9d"
+ENV KONG_SHA256 $KONG_SHA256
+
+RUN set -ex; \
+    if [ "$ASSET" = "local" ] ; then exit 0 ; \
+    elif [ "$ASSET" = "ce" ] ; then \
+        curl -L "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel$RESTY_IMAGE_TAG.amd64.rpm" -o /tmp/kong.rpm && \
+        echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+    fi
+
+RUN yum install -y -q unzip shadow-utils \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 
