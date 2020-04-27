@@ -5,8 +5,7 @@ LABEL maintainer="Kong <support@konghq.com>"
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-ARG LOCAL_KONG_PACKAGE=empty-kong.tar.gz
-COPY $LOCAL_KONG_PACKAGE /tmp/kong.tar.gz
+COPY empty-kong.tar.gz /tmp/kong.tar.gz
 
 ARG KONG_VERSION=2.0.4
 ENV KONG_VERSION $KONG_VERSION

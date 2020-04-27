@@ -20,8 +20,7 @@ COPY LICENSE /licenses/
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
-COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
+COPY empty-kong.rpm /tmp/kong.rpm
 
 ARG KONG_VERSION=2.0.4
 ENV KONG_VERSION $KONG_VERSION

@@ -3,8 +3,7 @@ FROM ubuntu:xenial
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-ARG LOCAL_KONG_PACKAGE=empty-kong.deb
-COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
+COPY empty-kong.deb /tmp/kong.deb
 
 ARG KONG_VERSION=2.0.4
 ENV KONG_VERSION $KONG_VERSION
