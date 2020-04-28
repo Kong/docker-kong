@@ -20,9 +20,8 @@ RUN set -ex; \
         curl -L "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
         echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
         apk del .build-deps; \
-    fi
-
-RUN mkdir /kong; \
+    fi; \
+    mkdir /kong; \
 	tar -C /kong -xzf /tmp/kong.tar.gz && \
 	mv /kong/usr/local/* /usr/local && \
 	mv /kong/etc/* /etc && \

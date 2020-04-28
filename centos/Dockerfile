@@ -17,9 +17,8 @@ RUN set -ex; \
     elif [ "$ASSET" = "ce" ] ; then \
         curl -L "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm && \
         echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
-    fi
-
-RUN yum install -y -q unzip shadow-utils \
+    fi; \
+    yum install -y -q unzip shadow-utils \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 

@@ -15,9 +15,8 @@ RUN set -ex; \
         apt-get install -y curl && \
         curl -L "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb && \
         apt-get purge -y curl; \
-    fi
-
-RUN apt-get update \
+    fi; \
+    apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \
     && rm -rf /var/lib/apt/lists/* \
 	&& dpkg -i /tmp/kong.deb \
