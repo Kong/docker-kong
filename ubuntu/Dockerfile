@@ -20,9 +20,8 @@ RUN set -ex; \
     && apt-get install -y --no-install-recommends perl unzip \
     && rm -rf /var/lib/apt/lists/* \
 	&& dpkg -i /tmp/kong.deb \
-	&& rm -rf /tmp/kong.deb
-
-RUN useradd -ms /bin/bash kong \
+	&& rm -rf /tmp/kong.deb \
+	&& useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chown kong:0 /usr/local/bin/kong \

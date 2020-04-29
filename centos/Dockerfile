@@ -20,9 +20,8 @@ RUN set -ex; \
     fi; \
     yum install -y -q unzip shadow-utils \
 	&& yum clean all -q \
-	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
-
-RUN useradd kong \
+	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
+	&& useradd kong \
 	&& mkdir -p "/usr/local/kong" \
 	&& yum install -y /tmp/kong.rpm \
 	&& yum clean all \
