@@ -15,7 +15,7 @@ ENV KONG_SHA256 $KONG_SHA256
 RUN set -ex; \
     if [ "$ASSET" = "local" ] ; then exit 0 ; \
     elif [ "$ASSET" = "ce" ] ; then \
-        curl -L "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm && \
+        curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm && \
         echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils \
