@@ -17,7 +17,7 @@ RUN set -ex; \
     if [ "$ASSET" = "local" ] ; then exit 0 ; \
     elif [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
-        curl -L "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
+        curl -fL "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
         echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
         apk del .build-deps; \
     fi; \
