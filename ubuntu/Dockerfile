@@ -26,6 +26,7 @@ RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \
     && apt-get install -y --no-install-recommends zlibc || true \
+    && apt-get install -y --no-install-recommends zlib1g-dev || true \
     && rm -rf /var/lib/apt/lists/* \
 	&& dpkg -i /tmp/kong.deb \
 	&& rm -rf /tmp/kong.deb
