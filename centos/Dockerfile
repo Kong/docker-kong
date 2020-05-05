@@ -21,7 +21,7 @@ COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
 RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
     . /tmp/build.sh
 
-RUN yum install -y -q unzip shadow-utils \
+RUN yum install -y -q unzip shadow-utils zlib \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 

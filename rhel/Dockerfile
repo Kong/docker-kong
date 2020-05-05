@@ -37,7 +37,7 @@ LABEL name="Kong" \
 COPY --from=downloader /tmp/kong.rpm /tmp/kong.rpm
 COPY LICENSE /licenses/
 
-RUN yum install -y -q unzip \
+RUN yum install -y -q unzip zlib \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
 

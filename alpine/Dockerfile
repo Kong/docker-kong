@@ -28,7 +28,7 @@ RUN mkdir /kong; \
 	mv /kong/etc/* /etc && \
 	rm -rf /kong
 
-RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip bash \
+RUN apk add --no-cache libgcc openssl pcre perl tzdata libcap zip bash zlib \
     && adduser -S kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
