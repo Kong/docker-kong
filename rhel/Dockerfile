@@ -24,8 +24,7 @@ ARG KONG_SHA256="74651c62e1d22fc4fa27354527f5a9b080b9866991d0cec6d2fdd5322c586c4
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
-    if [ "$ASSET" = "local" ] ; then exit 0 ; \
-    elif [ "$ASSET" = "ce" ] ; then \
+    if [ "$ASSET" = "ce" ] ; then \
         curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
         && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
