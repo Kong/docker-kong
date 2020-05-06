@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 if ! [ "$1" ]
 then
@@ -30,44 +30,40 @@ function die() {
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
 pushd alpine
-   ./build-ce.sh
-   mv /tmp/kong.tar.gz /tmp/kong.tar.gz.old
-   old_sha=$(sha256sum /tmp/kong.tar.gz.old | cut -b1-64)
-   VERSION=$version ./build-ce.sh || true
-   mv /tmp/kong.tar.gz /tmp/kong.tar.gz.new
-   new_sha=$(sha256sum /tmp/kong.tar.gz.new | cut -b1-64)
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g')
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
    
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
-   rm /tmp/kong.tar.gz.*
+   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 pushd centos
-   ./build-ce.sh
-   mv /tmp/kong.rpm /tmp/kong.rpm.old
-   old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
-   VERSION=$version ./build-ce.sh || true
-   mv /tmp/kong.rpm /tmp/kong.rpm.new
-   new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g')
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
    
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
-   rm /tmp/kong.rpm.*
+   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 pushd rhel
-   ./build-ce.sh
-   mv /tmp/kong.rpm /tmp/kong.rpm.old
-   old_sha=$(sha256sum /tmp/kong.rpm.old | cut -b1-64)
-   VERSION=$version ./build-ce.sh || true
-   mv /tmp/kong.rpm /tmp/kong.rpm.new
-   new_sha=$(sha256sum /tmp/kong.rpm.new | cut -b1-64)
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g')
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
    
-   sed -i -e 's/'$old_sha'/'$new_sha'/g' build-ce.sh
-   sed -i -e "s/$prev_tag/$version/" Dockerfile
-   
-   rm /tmp/kong.rpm.*
+   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
-sed -i -e "s/$prev_tag/$version/" */build-ce.sh
+pushd ubuntu
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g')
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+   
+   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+popd
 
 echo "****************************************"
 git diff

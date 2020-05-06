@@ -13,8 +13,8 @@ RUN set -ex; \
     elif [ "$ASSET" = "ce" ] ; then \
         apt-get update && \
         apt-get install -y curl && \
-        curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb && \
-        apt-get purge -y curl; \
+        curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
+        && apt-get purge -y curl; \
     fi; \
     apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \
