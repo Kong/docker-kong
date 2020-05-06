@@ -1,31 +1,26 @@
-ARG RESTY_IMAGE_BASE="centos"
-ARG RESTY_IMAGE_TAG="7"
-FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
+FROM centos:7
 LABEL maintainer="Kong <support@konghq.com>"
 
-ARG BINTRAY_USER
-ENV BINTRAY_USER $BINTRAY_USER
+ARG ASSET=ce
+ENV ASSET $ASSET
 
-ARG BINTRAY_KEY
-ENV BINTRAY_KEY $BINTRAY_KEY
+COPY empty-kong.rpm /tmp/kong.rpm
 
-ARG BUILD_SCRIPT=build-ce.sh
-COPY $BUILD_SCRIPT /tmp/build.sh
+ARG KONG_VERSION=2.0.4
+ENV KONG_VERSION $KONG_VERSION
 
-ARG ASSET_LOCATION=bintray
-ENV ASSET_LOCATION $ASSET_LOCATION
+ARG KONG_SHA256="16a934a7bc2e182f00f03bd75b67f4bdb483150b3820d33cab9b0c95539dd353"
+ENV KONG_SHA256 $KONG_SHA256
 
-ARG LOCAL_KONG_PACKAGE=empty-kong.rpm
-COPY $LOCAL_KONG_PACKAGE /tmp/kong.rpm
-
-RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
-    . /tmp/build.sh
-
-RUN yum install -y -q unzip shadow-utils zlib \
+RUN set -ex; \
+	if [ "$ASSET" = "ce" ] ; then \
+		curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
+		&& echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+	fi; \
+	yum install -y -q unzip shadow-utils \
 	&& yum clean all -q \
-	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki
-
-RUN useradd kong \
+	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
+	&& useradd kong \
 	&& mkdir -p "/usr/local/kong" \
 	&& yum install -y /tmp/kong.rpm \
 	&& yum clean all \

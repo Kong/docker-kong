@@ -1,37 +1,28 @@
-ARG RESTY_IMAGE_BASE="ubuntu"
-ARG RESTY_IMAGE_TAG="xenial"
-FROM ${RESTY_IMAGE_BASE}:${RESTY_IMAGE_TAG}
+FROM ubuntu:xenial
 
-ARG BINTRAY_USER
-ENV BINTRAY_USER $BINTRAY_USER
+ARG ASSET=ce
+ENV ASSET $ASSET
 
-ARG BINTRAY_KEY
-ENV BINTRAY_KEY $BINTRAY_KEY
+COPY empty-kong.deb /tmp/kong.deb
 
-ARG BUILD_SCRIPT=build-ce.sh
-COPY $BUILD_SCRIPT /tmp/build.sh
+ARG KONG_VERSION=2.0.4
+ENV KONG_VERSION $KONG_VERSION
 
-ARG ASSET_LOCATION=bintray
-ENV ASSET_LOCATION $ASSET_LOCATION
-
-ARG LOCAL_KONG_PACKAGE=empty-kong.deb
-COPY $LOCAL_KONG_PACKAGE /tmp/kong.deb
-
-RUN if [ "$ASSET_LOCATION" = "local" ] ; then exit 0 ; fi; \
+RUN set -ex; \
+    if [ "$ASSET" = "ce" ] ; then \
+        apt-get update && \
+        apt-get install -y curl && \
+        curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
+        && apt-get purge -y curl; \
+    fi; \
     apt-get update \
-    && apt-get install -y curl && \
-    . /tmp/build.sh && \
-    apt-get purge -yf curl
-
-RUN apt-get update \
     && apt-get install -y --no-install-recommends perl unzip \
     && apt-get install -y --no-install-recommends zlibc || true \
     && apt-get install -y --no-install-recommends zlib1g-dev || true \
     && rm -rf /var/lib/apt/lists/* \
 	&& dpkg -i /tmp/kong.deb \
-	&& rm -rf /tmp/kong.deb
-
-RUN useradd -ms /bin/bash kong \
+	&& rm -rf /tmp/kong.deb \
+	&& useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chown kong:0 /usr/local/bin/kong \
