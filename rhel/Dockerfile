@@ -1,9 +1,4 @@
-ARG RESTY_IMAGE_TAG="7"
-
-FROM registry.access.redhat.com/ubi${RESTY_IMAGE_TAG}/ubi
-
-ARG RESTY_IMAGE_TAG="7"
-ENV RESTY_IMAGE_TAG $RESTY_IMAGE_TAG
+FROM registry.access.redhat.com/ubi7/ubi
 
 MAINTAINER Kong
 
@@ -31,7 +26,7 @@ ENV KONG_SHA256 $KONG_SHA256
 RUN set -ex; \
     if [ "$ASSET" = "local" ] ; then exit 0 ; \
     elif [ "$ASSET" = "ce" ] ; then \
-        curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel$RESTY_IMAGE_TAG.amd64.rpm" -o /tmp/kong.rpm \
+        curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
         && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils \
