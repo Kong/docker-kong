@@ -3,18 +3,12 @@ set -e
 
 if ! [ "$1" ]
 then
-   echo "usage: $0 <version> [<prev_tag>]"
-   echo "example: $0 1.2.3 1.2.2"
+   echo "usage: $0 <version>"
+   echo "example: $0 1.2.3"
    exit 1
 fi
 
 version=$1
-prev_tag=$2
-
-if [ "$prev_tag" = "" ]
-then
-   prev_tag=master
-fi
 
 function red() {
    echo -e "\033[1;31m$@\033[0m"
