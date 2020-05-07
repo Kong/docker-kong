@@ -6,7 +6,7 @@ ENV ASSET $ASSET
 COPY empty-kong.deb /tmp/kong.deb
 
 ARG KONG_VERSION=2.0.4
-ENV KONG_VERSION $KONG_VERSION
+ENV KONG_VERSION 2.0.1
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
