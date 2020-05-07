@@ -16,7 +16,7 @@ RUN set -ex; \
         && apt-get purge -y curl; \
     fi; \
     apt-get update \
-    && apt-get install -y --no-install-recommends perl unzip \
+    && apt-get install -y --no-install-recommends perl unzip git \
     && apt-get install -y --no-install-recommends zlibc || true \
     && apt-get install -y --no-install-recommends zlib1g-dev || true \
     && rm -rf /var/lib/apt/lists/* \
