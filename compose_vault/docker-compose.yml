@@ -23,12 +23,6 @@ networks:
     external: false
 
 services:
-  prerequisites:
-    image: alpine
-    depends_on:
-      - vault
-      - postgres
-
   consul-bootstrap:
     image: consul:${CONSUL_VERSION:-1.7}
     ports:
@@ -85,12 +79,6 @@ services:
       - consul-backup
       - consul-backup2
     restart: on-failure
-
-  postgres_client:
-    image: postgres:${POSTGRES_VERSION:-9.5}
-    entrypoint: tail -f /dev/null
-    networks:
-      - postgres
 
   postgres:
     image: postgres:${POSTGRES_VERSION:-9.5}
