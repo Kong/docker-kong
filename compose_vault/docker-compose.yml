@@ -144,4 +144,4 @@ services:
       - consul-backup2
       - vault
       - postgres
-    restart: on-failure     
+    restart: on-failure
