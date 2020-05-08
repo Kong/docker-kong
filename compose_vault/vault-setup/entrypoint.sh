@@ -40,12 +40,15 @@ test -f /keys/keys.txt && vault login $(grep 'Initial Root Token:' /keys/keys.tx
 if [[ ! -f /consul/db_policy/data ]]
 then
     vault secrets enable database
+    
     vault write database/config/$POSTGRES_DB \
         plugin_name=postgresql-database-plugin \
         allowed_roles="vaultrole" \
         connection_url="postgres://{{username}}:{{password}}@postgres:5432/$POSTGRES_DB?sslmode=disable" \
         username="$POSTGRES_USER" \
         password="$POSTGRES_PASSWORD"
+    
+    vault write -force database/rotate-root/$POSTGRES_DB
     
     vault write database/roles/vaultrole \
         db_name=$POSTGRES_DB \
