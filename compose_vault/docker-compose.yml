@@ -10,6 +10,8 @@ secrets:
 x-postgres-config: &postgres-env
   POSTGRES_HOST: postgres
   POSTGRES_DB: ${PG_DATABASE:-qwerty}
+  POSTGRES_USER: ${PG_USER:-123abc}
+  POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
 
 networks:
   vault:
@@ -20,8 +22,14 @@ networks:
     external: false
 
 services:
+  prerequisites:
+    image: alpine
+    depends_on:
+      - vault
+      - postgres
+
   consul-bootstrap:
-    image: consul:${CONSUL_VERSION:-1.7.2}
+    image: consul:${CONSUL_VERSION:-1.7}
     ports:
       - 8500:8500
     networks:
@@ -31,7 +39,7 @@ services:
     restart: on-failure
 
   consul-backup: &consul-setup
-    image: consul:${CONSUL_VERSION:-1.7.2}
+    image: consul:${CONSUL_VERSION:-1.7}
     command: "agent -server -retry-join consul-bootstrap -client 0.0.0.0 -bind '{{ GetInterfaceIP \"eth0\" }}'"
     networks:
       - consul
@@ -43,7 +51,7 @@ services:
     <<: *consul-setup
 
   vault:
-    image: vault:${VAULT_VERSION:-1.3.4}
+    image: vault:${VAULT_VERSION:-1.3.5}
     command: vault server -config=/vault/config
     environment: &vault-env
       VAULT_ADDR: 'http://127.0.0.1:8200'
@@ -87,8 +95,6 @@ services:
     image: postgres:${POSTGRES_VERSION:-9.5}
     environment:
       <<: *postgres-env
-      POSTGRES_USER: ${PG_USER:-123abc}
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     secrets:
       - postgres_password
     restart: on-failure
@@ -100,13 +106,11 @@ services:
     build:
       context: ./vault-postgresql
       args:
-        VAULT_VERSION: ${VAULT_VERSION:-1.3.4}
+        VAULT_VERSION: ${VAULT_VERSION:-1.3.5}
     volumes:
       - vault_postgres_policy:/consul/db_policy
     environment:
       <<: *postgres-env
-      POSTGRES_USER: ${PG_USER:-123abc}
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       <<: *vault-env
     secrets:
       - postgres_password
@@ -124,7 +128,8 @@ services:
     restart: on-failure
 
   kong:
-    image: temp
+    build:
+      context: ./kong
     volumes:
       - vault_postgres_policy:/consul/db_policy
     ports:
@@ -149,5 +154,4 @@ services:
       - consul-backup2
       - vault
       - postgres
-      - vault-setup
     restart: on-failure     

@@ -3,6 +3,8 @@ set -Eeo pipefail
 
 test -f /consul/db_policy/data && exit 0
 
+( curl -s -o /dev/null -w ''%{http_code}'' http://vault:8200/ui/ | grep -q 200 ) || exit 1
+
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
@@ -47,6 +49,7 @@ vault write database/roles/vaultrole \
     db_name=$POSTGRES_DB \
     creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" \
+    revocation_statements="ALTER ROLE \"{{name}}\" NOLOGIN;" \
     default_ttl="1m" \
     max_ttl="2h"
 
