@@ -28,6 +28,8 @@ export KONG_NGINX_DAEMON=off
 if [[ "$1" == "kong" ]]; then
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
   file_env KONG_PG_PASSWORD
+  file_env KONG_PG_USER
+  file_env KONG_PG_DATABASE
 
   if [[ "$2" == "docker-start" ]]; then
     kong prepare -p "$PREFIX" "$@"
