@@ -30,7 +30,8 @@ RUN set -ex; \
 	mkdir -p "/usr/local/kong" && \
 	chown -R kong:0 /usr/local/kong && \
 	chown kong:0 /usr/local/bin/kong && \
-	chmod -R g=u /usr/local/kong
+	chmod -R g=u /usr/local/kong && \
+	rm -rf /tmp/kong.tar.gz
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
