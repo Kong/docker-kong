@@ -25,12 +25,14 @@ RUN set -ex; \
 	mv /kong/usr/local/* /usr/local && \
 	mv /kong/etc/* /etc && \
 	rm -rf /kong && \
-	apk add --no-cache libgcc openssl pcre perl tzdata libcap zip bash zlib git && \
+	apk add --no-cache libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git && \
 	adduser -S kong && \
 	mkdir -p "/usr/local/kong" && \
 	chown -R kong:0 /usr/local/kong && \
 	chown kong:0 /usr/local/bin/kong && \
-	chmod -R g=u /usr/local/kong
+	chmod -R g=u /usr/local/kong && \
+	rm -rf /tmp/kong.tar.gz && \
+	kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
