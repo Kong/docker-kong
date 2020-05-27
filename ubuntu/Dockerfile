@@ -31,11 +31,16 @@ RUN set -ex; \
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
+# Add Tini
+ENV TINI_VERSION v0.10.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
 USER kong
 
 RUN kong version
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/tini", "--", "/docker-entrypoint.sh"]
 
 EXPOSE 8000 8443 8001 8444
 
