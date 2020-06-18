@@ -79,7 +79,7 @@ popd
 
 git clone https://github.com/Kong/kong.git || true
 pushd kong
-git checkout $version_given
+git checkout 2.1.0-beta.1
 popd
 
 pushd kong-build-tools

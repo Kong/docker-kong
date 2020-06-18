@@ -7,16 +7,16 @@ ENV ASSET $ASSET
 
 COPY empty-kong.tar.gz /tmp/kong.tar.gz
 
-ARG KONG_VERSION=2.0.4
+ARG KONG_VERSION=2.1.0beta.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="457dd0172ae2de2e0b71ce625f78e06449faf38fd734dd6825eb7782d74cb77e"
+ARG KONG_SHA256="2f6d703b54c9da3787bdab1e38ec8c1ec70e4cb30751c7df021d97957704736d"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
-        curl -fL "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
+        curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
         echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
         apk del .build-deps; \
     fi; \

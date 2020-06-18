@@ -5,14 +5,14 @@ ENV ASSET $ASSET
 
 COPY empty-kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.0.4
+ARG KONG_VERSION=2.1.0beta.1
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
         apt-get update && \
         apt-get install -y curl && \
-        curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
+        curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
         && apt-get purge -y curl; \
     fi; \
     apt-get update \

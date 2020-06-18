@@ -6,15 +6,15 @@ ENV ASSET $ASSET
 
 COPY empty-kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.0.4
+ARG KONG_VERSION=2.1.0beta.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="16a934a7bc2e182f00f03bd75b67f4bdb483150b3820d33cab9b0c95539dd353"
+ARG KONG_SHA256="cc6440089fce6f450c8fea5749753bf67fb92d4e3712de9aa50c1fd75997a770"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
 	if [ "$ASSET" = "ce" ] ; then \
-		curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
+		curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
 		&& echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
 	fi; \
 	yum install -y -q unzip shadow-utils git zlib zlib-devel \
