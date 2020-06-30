@@ -5,7 +5,9 @@ LABEL maintainer="Kong <support@konghq.com>"
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-COPY empty-kong.tar.gz /tmp/kong.tar.gz
+ARG EE_PORTS
+
+COPY kong.tar.gz /tmp/kong.tar.gz
 
 ARG KONG_VERSION=2.1.0beta.1
 ENV KONG_VERSION $KONG_VERSION
@@ -25,7 +27,7 @@ RUN set -ex; \
 	mv /kong/usr/local/* /usr/local && \
 	mv /kong/etc/* /etc && \
 	rm -rf /kong && \
-	apk add --no-cache libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates && \
+	apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates && \
 	adduser -S kong && \
 	mkdir -p "/usr/local/kong" && \
 	chown -R kong:0 /usr/local/kong && \
@@ -40,7 +42,7 @@ USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 8000 8443 8001 8444
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 

@@ -39,6 +39,8 @@ NO_PHONE_HOME_NAME=reports-off
 
 KONG_EDITION="community-edition"
 
+EE_PORTS="8002 8445 8003 8446 8004 8447"
+
 while getopts "R:v:u:k:o:r:bPp:hliea" option; do
   case $option in
     v)
@@ -151,7 +153,7 @@ function build_no_phone_home {
   local platform=$1
 
   pushd phone-home-off > /dev/null
-    docker build --build-arg BASE_IMAGE=kong-$KONG_EDITION:$platform-$KONG_VERSION \
+    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION --build-arg BASE_IMAGE=kong-$KONG_EDITION:$platform-$KONG_VERSION \
       -t kong-$KONG_EDITION:$platform-$NO_PHONE_HOME_NAME-$KONG_VERSION .
   popd > /dev/null
 }
@@ -167,7 +169,7 @@ function build_alpine_image {
 
   pushd alpine > /dev/null
    curl -o kong.tar.gz -L "${alpine_url}"
-   docker build --build-arg KONG_ENTERPRISE_PACKAGE=kong.tar.gz \
+   docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:alpine-$KONG_VERSION .
   popd > /dev/null
 
@@ -189,7 +191,7 @@ function build_centos_image {
 
   pushd centos > /dev/null
     curl -o kong.rpm -L "${centos_url}"
-    docker build --build-arg KONG_ENTERPRISE_PACKAGE=kong.rpm \
+    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:centos-$KONG_VERSION .
   popd > /dev/null
 
@@ -211,7 +213,7 @@ function build_rhel_image {
 
   pushd rhel > /dev/null
     curl -o kong.rpm -L "${rhel_url}"
-    docker build --build-arg KONG_ENTERPRISE_PACKAGE=kong.rpm \
+    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:rhel-$KONG_VERSION .
   popd > /dev/null
 
@@ -298,46 +300,46 @@ function push_rhel_image {
 }
 
 # Do the build/push process for each selected platform
-for platform in "${platforms_to_build[@]}"; do
-  case $platform in
-    alpine)
-      if [[ -z $PUSH_ONLY ]]; then
-        build_alpine_image
+platform=${platforms_to_build[0]}
+
+case $platform in
+  alpine)
+    if [[ -z $PUSH_ONLY ]]; then
+      build_alpine_image
+    fi
+    if [[ -z $BUILD_ONLY ]]; then
+      if [[ -z $(docker images --format "{{.Repository}}" \
+                        kong-$KONG_EDITION:alpine-$KONG_VERSION) ]]; then
+        echo "Alpine image not found; build it first!"
+        continue
       fi
-      if [[ -z $BUILD_ONLY ]]; then
-        if [[ -z $(docker images --format "{{.Repository}}" \
-          kong-$KONG_EDITION:alpine-$KONG_VERSION) ]]; then
-          echo "Alpine image not found; build it first!"
-          continue
-        fi
-        push_alpine_image
+      push_alpine_image
+    fi
+    ;;
+  centos)
+    if [[ -z $PUSH_ONLY ]]; then
+      build_centos_image
+    fi
+    if [[ -z $BUILD_ONLY ]]; then
+      if [[ -z $(docker images --format "{{.Repository}}" \
+                        kong-$KONG_EDITION:centos-$KONG_VERSION) ]]; then
+        echo "CentOS image not found; build it first!"
+        continue
       fi
-      ;;
-    centos)
-      if [[ -z $PUSH_ONLY ]]; then
-        build_centos_image
+      push_centos_image
+    fi
+    ;;
+  rhel)
+    if [[ -z $PUSH_ONLY ]]; then
+      build_rhel_image
+    fi
+    if [[ -z $BUILD_ONLY ]]; then
+      if [[ -z $(docker images --format "{{.Repository}}" \
+                        kong-enterprise-edition:rhel-$KONG_VERSION) ]]; then
+        echo "RHEL image not found; build it first!"
+        continue
       fi
-      if [[ -z $BUILD_ONLY ]]; then
-        if [[ -z $(docker images --format "{{.Repository}}" \
-          kong-$KONG_EDITION:centos-$KONG_VERSION) ]]; then
-          echo "CentOS image not found; build it first!"
-          continue
-        fi
-        push_centos_image
-      fi
-      ;;
-    rhel)
-      if [[ -z $PUSH_ONLY ]]; then
-        build_rhel_image
-      fi
-      if [[ -z $BUILD_ONLY ]]; then
-        if [[ -z $(docker images --format "{{.Repository}}" \
-          kong-enterprise-edition:rhel-$KONG_VERSION) ]]; then
-          echo "RHEL image not found; build it first!"
-          continue
-        fi
-        push_rhel_image
-      fi
-      ;;
-  esac
-done
+      push_rhel_image
+    fi
+    ;;
+esac

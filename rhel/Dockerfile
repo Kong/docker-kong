@@ -15,7 +15,9 @@ COPY LICENSE /licenses/
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-COPY empty-kong.rpm /tmp/kong.rpm
+ARG EE_PORTS
+
+COPY kong.rpm /tmp/kong.rpm
 
 ARG KONG_VERSION=2.1.0beta.1
 ENV KONG_VERSION $KONG_VERSION
@@ -47,7 +49,7 @@ USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 8000 8443 8001 8444
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
