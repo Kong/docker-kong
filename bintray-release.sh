@@ -2,6 +2,12 @@
 
 set -o errexit
 
+
+function die {
+  >&2 echo "$@"
+  exit 1
+}
+
 function usage {
   cat << EOF
 Build Kong EE Docker images and upload to our Bintray registry
@@ -14,12 +20,14 @@ usage: $0 options
  -o Bintray organization
  -r Bintray Docker registry address
  -i Build internal preview
- -p Platforms to build for
+ -p Platform to build for
  -b Build only
  -P Push only
  -l Create 'latest' tag - which is a link to alpine distro
  -a Disable anonymous reports (a stands for anonymous)
  -h Print this help message
+ -f use file instead of downloading from Bintray
+ -R Release type
 EOF
   exit 1
 }
@@ -39,8 +47,13 @@ NO_PHONE_HOME_NAME=reports-off
 
 KONG_EDITION="community-edition"
 
-while getopts "R:v:u:k:o:r:bPp:hliea" option; do
+EE_PORTS="8002 8445 8003 8446 8004 8447"
+
+while getopts "f:R:v:u:k:o:r:bPp:hliea" option; do
   case $option in
+    f)
+      KONG_FILE=$OPTARG
+      ;;
     v)
       KONG_VERSION=$OPTARG
       ;;
@@ -95,7 +108,11 @@ if [[ "$KONG_RELEASE" == "internal-preview" ]] ; then
     INTERNAL_PREVIEW=true
 fi
 
-if [[ -z $BINTRAY_USR ]] || [[ -z $BINTRAY_KEY ]] || [[ -z $KONG_VERSION ]]; then
+[[ -z $KONG_VERSION ]] && usage
+
+[[ ! -z $KONG_FILE && -z $BUILD_ONLY ]] && die "-f must be used with -b"
+
+if [[ -z $BINTRAY_USR ]] || [[ -z $BINTRAY_KEY ]] && [[ -z $KONG_FILE ]]; then
   usage
 fi
 
@@ -151,23 +168,27 @@ function build_no_phone_home {
   local platform=$1
 
   pushd phone-home-off > /dev/null
-    docker build --build-arg BASE_IMAGE=kong-$KONG_EDITION:$platform-$KONG_VERSION \
+    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION --build-arg BASE_IMAGE=kong-$KONG_EDITION:$platform-$KONG_VERSION \
       -t kong-$KONG_EDITION:$platform-$NO_PHONE_HOME_NAME-$KONG_VERSION .
   popd > /dev/null
 }
 
 function build_alpine_image {
-  local alpine_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-    "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-alpine-tar}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.apk.tar.gz" \
-    -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
-    | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
-  echo $alpine_url
+  local alpine_url
+  if [[ -z $KONG_FILE ]]; then
+    alpine_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
+                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-alpine-tar}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.apk.tar.gz" \
+                            -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
+                         | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
+    echo $alpine_url
+    curl -o alpine/kong.tar.gz -L "${alpine_url}"
+  else
+    cp $KONG_FILE alpine/kong.tar.gz
+  fi
 
   echo "Building Kong ($KONG_EDITION) Alpine image..."
-
   pushd alpine > /dev/null
-   curl -o kong.tar.gz -L "${alpine_url}"
-   docker build --build-arg KONG_ENTERPRISE_PACKAGE=kong.tar.gz \
+   docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:alpine-$KONG_VERSION .
   popd > /dev/null
 
@@ -179,17 +200,20 @@ function build_alpine_image {
 }
 
 function build_centos_image {
-  local centos_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-    "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/centos/7}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.el7.noarch.rpm" \
-    -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
-    | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
-  echo $centos_url
+  if [[ -z $KONG_FILE ]]; then
+    local centos_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
+                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/centos/7}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.el7.noarch.rpm" \
+                            -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
+                         | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
+    echo $centos_url
+    curl -o centos/kong.rpm -L "${centos_url}"
+  else
+    cp $KONG_FILE alpine/kong.rpm
+  fi
 
   echo "Building Kong ($KONG_EDITION) CentOS image..."
-
   pushd centos > /dev/null
-    curl -o kong.rpm -L "${centos_url}"
-    docker build --build-arg KONG_ENTERPRISE_PACKAGE=kong.rpm \
+    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:centos-$KONG_VERSION .
   popd > /dev/null
 
@@ -201,17 +225,21 @@ function build_centos_image {
 }
 
 function build_rhel_image {
-  local rhel_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-    "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/rhel/7}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.rhel7.noarch.rpm" \
-    -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
-    | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
+  if [[ -z $KONG_FILE ]]; then
+    local rhel_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
+                          "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/rhel/7}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.rhel7.noarch.rpm" \
+                          -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
+                       | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
 
-  echo $rhel_url
+    echo $rhel_url
+    curl -o rhel/kong.rpm -L "${rhel_url}"
+  else
+    cp $KONG_FILE alpine/kong.rpm
+  fi
+
   echo "Building Kong ($KONG_EDITION) RHEL image..."
-
   pushd rhel > /dev/null
-    curl -o kong.rpm -L "${rhel_url}"
-    docker build --build-arg KONG_ENTERPRISE_PACKAGE=kong.rpm \
+    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:rhel-$KONG_VERSION .
   popd > /dev/null
 
@@ -298,46 +326,46 @@ function push_rhel_image {
 }
 
 # Do the build/push process for each selected platform
-for platform in "${platforms_to_build[@]}"; do
-  case $platform in
-    alpine)
-      if [[ -z $PUSH_ONLY ]]; then
-        build_alpine_image
+platform=${platforms_to_build[0]}
+
+case $platform in
+  alpine)
+    if [[ -z $PUSH_ONLY ]]; then
+      build_alpine_image
+    fi
+    if [[ -z $BUILD_ONLY ]]; then
+      if [[ -z $(docker images --format "{{.Repository}}" \
+                        kong-$KONG_EDITION:alpine-$KONG_VERSION) ]]; then
+        echo "Alpine image not found; build it first!"
+        continue
       fi
-      if [[ -z $BUILD_ONLY ]]; then
-        if [[ -z $(docker images --format "{{.Repository}}" \
-          kong-$KONG_EDITION:alpine-$KONG_VERSION) ]]; then
-          echo "Alpine image not found; build it first!"
-          continue
-        fi
-        push_alpine_image
+      push_alpine_image
+    fi
+    ;;
+  centos)
+    if [[ -z $PUSH_ONLY ]]; then
+      build_centos_image
+    fi
+    if [[ -z $BUILD_ONLY ]]; then
+      if [[ -z $(docker images --format "{{.Repository}}" \
+                        kong-$KONG_EDITION:centos-$KONG_VERSION) ]]; then
+        echo "CentOS image not found; build it first!"
+        continue
       fi
-      ;;
-    centos)
-      if [[ -z $PUSH_ONLY ]]; then
-        build_centos_image
+      push_centos_image
+    fi
+    ;;
+  rhel)
+    if [[ -z $PUSH_ONLY ]]; then
+      build_rhel_image
+    fi
+    if [[ -z $BUILD_ONLY ]]; then
+      if [[ -z $(docker images --format "{{.Repository}}" \
+                        kong-enterprise-edition:rhel-$KONG_VERSION) ]]; then
+        echo "RHEL image not found; build it first!"
+        continue
       fi
-      if [[ -z $BUILD_ONLY ]]; then
-        if [[ -z $(docker images --format "{{.Repository}}" \
-          kong-$KONG_EDITION:centos-$KONG_VERSION) ]]; then
-          echo "CentOS image not found; build it first!"
-          continue
-        fi
-        push_centos_image
-      fi
-      ;;
-    rhel)
-      if [[ -z $PUSH_ONLY ]]; then
-        build_rhel_image
-      fi
-      if [[ -z $BUILD_ONLY ]]; then
-        if [[ -z $(docker images --format "{{.Repository}}" \
-          kong-enterprise-edition:rhel-$KONG_VERSION) ]]; then
-          echo "RHEL image not found; build it first!"
-          continue
-        fi
-        push_rhel_image
-      fi
-      ;;
-  esac
-done
+      push_rhel_image
+    fi
+    ;;
+esac

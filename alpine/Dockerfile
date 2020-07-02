@@ -5,13 +5,14 @@ LABEL maintainer="Kong <support@konghq.com>"
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-COPY empty-kong.tar.gz /tmp/kong.tar.gz
+ARG EE_PORTS
+
+COPY kong.tar.gz /tmp/kong.tar.gz
 
 ARG KONG_VERSION=2.1.0beta.1
 ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="2f6d703b54c9da3787bdab1e38ec8c1ec70e4cb30751c7df021d97957704736d"
-ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
@@ -25,7 +26,7 @@ RUN set -ex; \
 	mv /kong/usr/local/* /usr/local && \
 	mv /kong/etc/* /etc && \
 	rm -rf /kong && \
-	apk add --no-cache libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates && \
+	apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates && \
 	adduser -S kong && \
 	mkdir -p "/usr/local/kong" && \
 	chown -R kong:0 /usr/local/kong && \
@@ -40,7 +41,7 @@ USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 8000 8443 8001 8444
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
