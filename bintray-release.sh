@@ -10,7 +10,10 @@ function die {
 
 function usage {
   cat << EOF
-Build Kong EE Docker images and upload to our Bintray registry
+Build Kong EE Docker images and upload to our Bintray registry.
+
+WARNING: This script is intended to be used ONLY for Enterprise
+releases.
 
 usage: $0 options
  -e Kong Enterprise
@@ -99,6 +102,10 @@ while getopts "f:R:v:u:k:o:r:bPp:hliea" option; do
       ;;
   esac
 done
+
+
+[[ "$KONG_EDITION" == "enterprise-edition" ]] ||
+  die "This script is intended to be used ONLY for Enterprise releases."
 
 if [[ "$KONG_RELEASE" == rc* ]] ; then
     KONG_RC=$KONG_RELEASE
