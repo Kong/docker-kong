@@ -39,7 +39,7 @@ RUN set -ex; \
 	&& rm /tmp/kong.rpm \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chown kong:0 /usr/local/bin/kong \
-	&& chmod -R g=u /usr/local/kong \
+	&& chmod -R g=u /usr/local/kong &&\
   if [ "$ASSET" = "ce" ] ; then \
     kong version ; \
   fi;

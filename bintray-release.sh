@@ -215,7 +215,7 @@ function build_centos_image {
     echo $centos_url
     curl -o centos/kong.rpm -L "${centos_url}"
   else
-    cp $KONG_FILE alpine/kong.rpm
+    cp $KONG_FILE centos/kong.rpm
   fi
 
   echo "Building Kong ($KONG_EDITION) CentOS image..."
@@ -241,7 +241,7 @@ function build_rhel_image {
     echo $rhel_url
     curl -o rhel/kong.rpm -L "${rhel_url}"
   else
-    cp $KONG_FILE alpine/kong.rpm
+    cp $KONG_FILE rhel/kong.rpm
   fi
 
   echo "Building Kong ($KONG_EDITION) RHEL image..."
