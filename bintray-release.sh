@@ -175,7 +175,7 @@ function build_no_phone_home {
   local platform=$1
 
   pushd phone-home-off > /dev/null
-    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION --build-arg BASE_IMAGE=kong-$KONG_EDITION:$platform-$KONG_VERSION \
+    docker build --build-arg ASSET=ee --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION --build-arg BASE_IMAGE=kong-$KONG_EDITION:$platform-$KONG_VERSION \
       -t kong-$KONG_EDITION:$platform-$NO_PHONE_HOME_NAME-$KONG_VERSION .
   popd > /dev/null
 }
@@ -195,7 +195,7 @@ function build_alpine_image {
 
   echo "Building Kong ($KONG_EDITION) Alpine image..."
   pushd alpine > /dev/null
-   docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
+   docker build --build-arg ASSET=ee --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:alpine-$KONG_VERSION .
   popd > /dev/null
 
@@ -220,7 +220,7 @@ function build_centos_image {
 
   echo "Building Kong ($KONG_EDITION) CentOS image..."
   pushd centos > /dev/null
-    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
+    docker build --build-arg ASSET=ee --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:centos-$KONG_VERSION .
   popd > /dev/null
 
@@ -246,7 +246,7 @@ function build_rhel_image {
 
   echo "Building Kong ($KONG_EDITION) RHEL image..."
   pushd rhel > /dev/null
-    docker build --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
+    docker build --build-arg ASSET=ee --build-arg EE_PORTS="$EE_PORTS" --build-arg KONG_VERSION=$KONG_VERSION \
       -t kong-$KONG_EDITION:rhel-$KONG_VERSION .
   popd > /dev/null
 
