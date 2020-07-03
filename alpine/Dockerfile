@@ -33,7 +33,9 @@ RUN set -ex; \
 	chown kong:0 /usr/local/bin/kong && \
 	chmod -R g=u /usr/local/kong && \
 	rm -rf /tmp/kong.tar.gz && \
-	kong version
+  if [ "$ASSET" = "ce" ] ; then \
+    kong version ; \
+  fi;
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
