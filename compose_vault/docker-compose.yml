@@ -17,33 +17,10 @@ x-postgres-config: &postgres-env
 networks:
   vault:
     external: false
-  consul:
-    external: false
   postgres:
     external: false
 
 services:
-  consul-bootstrap:
-    image: consul:${CONSUL_VERSION:-1.7}
-    ports:
-      - 8500:8500
-    networks:
-      - consul
-      - vault
-    command: "agent -server -bootstrap-expect 3 -ui -client 0.0.0.0 -node consul-bootstrap -bind '{{ GetInterfaceIP \"eth0\" }}'"
-    restart: on-failure
-
-  consul-backup: &consul-setup
-    image: consul:${CONSUL_VERSION:-1.7}
-    command: "agent -server -retry-join consul-bootstrap -client 0.0.0.0 -bind '{{ GetInterfaceIP \"eth0\" }}'"
-    networks:
-      - consul
-    depends_on:
-      - consul-bootstrap
-    restart: on-failure
-
-  consul-backup2:
-    <<: *consul-setup
 
   vault:
     image: vault:${VAULT_VERSION:-1.3.5}
@@ -54,11 +31,7 @@ services:
         {
             "ui": true,
             "backend": {
-                "consul": {
-                    "address": "consul-bootstrap:8500",
-                    "path": "vault",
-                    "scheme": "http"
-                }
+                "inmem": {}
             },
             "default_lease_ttl": "168h",
             "listener": {
@@ -74,10 +47,6 @@ services:
     networks:
       - vault
       - postgres
-    depends_on:
-      - consul-bootstrap
-      - consul-backup
-      - consul-backup2
     restart: on-failure
 
   postgres:
@@ -97,7 +66,7 @@ services:
       args:
         VAULT_VERSION: ${VAULT_VERSION:-1.3.5}
     volumes:
-      - vault_postgres_policy:/consul/db_policy
+      - vault_postgres_policy:/vault/db_policy
       - vault_seal_keys:/keys
     environment:
       <<: *postgres-env
@@ -110,9 +79,6 @@ services:
       - vault
       - postgres
     depends_on:
-      - consul-bootstrap
-      - consul-backup
-      - consul-backup2
       - vault
       - postgres
     restart: on-failure
@@ -121,7 +87,7 @@ services:
     build:
       context: ./kong
     volumes:
-      - vault_postgres_policy:/consul/db_policy
+      - vault_postgres_policy:/vault/db_policy
     ports:
       - "8000:8000/tcp"
       - "8001:8001/tcp"
@@ -135,13 +101,9 @@ services:
       KONG_PG_HOST: postgres
       KONG_PG_DATABASE: ${PG_DATABASE:-qwerty}
     networks:
-      - consul
       - vault
       - postgres
     depends_on:
-      - consul-bootstrap
-      - consul-backup
-      - consul-backup2
       - vault
       - postgres
     restart: on-failure

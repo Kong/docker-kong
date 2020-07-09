@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -Eeo pipefail
 
-test -f /consul/db_policy/data || exit 1
+test -f /vault/db_policy/data || exit 1
 
-export CONSUL_ADDR="http://consul-bootstrap:8500" && \
 export VAULT_ADDR="http://vault:8200" && \
-export VAULT_TOKEN="$(cat /consul/db_policy/data)"
+export VAULT_TOKEN="$(cat /vault/db_policy/data)"
 
 consul-template -template="/etc/kong/kong.conf.template:/etc/kong/kong.conf" -once
 

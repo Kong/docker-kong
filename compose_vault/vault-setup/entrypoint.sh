@@ -2,6 +2,7 @@
 set -Eeo pipefail
 
 ( curl -s -o /dev/null -w ''%{http_code}'' http://vault:8200/ui/ | grep -q 200 ) || exit 1
+pg_isready -d $POSTGRES_DB -h postgres -p 5432 || exit 1
 
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
@@ -37,7 +38,7 @@ vault operator unseal $(grep 'Key 3:' /keys/keys.txt | awk '{print $NF}')
 
 test -f /keys/keys.txt && vault login $(grep 'Initial Root Token:' /keys/keys.txt | awk '{print substr($NF, 1, length($NF))}')
 
-if [[ ! -f /consul/db_policy/data ]]
+if [[ ! -f /vault/db_policy/data ]]
 then
     vault secrets enable database
     
@@ -59,8 +60,8 @@ then
         max_ttl="2h"
     
     vault policy write db_creds /tmp/db_creds.tpl
-    touch /consul/db_policy/data
-    vault token create -policy="db_creds" | grep "token " | awk '{print $2}' >> /consul/db_policy/data
+    touch /vault/db_policy/data
+    vault token create -policy="db_creds" | grep "token " | awk '{print $2}' >> /vault/db_policy/data
 fi
 
 while vault status | grep Sealed | grep -q false; do :; done
