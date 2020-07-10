@@ -29,13 +29,13 @@ RUN set -ex; \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chown kong:0 /usr/local/bin/kong \
 	&& chmod -R g=u /usr/local/kong \
-	&& kong version
+    && if [ "$ASSET" = "ce" ] ; then \
+        kong version ; \
+    fi;
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 USER kong
-
-RUN kong version
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
