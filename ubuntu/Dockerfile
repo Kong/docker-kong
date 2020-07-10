@@ -3,7 +3,9 @@ FROM ubuntu:xenial
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-COPY empty-kong.deb /tmp/kong.deb
+ARG EE_PORTS
+
+COPY kong.deb /tmp/kong.deb
 
 ARG KONG_VERSION=2.1.0rc.1
 ENV KONG_VERSION $KONG_VERSION
@@ -37,7 +39,7 @@ RUN kong version
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 8000 8443 8001 8444
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
