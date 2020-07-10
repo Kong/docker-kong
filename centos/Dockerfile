@@ -20,7 +20,7 @@ RUN set -ex; \
 		curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
 		&& echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
 	fi; \
-	yum install -y -q unzip shadow-utils git zlib zlib-devel \
+	yum install -y -q unzip shadow-utils git zlib \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
 	&& useradd kong \
