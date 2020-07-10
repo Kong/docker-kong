@@ -115,7 +115,17 @@ if [[ "$KONG_RELEASE" == "internal-preview" ]] ; then
     INTERNAL_PREVIEW=true
 fi
 
+if [[ "$KONG_RELEASE" == beta* ]] ; then
+    TAG_LATEST=
+fi
+
 [[ -z $KONG_VERSION ]] && usage
+
+# GA has no suffix in the file, others do.
+if [[ $KONG_RELEASE != "ga" ]]; then
+  KONG_VERSION="${KONG_VERSION}-${KONG_RELEASE}"
+fi
+
 
 [[ ! -z $KONG_FILE && -z $BUILD_ONLY ]] && die "-f must be used with -b"
 
@@ -171,6 +181,34 @@ for platform in "$PLATFORMS"; do
   fi
 done
 
+
+dist_file_for() {
+    local name=$1
+    local res
+
+    # At this point, $KONG_VERSION already has the appended
+    # -beta1,-rc1,-internal-preview,....
+
+    base="kong-$KONG_EDITION-$KONG_VERSION"
+
+
+    if [[ $name == amazonlinux* ]]; then
+        res=".amzn$VERSION.noarch.rpm"
+    elif [[ $name == "alpine" ]]; then
+        res=".apk.tar.gz"
+    elif [[ $name == centos* ]]; then
+        res=".el$VERSION.noarch.rpm"
+    elif [[ $name == rhel* ]]; then
+        res=".rhel$VERSION.noarch.rpm"
+    elif [[ $name == ubuntu* ]]; then
+        res=".$VERSION.all.deb"
+    elif [[ $name == debian* ]]; then
+        res=".$VERSION.all.deb"
+    fi
+    echo "${base}${res}"
+}
+
+
 function build_no_phone_home {
   local platform=$1
 
@@ -181,10 +219,11 @@ function build_no_phone_home {
 }
 
 function build_alpine_image {
+  local dist=alpine
   local alpine_url
   if [[ -z $KONG_FILE ]]; then
     alpine_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-alpine-tar}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.apk.tar.gz" \
+                      "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-alpine-tar}/$(dist_file_for $dist)" \
                             -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
                          | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
     echo $alpine_url
@@ -207,9 +246,10 @@ function build_alpine_image {
 }
 
 function build_centos_image {
+  local dist=centos
   if [[ -z $KONG_FILE ]]; then
     local centos_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/centos/7}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.el7.noarch.rpm" \
+                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/centos/7}/$(dist_file_for $dist)" \
                             -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
                          | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
     echo $centos_url
@@ -232,9 +272,10 @@ function build_centos_image {
 }
 
 function build_rhel_image {
+  local dist=rhel
   if [[ -z $KONG_FILE ]]; then
     local rhel_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-                          "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/rhel/7}/kong-$KONG_EDITION-$KONG_VERSION${INTERNAL_PREVIEW:+-internal-preview}${KONG_RC:+-$KONG_RC}.rhel7.noarch.rpm" \
+                          "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/rhel/7}/$(dist_file_for $dist)" \
                           -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
                        | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
 
