@@ -4,13 +4,16 @@ LABEL maintainer="Kong <support@konghq.com>"
 ARG ASSET=ce
 ENV ASSET $ASSET
 
-COPY empty-kong.rpm /tmp/kong.rpm
+ARG EE_PORTS
+
+
+
+COPY kong.rpm /tmp/kong.rpm
 
 ARG KONG_VERSION=2.1.0rc.1
 ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="8ea531b374d48fc125f19f68190a420f5870c267940d4fb701968c13950b6872"
-ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
 	if [ "$ASSET" = "ce" ] ; then \
@@ -27,8 +30,10 @@ RUN set -ex; \
 	&& rm /tmp/kong.rpm \
 	&& chown -R kong:0 /usr/local/kong \
 	&& chown kong:0 /usr/local/bin/kong \
-	&& chmod -R g=u /usr/local/kong \
-	&& kong version
+	&& chmod -R g=u /usr/local/kong && \
+  if [ "$ASSET" = "ce" ] ; then \
+    kong version ; \
+  fi;
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
@@ -36,7 +41,7 @@ USER kong
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 8000 8443 8001 8444
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
