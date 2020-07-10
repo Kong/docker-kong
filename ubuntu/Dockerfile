@@ -5,7 +5,7 @@ ENV ASSET $ASSET
 
 COPY empty-kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.1.0beta.1
+ARG KONG_VERSION=2.1.0rc.1
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -ex; \
