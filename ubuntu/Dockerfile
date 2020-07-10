@@ -16,8 +16,7 @@ RUN set -ex; \
         && apt-get purge -y curl; \
     fi; \
     apt-get update \
-    && apt-get install -y --no-install-recommends perl unzip git \
-    && { apt-get install -y --no-install-recommends zlibc || true; } \
+    && apt-get install -y --no-install-recommends perl unzip git zlib1g \
     && rm -rf /var/lib/apt/lists/* \
 	&& dpkg -i /tmp/kong.deb \
 	&& rm -rf /tmp/kong.deb \
