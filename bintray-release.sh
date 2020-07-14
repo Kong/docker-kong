@@ -197,8 +197,10 @@ dist_file_for() {
     elif [[ $name == "alpine" ]]; then
         res=".apk.tar.gz"
     elif [[ $name == centos* ]]; then
+        VERSION=7
         res=".el$VERSION.noarch.rpm"
     elif [[ $name == rhel* ]]; then
+        VERSION=7
         res=".rhel$VERSION.noarch.rpm"
     elif [[ $name == ubuntu* ]]; then
         res=".$VERSION.all.deb"
