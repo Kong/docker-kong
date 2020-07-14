@@ -184,26 +184,27 @@ done
 
 dist_file_for() {
     local name=$1
+    local version=$2
     local res
 
     # At this point, $KONG_VERSION already has the appended
     # -beta1,-rc1,-internal-preview,....
 
-    base="kong-$KONG_EDITION-$KONG_VERSION"
+    local base="kong-$KONG_EDITION-$KONG_VERSION"
 
 
     if [[ $name == amazonlinux* ]]; then
-        res=".amzn$VERSION.noarch.rpm"
+        res=".amzn$version.noarch.rpm"
     elif [[ $name == "alpine" ]]; then
         res=".apk.tar.gz"
     elif [[ $name == centos* ]]; then
-        res=".el$VERSION.noarch.rpm"
+        res=".el$version.noarch.rpm"
     elif [[ $name == rhel* ]]; then
-        res=".rhel$VERSION.noarch.rpm"
+        res=".rhel$version.noarch.rpm"
     elif [[ $name == ubuntu* ]]; then
-        res=".$VERSION.all.deb"
+        res=".$version.all.deb"
     elif [[ $name == debian* ]]; then
-        res=".$VERSION.all.deb"
+        res=".$version.all.deb"
     fi
     echo "${base}${res}"
 }
@@ -249,7 +250,7 @@ function build_centos_image {
   local dist=centos
   if [[ -z $KONG_FILE ]]; then
     local centos_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/centos/7}/$(dist_file_for $dist)" \
+                            "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/centos/7}/$(dist_file_for $dist 7)" \
                             -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
                          | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
     echo $centos_url
@@ -275,7 +276,7 @@ function build_rhel_image {
   local dist=rhel
   if [[ -z $KONG_FILE ]]; then
     local rhel_url=$(curl -u $BINTRAY_USR:$BINTRAY_KEY -s -XPOST \
-                          "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/rhel/7}/$(dist_file_for $dist)" \
+                          "https://bintray.com/api/v1/signed_url/kong/${BINTRAY_INTERNAL_PACKAGE_REPO:=kong-$KONG_EDITION-rpm/rhel/7}/$(dist_file_for $dist 7)" \
                           -H "Content-Type: application/json" -d '{"valid_for_secs": 300}' \
                        | python -c "import sys, json; print(json.load(sys.stdin)['url'])")
 
