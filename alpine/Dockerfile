@@ -9,15 +9,15 @@ ARG EE_PORTS
 
 COPY kong.tar.gz /tmp/kong.tar.gz
 
-ARG KONG_VERSION=2.1.0rc.1
+ARG KONG_VERSION=2.1.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="2603226c2325611299530b6e120526be588541b2415987de5f867be5ca7664ca"
+ARG KONG_SHA256="8e5322ba57591e75e6c0d2cfe602cc104467be2336a4075c80831fb53cbb1f78"
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
-        curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
+        curl -fL "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
         echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
         apk del .build-deps; \
     fi; \
