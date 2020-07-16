@@ -6,18 +6,16 @@ ENV ASSET $ASSET
 
 ARG EE_PORTS
 
-
-
 COPY kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.1.0rc.1
+ARG KONG_VERSION=2.1.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="8ea531b374d48fc125f19f68190a420f5870c267940d4fb701968c13950b6872"
+ARG KONG_SHA256="32a6285988ad3253dc49a1bc91522942d5f13132729f2649141712f93c747ab8"
 
 RUN set -ex; \
 	if [ "$ASSET" = "ce" ] ; then \
-		curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
+		curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
 		&& echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
 	fi; \
 	yum install -y -q unzip shadow-utils git zlib zlib-devel \
