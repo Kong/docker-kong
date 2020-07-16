@@ -385,8 +385,7 @@ case $platform in
     if [[ -z $BUILD_ONLY ]]; then
       if [[ -z $(docker images --format "{{.Repository}}" \
                         kong-$KONG_EDITION:alpine-$KONG_VERSION) ]]; then
-        echo "Alpine image not found; build it first!"
-        continue
+        die "Alpine image not found; build it first!"
       fi
       push_alpine_image
     fi
@@ -398,8 +397,7 @@ case $platform in
     if [[ -z $BUILD_ONLY ]]; then
       if [[ -z $(docker images --format "{{.Repository}}" \
                         kong-$KONG_EDITION:centos-$KONG_VERSION) ]]; then
-        echo "CentOS image not found; build it first!"
-        continue
+        die "CentOS image not found; build it first!"
       fi
       push_centos_image
     fi
@@ -411,8 +409,7 @@ case $platform in
     if [[ -z $BUILD_ONLY ]]; then
       if [[ -z $(docker images --format "{{.Repository}}" \
                         kong-enterprise-edition:rhel-$KONG_VERSION) ]]; then
-        echo "RHEL image not found; build it first!"
-        continue
+        die "RHEL image not found; build it first!"
       fi
       push_rhel_image
     fi
