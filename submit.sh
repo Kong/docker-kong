@@ -70,7 +70,7 @@ fi
 git checkout master
 git pull
 
-if ! grep -q "$version" alpine/build-ce.sh
+if ! grep -q "$version" alpine/Dockerfile
 then
    if [[ "$force" = "yes" ]]
    then
@@ -78,7 +78,7 @@ then
 
       git checkout "$version"
 
-      if ! grep -q "$version$" alpine/build-ce.sh
+      if ! grep -q "$version$" alpine/Dockerfile
       then
          die "Error: version in build script doesn't match required version."
       fi
