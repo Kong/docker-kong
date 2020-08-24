@@ -11,19 +11,19 @@ COPY kong.rpm /tmp/kong.rpm
 ARG KONG_VERSION=2.1.3
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="be97835859ca05de3db5144bb59c8bdd4e46bd7a65fdd5f7ec500cb445eb62e3"
+ARG KONG_SHA256="c39e596ac3aac771377fc67eb4fb151216daeba6e8b1595c670e8c571b5cd3a0"
 
 RUN set -ex; \
 	if [ "$ASSET" = "ce" ] ; then \
 		curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
 		&& echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
 	fi; \
-	yum install -y -q unzip shadow-utils git zlib zlib-devel \
+	yum install -y -q unzip shadow-utils git \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
 	&& useradd kong \
 	&& mkdir -p "/usr/local/kong" \
-	&& yum install -y /tmp/kong.rpm \
+	&& yum --nogpgcheck localinstall -y /tmp/kong.rpm \
 	&& yum clean all \
 	&& rm /tmp/kong.rpm \
 	&& chown -R kong:0 /usr/local/kong \

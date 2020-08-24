@@ -11,18 +11,15 @@ ARG KONG_VERSION=2.1.3
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -ex; \
+    apt-get update && \
     if [ "$ASSET" = "ce" ] ; then \
-        apt-get update && \
         apt-get install -y curl && \
         curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
         && apt-get purge -y curl; \
     fi; \
-    apt-get update \
-    && apt-get install -y --no-install-recommends perl unzip git \
-    && { apt-get install -y --no-install-recommends zlibc || true; } \
-    && { apt-get install -y --no-install-recommends zlib1g-dev || true; } \
-    && rm -rf /var/lib/apt/lists/* \
-	&& dpkg -i /tmp/kong.deb \
+    apt-get install -y --no-install-recommends unzip git \
+	&& apt install --yes /tmp/kong.deb \
+	&& rm -rf /var/lib/apt/lists/* \
 	&& rm -rf /tmp/kong.deb \
 	&& useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
