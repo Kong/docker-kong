@@ -122,7 +122,7 @@ fi
 [[ -z $KONG_VERSION ]] && usage
 
 # GA has no suffix in the file, others do.
-if [[ $KONG_RELEASE != "ga" ]]; then
+if [[ $KONG_RELEASE != "GA" ]]; then
   KONG_VERSION="${KONG_VERSION}-${KONG_RELEASE}"
 fi
 
