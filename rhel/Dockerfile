@@ -22,7 +22,7 @@ COPY kong.rpm /tmp/kong.rpm
 ARG KONG_VERSION=2.1.3
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="615a05a527c98832797858665477726fa164792063b104318d6b0695dbf1e4bc"
+ARG KONG_SHA256="83ca640bfd67ae00e103603db269ab0e4dfd0fbcc87b413086c26d09b11c3477"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
@@ -30,7 +30,7 @@ RUN set -ex; \
         curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
         && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
-    yum install -y -q unzip shadow-utils zlib zlib-devel \
+    yum install -y -q unzip shadow-utils \
 	&& yum clean all -q \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
 	&& useradd kong \
