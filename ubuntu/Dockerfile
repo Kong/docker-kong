@@ -18,6 +18,7 @@ RUN set -ex; \
         && apt-get purge -y curl; \
     fi; \
     apt-get install -y --no-install-recommends unzip git \
+	&& apt update \
 	&& apt install --yes /tmp/kong.deb \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& rm -rf /tmp/kong.deb \

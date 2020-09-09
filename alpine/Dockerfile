@@ -12,9 +12,12 @@ COPY kong.tar.gz /tmp/kong.tar.gz
 ARG KONG_VERSION=2.1.3
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="2f2a73d468d95f3ded495aa4199b55d2148d1ad5cb5050372621a1768b34ba8a"
-
-RUN set -ex; \
+RUN set -eux; \
+	arch="$(uname -m)"; \
+	case "${arch}" in \
+		x86_64) arch='amd64'; KONG_SHA256='2f2a73d468d95f3ded495aa4199b55d2148d1ad5cb5050372621a1768b34ba8a' ;; \
+		aarch64) arch='arm64'; KONG_SHA256='2f2a73d468d95f3ded495aa4199b55d2148d1ad5cb5050372621a1768b34ba8a' ;; \
+	esac; \
     if [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
         curl -fL "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.amd64.apk.tar.gz" -o /tmp/kong.tar.gz && \
