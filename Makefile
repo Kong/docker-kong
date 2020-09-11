@@ -10,7 +10,7 @@ test:
 	then git pull; \
 	else git clone https://github.com/Kong/kong-build-tools.git; fi
 	cd kong-build-tools && git reset --hard $(KONG_BUILD_TOOLS)
-	BASE=$(BASE) ./tests.sh
+	BASE=$(BASE) ./tests/test.sh --suite "Docker-Kong test suite"
 
 release-rhel: build
 	echo $$RHEL_REGISTRY_KEY | docker login -u unused scan.connect.redhat.com --password-stdin
