@@ -31,22 +31,22 @@ RUN set -ex; \
         && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils \
-	&& yum clean all -q \
-	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
-	&& useradd kong \
-	&& mkdir -p "/usr/local/kong" \
-  # Please update the rhel install docs if the below line is changed so that
-  # end users can properly install Kong along with its required dependencies
-  # and that our CI does not diverge from our docs.
-	&& yum install -y /tmp/kong.rpm \
-	&& yum clean all \
-	&& rm /tmp/kong.rpm \
-	&& chown -R kong:0 /usr/local/kong \
-	&& chown kong:0 /usr/local/bin/kong \
-	&& chmod -R g=u /usr/local/kong &&\
-  if [ "$ASSET" = "ce" ] ; then \
-    kong version ; \
-  fi;
+    && yum clean all -q \
+    && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
+    && useradd kong \
+    && mkdir -p "/usr/local/kong" \
+    # Please update the rhel install docs if the below line is changed so that
+    # end users can properly install Kong along with its required dependencies
+    # and that our CI does not diverge from our docs.
+    && yum install -y /tmp/kong.rpm \
+    && yum clean all \
+    && rm /tmp/kong.rpm \
+    && chown -R kong:0 /usr/local/kong \
+    && chown kong:0 /usr/local/bin/kong \
+    && chmod -R g=u /usr/local/kong &&\
+    if [ "$ASSET" = "ce" ] ; then \
+      kong version ; \
+    fi;
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
