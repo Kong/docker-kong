@@ -52,6 +52,7 @@ local platforms = {
     commands = {              -- run before anything else in build container
       "apk update",
       "apk add git",
+      "apk add wget",
       "apk add zip",
     },
     target_commands = {       -- run before installing in the target image
