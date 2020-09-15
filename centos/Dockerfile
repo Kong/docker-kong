@@ -23,6 +23,9 @@ RUN set -ex; \
 	&& rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
 	&& useradd kong \
 	&& mkdir -p "/usr/local/kong" \
+	# Please update the centos install docs if the below line is changed so that
+  # end users can properly install Kong along with its required dependencies
+  # and that our CI does not diverge from our docs.
 	&& yum --nogpgcheck localinstall -y /tmp/kong.rpm \
 	&& yum clean all \
 	&& rm /tmp/kong.rpm \
