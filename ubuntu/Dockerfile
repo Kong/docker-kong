@@ -22,14 +22,14 @@ RUN set -ex; \
     # Please update the ubuntu install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
     # and that our CI does not diverge from our docs.
-	&& apt install --yes /tmp/kong.deb \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& rm -rf /tmp/kong.deb \
-	&& useradd -ms /bin/bash kong \
+    && apt install --yes /tmp/kong.deb \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/kong.deb \
+    && useradd -ms /bin/bash kong \
     && mkdir -p "/usr/local/kong" \
-	&& chown -R kong:0 /usr/local/kong \
-	&& chown kong:0 /usr/local/bin/kong \
-	&& chmod -R g=u /usr/local/kong \
+    && chown -R kong:0 /usr/local/kong \
+    && chown kong:0 /usr/local/bin/kong \
+    && chmod -R g=u /usr/local/kong \
     && if [ "$ASSET" = "ce" ] ; then \
         kong version ; \
     fi;

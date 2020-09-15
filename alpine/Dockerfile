@@ -25,20 +25,20 @@ RUN set -eux; \
         apk del .build-deps; \
     fi; \
     mkdir /kong; \
-	tar -C /kong -xzf /tmp/kong.tar.gz && \
-	mv /kong/usr/local/* /usr/local && \
-	mv /kong/etc/* /etc && \
-	rm -rf /kong && \
-	apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates && \
-	adduser -S kong && \
-	mkdir -p "/usr/local/kong" && \
-	chown -R kong:0 /usr/local/kong && \
-	chown kong:0 /usr/local/bin/kong && \
-	chmod -R g=u /usr/local/kong && \
-	rm -rf /tmp/kong.tar.gz && \
-  if [ "$ASSET" = "ce" ] ; then \
-    kong version ; \
-  fi;
+    tar -C /kong -xzf /tmp/kong.tar.gz && \
+    mv /kong/usr/local/* /usr/local && \
+    mv /kong/etc/* /etc && \
+    rm -rf /kong && \
+    apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash   zlib zlib-dev git ca-certificates && \
+    adduser -S kong && \
+    mkdir -p "/usr/local/kong" && \
+    chown -R kong:0 /usr/local/kong && \
+    chown kong:0 /usr/local/bin/kong && \
+    chmod -R g=u /usr/local/kong && \
+    rm -rf /tmp/kong.tar.gz && \
+    if [ "$ASSET" = "ce" ] ; then \
+      kong version ; \
+    fi;
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
