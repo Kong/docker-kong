@@ -58,7 +58,7 @@ local platforms = {
     target_commands = {       -- run before installing in the target image
     },
   }, {
-    check = "yum --version",  -- check for CentOS
+    check = "yum --version",  -- check for CentOS + rhel
     commands = {              -- run before anything else in build container
       "yum -y install git",
       "yum -y install unzip",
@@ -66,6 +66,15 @@ local platforms = {
     },
     target_commands = {       -- run before installing in the target image
       "yum -y install unzip",
+    },
+  }, {
+    check = "apt -v",         -- check for Ubuntu
+    commands = {              -- run before anything else in build container
+      "apt update",
+      "apt install -y zip",
+      "apt install -y wget",
+    },
+    target_commands = {       -- run before installing in the target image
     },
   },
 }
@@ -360,10 +369,10 @@ cat <<'EOF' >> /docker-entrypoint.sh
 #!/bin/sh
 set -e
 
-if [[ "$KONG_PLUGINS" == "" ]]; then
-  if [[ "$KONG_CUSTOM_PLUGINS" == "" ]]; then
+if [ "$KONG_PLUGINS" = "" ]; then
+  if [ "$KONG_CUSTOM_PLUGINS" = "" ]; then
     export KONG_CUSTOM_PLUGINS="%s"
-    if [[ "$KONG_CUSTOM_PLUGINS" == "" ]]; then
+    if [ "$KONG_CUSTOM_PLUGINS" = "" ]; then
       export KONG_PLUGINS="bundled"
     else
       export KONG_PLUGINS="bundled,$KONG_CUSTOM_PLUGINS"
@@ -377,18 +386,18 @@ INITIAL="$1 $2"
 if [ -f /custom_nginx.conf ]; then
   # only for these commands support "--nginx-conf"
   echo 1: $INITIAL
-  if [[ "$INITIAL" == "kong prepare" ]] || \
-     [[ "$INITIAL" == "kong reload"  ]] || \
-     [[ "$INITIAL" == "kong restart" ]] || \
-     [[ "$INITIAL" == "kong start"   ]] ; then
+  if [ "$INITIAL" = "kong prepare" ] || \
+     [ "$INITIAL" = "kong reload"  ] || \
+     [ "$INITIAL" = "kong restart" ] || \
+     [ "$INITIAL" = "kong start"   ] ; then
     INITIAL="$1 $2 --nginx-conf=/custom_nginx.conf"
   fi
 fi
 # shift 1 by 1; if there is only 1 arg, then "shift 2" fails
-if [[ ! "$1" == "" ]]; then
+if [ ! "$1" = "" ]; then
   shift
 fi
-if [[ ! "$1" == "" ]]; then
+if [ ! "$1" = "" ]; then
   shift
 fi
 
@@ -411,7 +420,7 @@ fi
 rm -rf /plugins
 ]=]
 local t = {}
-local cmd = "luarocks install --deps-mode=none %s && rm %s"
+local cmd = "luarocks install --tree=system --deps-mode=none %s && rm %s"
 for _, filename in ipairs(files("/plugins/")) do
   if filename:find("%.rock$") then
     table.insert(t, cmd:format(filename, filename))
