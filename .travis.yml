@@ -24,3 +24,12 @@ jobs:
         - TAG=$TRAVIS_TAG
       script: make release-rhel
       if: tag IS present
+
+notifications:
+  slack:
+    if: branch = master AND type != pull_request
+    #on_success: change
+    on_success: always
+    on_failure: always
+    rooms:
+      secure: S/WT/yD9Tz8whFusCxkR9z51LUHUXO+rFYsErgOiANV8ACPOzBgFkFmPJuqHnQOilT0hvFYGj6GX64aTBbCSD3JxU/mkHRndCaq2ZWlhwHNC/LAu+2smPClIQapdxK4X2ow/XhWYUuUQyYWfqCotztbwnymc2AHhoELeUvLzlnc=
