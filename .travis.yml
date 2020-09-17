@@ -24,3 +24,11 @@ jobs:
         - TAG=$TRAVIS_TAG
       script: make release-rhel
       if: tag IS present
+
+notifications:
+  slack:
+    if: branch = master AND type != pull_request
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: y4CiFTaFSs2yw5xBrukx4kILbfnRrQeLnWf7h+iEL4kjFHZzz5qheH9dX+o2GS/MyuiXsEyqBgqYfGoHoWkUe2IYieeWhFqRT3qxfpbJFtHP0kXgp+lA7NRrZnNNaZeYoNipS1ZDg9FZNm77s1tJm2PDBvfpSPQ7EHD40nZzfCYL27+rwWJ0FXdbTz/ySrGpB2zxBVZkJcIIixngDH3Wtiq1fZgdNvVDGVtgm9DBJtA2WieCdZZIioWll/Zbi7GPUWe2M7ILTZCRhpsx+JYmfhLUg4EJkkoG1B01TpWeMyxznksxCGjdaHNVpmOfGkkjE/6DddMgL4Q7xLR6EeYas9XGC3ajzAE5ZbYrQXJZqQ0Y0BQpOAXNiNy+2cCPw13fcI9tPgu5mpBHlf7DbYj8pQ6EOYI3d4agHXi2Vv2y7AbmLzN58Y+QmqF1g1f7tkBGNYDWA6JIxPvpwTARF8akw+V5J26qX/H4q4lWStZABuu5kNYYv6rnmvVG3TAVkFtN+KNYCxWixGoFi73DG3Rmit9TQAo0X9Xh0g8ivXw8WlpUkGjg6+aZl2nhUOdllFNAiClhXrMY10foSRK9I3RDJAFatsn3tb31klUM+5kQ7GwHHrJnrFKT4QAHYPlRpH/R+4sk5bweUEz3eSA5gLsHOX37+sJg/hX1WoNKDWKurn0=
