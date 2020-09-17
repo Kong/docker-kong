@@ -11,6 +11,7 @@ env:
     - BASE="rhel" KONG_DOCKER_TAG="kong-rhel"
 
 before_script:
+  - sudo apt-get install figlet
   - make build
 script:
   - make test
