@@ -7,7 +7,7 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.1.3
+ARG KONG_VERSION=2.1.4
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -ex; \
