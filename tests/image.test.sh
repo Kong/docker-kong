@@ -110,7 +110,7 @@ function run_test {
 
   git clone https://github.com/Kong/kong.git || true
   pushd kong
-  git checkout 2.1.0-beta.1
+  git checkout $version_given
   popd
 
   pushd kong-build-tools
