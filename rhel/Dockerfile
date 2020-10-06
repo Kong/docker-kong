@@ -33,7 +33,7 @@ RUN set -ex; \
     yum install -y -q unzip shadow-utils \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
-    && useradd kong \
+    && useradd kong || true \
     && mkdir -p "/usr/local/kong" \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
