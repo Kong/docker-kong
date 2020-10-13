@@ -4,7 +4,7 @@ This is the official Docker Compose template for [Kong][kong-site-url].
 
 # What is Kong?
 
-You can find the official Docker distribution for Kong at [https://store.docker.com/images/kong](https://store.docker.com/images/kong).
+You can find the official Docker distribution for Kong at [https://hub.docker.com/_/kong](https://hub.docker.com/_/kong).
 
 # How to use this template
 
