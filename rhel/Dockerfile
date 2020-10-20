@@ -4,7 +4,7 @@ MAINTAINER Kong
 
 LABEL name="Kong" \
       vendor="Kong" \
-      version="2.1.0" \
+      version="2.2.0rc.1" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \
@@ -19,15 +19,15 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.1.4
+ARG KONG_VERSION=2.2.0rc.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="1a96a4a3a6899e90fe3cc08b493ece5ffcc4cee8e3255bd1cf9225f83468d920"
+ARG KONG_SHA256="760b41da3cd26b2550093aa79cde7e3ed8f98cdb89afa3f8f2f2077405ca81da"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-        curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
+        curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
         && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils \
