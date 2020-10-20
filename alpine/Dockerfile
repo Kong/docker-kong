@@ -9,18 +9,18 @@ ARG EE_PORTS
 
 COPY kong.tar.gz /tmp/kong.tar.gz
 
-ARG KONG_VERSION=2.1.4
+ARG KONG_VERSION=2.2.0rc.1
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -eux; \
 	arch="$(apk --print-arch)"; \
 	case "${arch}" in \
-		x86_64) arch='amd64'; KONG_SHA256='760cea1f7a058be6000e14dfecfeb73cc79245f696f18e0fcf0825935b944ab3' ;; \
-		aarch64) arch='arm64'; KONG_SHA256='08038f49f162ab5edc357d7712e90241f6571027cb8741b15ba0c951653764c2' ;; \
+		x86_64) arch='amd64'; KONG_SHA256='e04d8dbd01017f679fb8554142e43cf45ee605b6d75d39fc0d705dda382149e8' ;; \
+		aarch64) arch='arm64'; KONG_SHA256='4464513fb1f1c783a444e6027e09007fcb1f04f8c18c17216ce7b17f10d4e2f8' ;; \
 	esac; \
     if [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
-        curl -fL "https://bintray.com/kong/kong-alpine-tar/download_file?file_path=kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz && \
+        curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz && \
         echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
         apk del .build-deps; \
     fi; \
