@@ -5,10 +5,10 @@ services:
 
 env:
   matrix:
-    - BASE="centos" KONG_DOCKER_TAG="kong-centos"
-    - BASE="alpine" KONG_DOCKER_TAG="kong-alpine"
-    - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu"
-    - BASE="rhel" KONG_DOCKER_TAG="kong-rhel"
+    - BASE="centos" KONG_DOCKER_TAG="kong-centos" PACKAGE_TYPE="rpm"
+    - BASE="alpine" KONG_DOCKER_TAG="kong-alpine" PACKAGE_TYPE="apk"
+    - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu" PACKAGE_TYPE="deb"
+    - BASE="rhel" KONG_DOCKER_TAG="kong-rhel" PACKAGE_TYPE="rpm"
 
 before_script:
   - sudo apt-get install figlet
