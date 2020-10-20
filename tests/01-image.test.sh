@@ -31,7 +31,7 @@ function run_test {
   pushd compose
   docker swarm init
   KONG_DOCKER_TAG=kong:1.5.0 docker stack deploy -c<(curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml) kong
-  until docker ps | grep kong:1.5.0 | grep -q healthy;  do
+  until docker ps -f health=healthy | grep -q kong:1.5.0;  do
     docker stack ps kong
     docker service ps kong_kong
     sleep 20
@@ -42,7 +42,7 @@ function run_test {
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
   KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
   sleep 20
-  until docker ps | grep ${KONG_DOCKER_TAG}:latest | grep -q healthy; do
+  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}:latest; do
     docker stack ps kong
     docker service ps kong_kong
     sleep 20
