@@ -231,6 +231,7 @@ local function install_plugins(plugins, lr_flag)
     end
 
     stdout("installed: "..rock)
+    exec("luarocks show "..rock)
   end
 end
 
@@ -335,11 +336,15 @@ do
   end
   added_rocks = post_installed_rocks
 end
-if (not next(added_rocks)) and is_empty_file(CUSTOM_TEMPLATE) then
-  fail("no additional rocks were added")
-end
-for k in pairs(added_rocks) do
-  stdout("added rock: "..k)
+if (not next(added_rocks)) then
+  if is_empty_file(CUSTOM_TEMPLATE) then
+    fail("no additional rocks were added, nor a custom template specified")
+  end
+  stdout("No rocks were added")
+else
+  for k in pairs(added_rocks) do
+    stdout("added rock: "..k)
+  end
 end
 
 
@@ -350,6 +355,9 @@ for plugin_name in pairs(get_plugins()) do
     table.insert(plugins, plugin_name)
     stdout("added plugin: "..plugin_name)
   end
+end
+if not next(plugins) then
+  stdout("No plugins were added")
 end
 
 
