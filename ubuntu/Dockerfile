@@ -7,14 +7,14 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.2.0rc.1
+ARG KONG_VERSION=2.2.0
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -ex; \
     apt-get update && \
     if [ "$ASSET" = "ce" ] ; then \
         apt-get install -y curl && \
-        curl -fL "https://bintray.com/kong/kong-prerelease/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
+        curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
         && apt-get purge -y curl; \
     fi; \
     apt-get install -y --no-install-recommends unzip git \
