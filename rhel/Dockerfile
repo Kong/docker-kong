@@ -39,7 +39,7 @@ RUN set -ex; \
     # and that our CI does not diverge from our docs.
     && yum install -y /tmp/kong.rpm \
     && yum clean all \
-    && rm /tmp/kong.rpm \
+    && rm /tmp/kong.rpm && \
     if [ "$ASSET" = "ce" ] ; then \
       kong version ; \
     fi;
