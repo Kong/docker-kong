@@ -54,6 +54,8 @@ local platforms = {
       "apk add git",
       "apk add wget",
       "apk add zip",
+      "apk add gcc",
+      "apk add musl-dev",
     },
     target_commands = {       -- run before installing in the target image
     },
@@ -63,6 +65,7 @@ local platforms = {
       "yum -y install git",
       "yum -y install unzip",
       "yum -y install zip",
+      "yum -y install gcc gcc-c++ make",
     },
     target_commands = {       -- run before installing in the target image
       "yum -y install unzip",
@@ -73,6 +76,7 @@ local platforms = {
       "apt update",
       "apt install -y zip",
       "apt install -y wget",
+      "apt install -y build-essential",
     },
     target_commands = {       -- run before installing in the target image
     },
