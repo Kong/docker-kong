@@ -25,6 +25,8 @@ RUN set -ex; \
     && apt install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
+    && chown kong:0 /usr/local/bin/kong \
+    && chown -R kong:0 /usr/local/kong \
     && mkdir -p "/usr/local/kong" \
     && if [ "$ASSET" = "ce" ] ; then \
         kong version ; \
