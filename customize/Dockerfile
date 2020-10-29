@@ -29,8 +29,4 @@ FROM ${KONG_BASE}
 
 COPY --from=build /plugins /plugins
 
-USER root
-
 RUN /plugins/install_plugins.sh
-
-USER kong
