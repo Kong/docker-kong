@@ -378,15 +378,9 @@ cat <<'EOF' >> /docker-entrypoint.sh
 set -e
 
 if [ "$KONG_PLUGINS" = "" ]; then
-  if [ "$KONG_CUSTOM_PLUGINS" = "" ]; then
-    export KONG_CUSTOM_PLUGINS="%s"
-    if [ "$KONG_CUSTOM_PLUGINS" = "" ]; then
-      export KONG_PLUGINS="bundled"
-    else
-      export KONG_PLUGINS="bundled,$KONG_CUSTOM_PLUGINS"
-    fi
-  fi
+  KONG_PLUGINS="bundled"
 fi
+export KONG_PLUGINS="$KONG_PLUGINS,%s"
 
 # prefix the custom template option, since the last one on the command line
 # wins, so the user can still override this template
