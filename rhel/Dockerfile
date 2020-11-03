@@ -4,7 +4,7 @@ MAINTAINER Kong
 
 LABEL name="Kong" \
       vendor="Kong" \
-      version="2.1.0" \
+      version="2.2.0" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \
@@ -19,10 +19,10 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.1.4
+ARG KONG_VERSION=2.2.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="1a96a4a3a6899e90fe3cc08b493ece5ffcc4cee8e3255bd1cf9225f83468d920"
+ARG KONG_SHA256="bd63f1e13f1c1dc1bf9b1aeb8671c6fc84f2327c97bf7f7b9ef8c0bec83b0108"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
@@ -33,7 +33,7 @@ RUN set -ex; \
     yum install -y -q unzip shadow-utils \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
-    && useradd kong \
+    && { useradd kong || true ;} \
     && mkdir -p "/usr/local/kong" \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies

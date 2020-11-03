@@ -7,7 +7,7 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.1.4
+ARG KONG_VERSION=2.2.0
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -ex; \
@@ -25,7 +25,7 @@ RUN set -ex; \
     && apt install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
-    && useradd -ms /bin/bash kong \
+    && { useradd -ms /bin/bash kong || true ;} \
     && mkdir -p "/usr/local/kong" \
     && chown -R kong:0 /usr/local/kong \
     && chown kong:0 /usr/local/bin/kong \

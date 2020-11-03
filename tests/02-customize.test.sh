@@ -62,8 +62,26 @@ function run_test {
 
   tchapter "Customize $BASE"
 
-  ttest "injects a plugin"
+  ttest "injects a plugin, pure-Lua"
   local test_plugin_name="kong-upstream-jwt"
+  build_custom_image "$test_plugin_name"
+  if [ ! $? -eq 0 ]; then
+    tfailure
+  else
+    run_kong_cmd "luarocks list --porcelain" | grep $test_plugin_name
+    if [ ! $? -eq 0 ]; then
+      tmessage "injected plugin '$test_plugin_name' was not found"
+      tfailure
+    else
+      tsuccess
+    fi
+  fi
+  delete_custom_image
+
+
+
+  ttest "injects a plugin, with self-contained C code (no binding)"
+  local test_plugin_name="lua-protobuf"
   build_custom_image "$test_plugin_name"
   if [ ! $? -eq 0 ]; then
     tfailure

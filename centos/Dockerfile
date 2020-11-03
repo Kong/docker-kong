@@ -8,10 +8,10 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.1.4
+ARG KONG_VERSION=2.2.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="5f44985dcf79e0ad59463b3e3eb9d6623dc9234793bd9c108c0eac8d65b62ab0"
+ARG KONG_SHA256="17f8a8f5084c7ff0b5807f0a161d900d08f410e4e6fa2c40d469c01604371557"
 
 RUN set -ex; \
   if [ "$ASSET" = "ce" ] ; then \
@@ -21,7 +21,7 @@ RUN set -ex; \
   yum install -y -q unzip shadow-utils git \
   && yum clean all -q \
   && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
-  && useradd kong \
+  && { useradd kong || true ;} \
   && mkdir -p "/usr/local/kong" \
   # Please update the centos install docs if the below line is changed so that
   # end users can properly install Kong along with its required dependencies

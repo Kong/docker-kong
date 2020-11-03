@@ -31,7 +31,7 @@ function run_test {
   pushd compose
   docker swarm init
   KONG_DOCKER_TAG=kong:1.5.0 docker stack deploy -c<(curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml) kong
-  until docker ps | grep kong:1.5.0 | grep -q healthy;  do
+  until docker ps -f health=healthy | grep -q kong:1.5.0;  do
     docker stack ps kong
     docker service ps kong_kong
     sleep 20
@@ -42,14 +42,14 @@ function run_test {
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
   KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
   sleep 20
-  until docker ps | grep ${KONG_DOCKER_TAG}:latest | grep -q healthy; do
+  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}:latest; do
     docker stack ps kong
     docker service ps kong_kong
     sleep 20
   done
 
   sleep 20
-  curl -I localhost:8001 | grep 'Server: openresty'
+  curl -I localhost:8001 | grep -E '(openresty|kong)'
   if [ $? -eq 0 ]; then
     tsuccess
   else
@@ -114,8 +114,9 @@ function run_test {
   popd
 
   pushd kong-build-tools
-  rm -rf test/tests/03-go-plugins
-  KONG_VERSION=$version_given KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_TAG=$BASE make test
+  rm -rf test/tests/01-package
+  docker tag kong-$BASE $BASE:$BASE
+  KONG_VERSION=$version_given KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_BASE=$BASE RESTY_IMAGE_TAG=$BASE make test
   if [ $? -eq 0 ]; then
     tsuccess
   else
