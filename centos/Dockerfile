@@ -21,7 +21,6 @@ RUN set -ex; \
   yum install -y -q unzip shadow-utils git \
   && yum clean all -q \
   && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
-  && mkdir -p "/usr/local/kong" \
   # Please update the centos install docs if the below line is changed so that
   # end users can properly install Kong along with its required dependencies
   # and that our CI does not diverge from our docs.
