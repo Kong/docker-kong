@@ -21,17 +21,14 @@ RUN set -ex; \
   yum install -y -q unzip shadow-utils git \
   && yum clean all -q \
   && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
-  && { useradd kong || true ;} \
-  && mkdir -p "/usr/local/kong" \
   # Please update the centos install docs if the below line is changed so that
   # end users can properly install Kong along with its required dependencies
   # and that our CI does not diverge from our docs.
   && yum install -y /tmp/kong.rpm \
   && yum clean all \
   && rm /tmp/kong.rpm \
-  && chown -R kong:0 /usr/local/kong \
   && chown kong:0 /usr/local/bin/kong \
-  && chmod -R g=u /usr/local/kong && \
+  && chown -R kong:0 /usr/local/kong && \
   if [ "$ASSET" = "ce" ] ; then \
     kong version ; \
   fi;
