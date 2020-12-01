@@ -6,7 +6,7 @@ MAINTAINER Kong
 
 LABEL name="Kong" \
       vendor="Kong" \
-      version="2.2.0" \
+      version="2.2.1" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \
@@ -21,13 +21,13 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.2.0
+ARG KONG_VERSION=2.2.1
 ENV KONG_VERSION $KONG_VERSION
 
 ARG RHEL_VERSION
 ENV RHEL_VERSION $RHEL_VERSION
 
-ARG KONG_SHA256="bd63f1e13f1c1dc1bf9b1aeb8671c6fc84f2327c97bf7f7b9ef8c0bec83b0108"
+ARG KONG_SHA256="552cbd21da65810e9fbc4673221504855c29aa6e73301a5f0726b35cf93480df"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
