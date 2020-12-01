@@ -9,14 +9,14 @@ ARG EE_PORTS
 
 COPY kong.tar.gz /tmp/kong.tar.gz
 
-ARG KONG_VERSION=2.2.0
+ARG KONG_VERSION=2.2.1
 ENV KONG_VERSION $KONG_VERSION
 
 RUN set -eux; \
 	arch="$(apk --print-arch)"; \
 	case "${arch}" in \
-		x86_64) arch='amd64'; KONG_SHA256='6adb706eab6cc535f2703bd8993a5d5259159cf8a630c3d3974973dbe6bbf5a6' ;; \
-		aarch64) arch='arm64'; KONG_SHA256='a93b1c015d86b5d8b4038f3fd73332bfef97fa1c768545f353af03f54cf97fb8' ;; \
+		x86_64) arch='amd64'; KONG_SHA256='e05c7075ae263bb7ef84b0370bf4e31f5246a41d910e5d4336216ae95b654af1' ;; \
+		aarch64) arch='arm64'; KONG_SHA256='c7b2c0e1f47e3009e55b492344bd1ff689a41eca91c21f2c3f57f9172932c96d' ;; \
 	esac; \
     if [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
