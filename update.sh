@@ -23,6 +23,9 @@ function die() {
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
+kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/Makefile | grep 'KONG_BUILD_TOOLS\s*?=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+sed -i -e 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
+
 pushd alpine
    url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g' | sed 's/$arch/'amd64'/g')
    curl -fL $url -o /tmp/kong
