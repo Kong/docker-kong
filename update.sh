@@ -24,11 +24,18 @@ function die() {
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
 pushd alpine
-   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g')
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g' | sed 's/$arch/'amd64'/g')
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-   
-   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+
+   sed -i -e 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g' | sed 's/$arch/'arm64'/g')
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   sed -i -e 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
    sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
@@ -42,7 +49,7 @@ pushd centos
 popd
 
 pushd rhel
-   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g')
+   url=$(grep bintray.com Dockerfile | awk -F" " '{print $3}' | sed 's/\"//g' | sed 's/$KONG_VERSION/'$version'/g' | sed 's/${RHEL_VERSION}/7/g')
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
    

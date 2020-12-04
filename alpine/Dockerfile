@@ -12,11 +12,17 @@ COPY kong.tar.gz /tmp/kong.tar.gz
 ARG KONG_VERSION=2.2.1
 ENV KONG_VERSION $KONG_VERSION
 
+ARG KONG_AMD64_SHA="e05c7075ae263bb7ef84b0370bf4e31f5246a41d910e5d4336216ae95b654af1"
+ENV KONG_AMD64_SHA $KONG_AMD64_SHA
+
+ARG KONG_ARM64_SHA="c7b2c0e1f47e3009e55b492344bd1ff689a41eca91c21f2c3f57f9172932c96d"
+ENV KONG_ARM64_SHA $KONG_ARM64_SHA
+
 RUN set -eux; \
 	arch="$(apk --print-arch)"; \
 	case "${arch}" in \
-		x86_64) arch='amd64'; KONG_SHA256='e05c7075ae263bb7ef84b0370bf4e31f5246a41d910e5d4336216ae95b654af1' ;; \
-		aarch64) arch='arm64'; KONG_SHA256='c7b2c0e1f47e3009e55b492344bd1ff689a41eca91c21f2c3f57f9172932c96d' ;; \
+		x86_64) arch='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
+		aarch64) arch='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
 	esac; \
     if [ "$ASSET" = "ce" ] ; then \
         apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
