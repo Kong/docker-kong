@@ -1,0 +1,6 @@
+{
+    "server": true,
+    "bind_addr": "{{ GetInterfaceIP \"eth0\" }}",
+    "retry_join": ["consul-bootstrap"],
+    "encrypt": "ENCRYPT_KEY"
+}

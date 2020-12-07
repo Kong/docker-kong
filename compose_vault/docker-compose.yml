@@ -3,6 +3,7 @@ version: '3.7'
 volumes:
  vault_postgres_policy: {}
  vault_seal_keys: {}
+ consul_encrypt_key: {}
 
 secrets:
   postgres_password:
@@ -23,27 +24,43 @@ networks:
     external: false
 
 services:
+  consul-setup:
+    build:
+      context: ./consul-setup
+    volumes:
+      - consul_encrypt_key:/consul
+    restart: on-failure
+  
   consul-bootstrap:
     image: consul:${CONSUL_VERSION:-1.7}
     ports:
       - 8500:8500
+    volumes:
+      - consul_encrypt_key:/consul
     networks:
       - consul
       - vault
-    command: "agent -server -bootstrap-expect 3 -ui -client 0.0.0.0 -node consul-bootstrap -bind '{{ GetInterfaceIP \"eth0\" }}'"
+    command: agent -config-file /consul/bootstrap.json
+    depends_on:
+      - consul-setup
     restart: on-failure
 
-  consul-backup: &consul-setup
+  consul-node1: &consul-setup
     image: consul:${CONSUL_VERSION:-1.7}
-    command: "agent -server -retry-join consul-bootstrap -client 0.0.0.0 -bind '{{ GetInterfaceIP \"eth0\" }}'"
+    command: agent -config-file /consul/nodes.json
     networks:
       - consul
+    volumes:
+      - consul_encrypt_key:/consul
     depends_on:
       - consul-bootstrap
+      - consul-setup
     restart: on-failure
 
-  consul-backup2:
+  consul-node2:
     <<: *consul-setup
+    depends_on:
+      - consul-node1
 
   vault:
     image: vault:${VAULT_VERSION:-1.3.5}
@@ -76,8 +93,8 @@ services:
       - postgres
     depends_on:
       - consul-bootstrap
-      - consul-backup
-      - consul-backup2
+      - consul-node1
+      - consul-node2
     restart: on-failure
 
   postgres:
@@ -111,8 +128,8 @@ services:
       - postgres
     depends_on:
       - consul-bootstrap
-      - consul-backup
-      - consul-backup2
+      - consul-node1
+      - consul-node2
       - vault
       - postgres
     restart: on-failure
@@ -140,8 +157,8 @@ services:
       - postgres
     depends_on:
       - consul-bootstrap
-      - consul-backup
-      - consul-backup2
+      - consul-node1
+      - consul-node2
       - vault
       - postgres
     restart: on-failure

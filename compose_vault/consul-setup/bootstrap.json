@@ -1,0 +1,8 @@
+{
+    "log_level": "INFO",
+    "node_name": "consul-bootstrap",
+    "server": true,
+    "bootstrap_expect": 3,
+    "bind_addr": "{{ GetInterfaceIP \"eth0\" }}",
+    "encrypt": "ENCRYPT_KEY"
+ }
