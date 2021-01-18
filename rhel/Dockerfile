@@ -1,6 +1,4 @@
-ARG RHEL_VERSION=7
-
-FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
+FROM registry.access.redhat.com/ubi7/ubi
 
 MAINTAINER Kong
 
@@ -24,15 +22,12 @@ COPY kong.rpm /tmp/kong.rpm
 ARG KONG_VERSION=2.3.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG RHEL_VERSION
-ENV RHEL_VERSION $RHEL_VERSION
-
 ARG KONG_SHA256="5d6b4f47cae9d13edef27f010b9f56c022a756ba281dc487a2217a267e5a3edf"
 ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-        curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/${RHEL_VERSION}/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
+        curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=rhel/7/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
         && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils \
