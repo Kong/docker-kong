@@ -10,6 +10,10 @@ fi
 
 version=$1
 
+if [[ "$version" =~ "rc" ]]; then
+  version="${version//-}"
+fi
+
 function red() {
    echo -e "\033[1;31m$@\033[0m"
 }
