@@ -6,7 +6,7 @@ MAINTAINER Kong
 
 LABEL name="Kong" \
       vendor="Kong" \
-      version="2.2.1" \
+      version="2.3.0" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \
