@@ -36,7 +36,7 @@ used. For an example of how to use it see the `example.sh` script.
 ## Arguments:
 
  - `KONG_BASE` the base image to use, defaults to `kong:latest`.
- - `PLUGINS` a comma-separated list of LuaRocks rocks to add to the image. All
+ - `PLUGINS` a comma-separated list of the plugin names (NOT rock files!) that you wish to add to the image. All
    dependencies will also be installed.
  - `ROCKS_DIR` a local directory where the allowed plugins/rocks are located. If
    specified, only rocks from this location will be allowed to be installed. If
