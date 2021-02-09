@@ -27,7 +27,7 @@ function die() {
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/Makefile | grep 'KONG_BUILD_TOOLS\s*?=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
 sed -i -e 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
 
 pushd alpine
