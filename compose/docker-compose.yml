@@ -2,6 +2,14 @@ version: '3.7'
 
 volumes:
   kong_data: {}
+  kong_prefix_vol:
+    driver_opts:
+     type: tmpfs
+     device: tmpfs
+  kong_tmp_vol:
+    driver_opts:
+     type: tmpfs
+     device: tmpfs
 
 networks:
   kong-net:
@@ -66,25 +74,46 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+      KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
     secrets:
       - kong_postgres_password
     networks:
       - kong-net
     ports:
-      - "8000:8000/tcp"
+      # The following two environment variables default to an insecure value (0.0.0.0)
+      # according to the CIS Security test.
+      - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8000:8000/tcp"
+      - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
+      # Making them mandatory but undefined, like so would be backwards-breaking:
+      # - "${KONG_INBOUND_PROXY_LISTEN?Missing inbound proxy host}:8000:8000/tcp"
+      # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
+      # Alternative is deactivating check 5.13 in the security bench, if we consider Kong's own config to be enough security here
+
       - "127.0.0.1:8001:8001/tcp"
-      - "8443:8443/tcp"
       - "127.0.0.1:8444:8444/tcp"
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
       timeout: 10s
       retries: 10
-    restart: on-failure
+    restart: on-failure:5
+    read_only: true
+    volumes:
+      - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
+      - kong_tmp_vol:/tmp
     deploy:
       restart_policy:
+        delay: 50s
         condition: on-failure
-    
+        max_attempts: 5
+        window: 10s
+      resources:
+        limits:
+          cpus: ${KONG_CPU_LIMIT:-2}
+          memory: ${KONG_MEMORY_LIMIT:-2g}
+    security_opt:
+      - no-new-privileges
+
   db:
     image: postgres:9.5
     environment:
@@ -108,6 +137,7 @@ services:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+
 
 secrets:
   kong_postgres_password:
