@@ -14,7 +14,8 @@ RUN set -ex; \
     apt-get update && \
     if [ "$ASSET" = "ce" ] ; then \
         apt-get install -y curl && \
-        curl -fL "https://bintray.com/kong/kong-deb/download_file?file_path=kong-$KONG_VERSION.xenial.$(dpkg --print-architecture).deb" -o /tmp/kong.deb \
+        curl -fL \
+		https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-xenial/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
         && apt-get purge -y curl; \
     fi; \
     apt-get install -y --no-install-recommends unzip git \

@@ -15,7 +15,7 @@ ARG KONG_SHA256="edbea2fe235bc65087b67fe071449b98476a4a8d12f9919b63100cffcdc0c10
 
 RUN set -ex; \
   if [ "$ASSET" = "ce" ] ; then \
-    curl -fL "https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-$KONG_VERSION.el7.amd64.rpm" -o /tmp/kong.rpm \
+  curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \
     && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
   fi; \
   yum install -y -q unzip shadow-utils git \
