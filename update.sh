@@ -46,7 +46,7 @@ hub --version &> /dev/null || die "hub is not in PATH. Get it from https://githu
 
 kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
 if [[ -n "$kbt_in_kong_v" ]]; then
-  sed -i -e 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
+  sed -i.bak 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
 fi
 
 pushd alpine
@@ -54,15 +54,15 @@ pushd alpine
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   sed -i -e 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
-   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 
    url=$(get_url Dockerfile arm64)
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   sed -i -e 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 pushd centos
@@ -70,8 +70,8 @@ pushd centos
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
-   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+   sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 pushd rhel
@@ -79,12 +79,12 @@ pushd rhel
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   sed -i -e 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
-   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+   sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 pushd ubuntu
-   sed -i -e 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 echo "****************************************"
