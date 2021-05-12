@@ -13,6 +13,7 @@ env:
 before_script:
   - sudo apt-get install figlet
   - make build
+  - echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin
 script:
   - make test
 
