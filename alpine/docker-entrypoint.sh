@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-set -xEeo pipefail
+set -Eeo pipefail
 
-run () {
 # Enables support for base64 encoded KONG_LICENSE_DATA_B64 string
 [[ -n ${KONG_LICENSE_DATA_B64} ]] && export KONG_LICENSE_DATA=$(echo "${KONG_LICENSE_DATA_B64}" | base64 -d )
 
@@ -51,7 +50,4 @@ if [[ "$1" == "kong" ]]; then
   fi
 fi
 
-exec "$@"
-}
-
-run &>/dev/stdout
+exec "&>/dev/stdout $@"
