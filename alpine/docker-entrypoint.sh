@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -Eeo pipefail
 
+# Enables support for base64 encoded KONG_LICENSE_DATA_B64 string
+[[ -n ${KONG_LICENSE_DATA_B64} ]] && export KONG_LICENSE_DATA=$(echo "${KONG_LICENSE_DATA_B64}" | base64 -d )
+
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
