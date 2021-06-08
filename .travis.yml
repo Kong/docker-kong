@@ -13,7 +13,7 @@ env:
 before_script:
   - sudo apt-get install figlet
   - make build
-  - echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin
+  - if [ -z "$TRAVIS_SECURE_ENV_VARS" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; fi
 script:
   - make test
 
