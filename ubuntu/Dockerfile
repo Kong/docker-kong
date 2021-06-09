@@ -15,7 +15,7 @@ RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
         apt-get install -y curl && \
         curl -fL \
-		https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-xenial/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
+        https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
         && apt-get purge -y curl; \
     fi; \
     apt-get install -y --no-install-recommends unzip git \
@@ -40,5 +40,7 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
+
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]
