@@ -11,9 +11,9 @@ env:
     - BASE="rhel" KONG_DOCKER_TAG="kong-rhel" PACKAGE_TYPE="rpm"
 
 before_script:
+  - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi
   - sudo apt-get install figlet
   - make build
-  - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi
 script:
   - make test
 
