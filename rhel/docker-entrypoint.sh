@@ -26,7 +26,7 @@ file_env() {
 	unset "$fileVar"
 }
 
-export KONG_NGINX_DAEMON=off
+export KONG_NGINX_DAEMON=${KONG_NGINX_DAEMON:=off}
 
 if [[ "$1" == "kong" ]]; then
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
