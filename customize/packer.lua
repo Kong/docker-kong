@@ -384,7 +384,8 @@ set -e
 if [ "$KONG_PLUGINS" = "" ]; then
   KONG_PLUGINS="bundled"
 fi
-export KONG_PLUGINS="$KONG_PLUGINS,%s"
+# replace 'bundled' with the new set, including the custom ones
+export KONG_PLUGINS=$(echo ",$KONG_PLUGINS," | sed "s/,bundled,/,bundled,%s,/" | sed 's/^,//' | sed 's/,$//')
 
 # prefix the custom template option, since the last one on the command line
 # wins, so the user can still override this template

@@ -43,8 +43,9 @@ function delete_custom_image {
   docker rmi "kong-$BASE-customize" > /dev/null 2>&1
 }
 
+unset TEST_CMD_OPTS
 function run_kong_cmd {
-  docker run -ti --rm "kong-$BASE-customize" $1
+  docker run -ti --rm $TEST_CMD_OPTS "kong-$BASE-customize" $1
 }
 
 
@@ -116,20 +117,47 @@ function run_test {
 
 
 
-  ttest "injected plugin are added to KONG_PLUGINS"
+  ttest "build image to test KONG_PLUGINS settings"
   local test_plugin_name="kong-plugin-myplugin"
   build_custom_image "$test_plugin_name" "" "$mypath/rockserver"
   if [ ! $? -eq 0 ]; then
     tfailure
   else
-    run_kong_cmd "printenv" | grep "bundled,myplugin"
-    if [ ! $? -eq 0 ]; then
-      tmessage "injected plugin '$test_plugin_name' was not found in KONG_PLUGIN"
-      tfailure
-    else
-      tsuccess
-    fi
+    tsuccess
   fi
+
+  ttest "injected plugin are added to KONG_PLUGINS if not set"
+  unset TEST_CMD_OPTS
+  run_kong_cmd "printenv" | grep "bundled,myplugin"
+  if [ ! $? -eq 0 ]; then
+    tmessage "injected plugin '$test_plugin_name' was not found in KONG_PLUGIN"
+    tfailure
+  else
+    tsuccess
+  fi
+  
+  ttest "injected plugin are added to KONG_PLUGINS if set with 'bundled'"
+  TEST_CMD_OPTS="-e KONG_PLUGINS=bundled,custom-one"
+  run_kong_cmd "printenv" | grep "bundled,myplugin,custom-one"
+  if [ ! $? -eq 0 ]; then
+    tmessage "injected plugin '$test_plugin_name' was not found in KONG_PLUGIN"
+    tfailure
+  else
+    tsuccess
+  fi
+  
+  ttest "injected plugin are NOT added to KONG_PLUGINS if set without 'bundled'"
+  TEST_CMD_OPTS="-e KONG_PLUGINS=custom-one,custom-two"
+  run_kong_cmd "printenv" | grep "$test_plugin_name"
+  if [ $? -eq 0 ]; then
+    tmessage "injected plugin '$test_plugin_name' was found in KONG_PLUGIN, but was not expected"
+    tfailure
+  else
+    tsuccess
+  fi
+
+  # cleanup
+  unset TEST_CMD_OPTS
   delete_custom_image
 
 
