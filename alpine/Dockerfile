@@ -20,32 +20,32 @@ ARG KONG_ARM64_SHA="5ec35d1b19dd4e6592ad2c6586e68bfd1549c6a22840ce7d5654677b94e5
 ENV KONG_ARM64_SHA $KONG_ARM64_SHA
 
 RUN set -eux; \
-	arch="$(apk --print-arch)"; \
-	case "${arch}" in \
-		x86_64) arch='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
-		aarch64) arch='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
-	esac; \
+    arch="$(apk --print-arch)"; \
+    case "${arch}" in \
+      x86_64) arch='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
+      aarch64) arch='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
+    esac; \
     if [ "$ASSET" = "ce" ] ; then \
-        apk add --no-cache --virtual .build-deps curl wget tar ca-certificates && \
-        curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz && \
-        echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
-        apk del .build-deps; \
+      apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \
+      && curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz \
+      && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c - \
+      && apk del .build-deps; \
     fi; \
-    mkdir /kong; \
-    tar -C /kong -xzf /tmp/kong.tar.gz && \
-    mv /kong/usr/local/* /usr/local && \
-    mv /kong/etc/* /etc && \
-    rm -rf /kong && \
-    apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash   zlib zlib-dev git ca-certificates && \
-    adduser -S kong && \
-    mkdir -p "/usr/local/kong" && \
-    chown -R kong:0 /usr/local/kong && \
-    chown kong:0 /usr/local/bin/kong && \
-    chmod -R g=u /usr/local/kong && \
-    rm -rf /tmp/kong.tar.gz && \
-    if [ "$ASSET" = "ce" ] ; then \
-      kong version ; \
-    fi;
+    mkdir /kong \
+    && tar -C /kong -xzf /tmp/kong.tar.gz \
+    && mv /kong/usr/local/* /usr/local \
+    && mv /kong/etc/* /etc \
+    && rm -rf /kong \
+    && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates \
+    && adduser -S kong \
+    && mkdir -p "/usr/local/kong" \
+    && chown -R kong:0 /usr/local/kong \
+    && chown kong:0 /usr/local/bin/kong \
+    && chmod -R g=u /usr/local/kong \
+    && rm -rf /tmp/kong.tar.gz \
+    && if [ "$ASSET" = "ce" ] ; then \
+      kong version; \
+    fi
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 

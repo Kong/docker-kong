@@ -10,13 +10,12 @@ COPY kong.deb /tmp/kong.deb
 ARG KONG_VERSION=2.4.1
 ENV KONG_VERSION $KONG_VERSION
 
-RUN set -ex; \
-    apt-get update && \
-    if [ "$ASSET" = "ce" ] ; then \
-        apt-get install -y curl && \
-        curl -fL \
-            https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
-        && apt-get purge -y curl; \
+RUN set -ex \
+    && apt-get update \
+    && if [ "$ASSET" = "ce" ] ; then \
+      apt-get install -y curl \
+      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
+      && apt-get purge -y curl; \
     fi; \
     apt-get install -y --no-install-recommends unzip git \
     # Please update the ubuntu install docs if the below line is changed so that
@@ -28,8 +27,8 @@ RUN set -ex; \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 /usr/local/kong \
     && if [ "$ASSET" = "ce" ] ; then \
-        kong version ; \
-    fi;
+      kong version ; \
+    fi
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
