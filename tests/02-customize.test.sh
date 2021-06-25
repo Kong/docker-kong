@@ -36,7 +36,7 @@ function build_custom_image {
   if [ -f custom.conf ]; then
     rm custom.conf
   fi
-  return $result  
+  return $result
 }
 
 function delete_custom_image {
@@ -221,5 +221,5 @@ function run_test {
 # No need to modify anything below this comment
 
 # shellcheck disable=SC1090  # do not follow source
-[[ "$T_PROJECT_NAME" == "" ]] && set -e && source "${1:-$(dirname "$(realpath "$0")")/test.sh}" && set +e
+[[ "$T_PROJECT_NAME" == "" ]] && set -e && if [[ -f "${1:-$(dirname "$(realpath "$0")")/test.sh}" ]]; then source "${1:-$(dirname "$(realpath "$0")")/test.sh}"; else source "${1:-$(dirname "$(realpath "$0")")/run.sh}"; fi && set +e
 run_test
