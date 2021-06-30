@@ -38,6 +38,7 @@ RUN set -eux; \
     && rm -rf /kong \
     && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates \
     && adduser -S kong \
+    && addgroup -S kong \
     && mkdir -p "/usr/local/kong" \
     && chown -R kong:0 /usr/local/kong \
     && chown kong:0 /usr/local/bin/kong \
