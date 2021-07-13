@@ -34,7 +34,7 @@ function get_url() {
 
   eval $args
 
-  raw_url=$(grep download.konghq.com $dockerfile | awk -F" " '{print $3}' | sed 's/\"//g')
+  raw_url=$(egrep -o 'https?://download.konghq.com/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
 
   # set variables contained in raw url
   KONG_VERSION=$version
@@ -51,6 +51,7 @@ fi
 
 pushd alpine
    url=$(get_url Dockerfile amd64)
+   echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
@@ -58,6 +59,7 @@ pushd alpine
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 
    url=$(get_url Dockerfile arm64)
+   echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
@@ -67,6 +69,7 @@ popd
 
 pushd centos
    url=$(get_url Dockerfile amd64)
+   echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
@@ -76,6 +79,7 @@ popd
 
 pushd rhel
    url=$(get_url Dockerfile amd64 "RHEL_VERSION=7")
+   echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
