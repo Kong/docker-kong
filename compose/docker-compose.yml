@@ -109,7 +109,7 @@ services:
         window: 10s
       resources:
         limits:
-          cpus: ${KONG_CPU_LIMIT:-2}
+          cpus: "${KONG_CPU_LIMIT:-2}"
           memory: ${KONG_MEMORY_LIMIT:-2g}
     security_opt:
       - no-new-privileges
