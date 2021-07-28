@@ -166,7 +166,7 @@ then
         v = "'$version'"
         xy = "'$xy'"
         commit = "'$commit'"
-        print "Tags: " v "-alpine, " v
+        print "Tags: " v "-alpine, " v ", " xy ", alpine"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: alpine"
@@ -226,22 +226,24 @@ then
         print "Directory: alpine"
         print "Architectures: amd64"
         print ""
-        print "Tags: " v "-ubuntu, " xy "-ubuntu"
+        print "Tags: " v "-ubuntu, " xy "-ubuntu, ubuntu"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: ubuntu"
         print "Architectures: amd64, arm64v8"
         print ""
-        print "Tags: " v "-centos, " xy "-centos"
+        print "Tags: " v "-centos, " xy "-centos, centos"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
-        print "Constraints: !aufs"
         print "Directory: centos"
         print "Architectures: amd64"
         print ""
         before_first = 0
       } else if (!(in_rc_tag == 1)) {
         gsub(", latest", "")
+        gsub(", alpine", "")
+        gsub(", ubuntu", "")
+        gsub(", centos", "")
         print
       }
       if (reset == 1) {
