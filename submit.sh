@@ -224,7 +224,7 @@ then
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: alpine"
-        print "Architectures: amd64"
+        print "Architectures: amd64, arm64v8"
         print ""
         print "Tags: " v "-ubuntu, " xy "-ubuntu, ubuntu"
         print "GitCommit: " commit
