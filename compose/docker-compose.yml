@@ -1,7 +1,7 @@
-version: '3.7'
+version: '3.9'
 
 x-kong-config: &kong-env
-  KONG_DATABASE: postgres
+  KONG_DATABASE: ${KONG_DATABASE:-postgres}
   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
   KONG_PG_HOST: db
   KONG_PG_USER: ${KONG_PG_USER:-kong}
@@ -26,6 +26,7 @@ services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
+    profiles: ["database"]
     depends_on:
       - db
     environment:
@@ -42,6 +43,7 @@ services:
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations up && kong migrations finish
+    profiles: ["database"]
     depends_on:
       - db
     environment:
@@ -58,8 +60,6 @@ services:
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
-    depends_on:
-      - db
     environment:
       <<: *kong-env
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
@@ -69,6 +69,7 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
     secrets:
       - kong_postgres_password
     networks:
@@ -95,6 +96,7 @@ services:
     volumes:
       - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
       - kong_tmp_vol:/tmp
+      - ./config:/opt/kong
     deploy:
       restart_policy:
         delay: 50s
@@ -110,6 +112,7 @@ services:
 
   db:
     image: postgres:9.5
+    profiles: ["database"]
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -131,7 +134,6 @@ services:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
-
 
 secrets:
   kong_postgres_password:
