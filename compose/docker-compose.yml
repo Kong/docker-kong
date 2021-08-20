@@ -1,5 +1,12 @@
 version: '3.7'
 
+x-kong-config: &kong-env
+  KONG_DATABASE: postgres
+  KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+  KONG_PG_HOST: db
+  KONG_PG_USER: ${KONG_PG_USER:-kong}
+  KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+
 volumes:
   kong_data: {}
   kong_prefix_vol:
@@ -22,11 +29,7 @@ services:
     depends_on:
       - db
     environment:
-      KONG_DATABASE: postgres
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_HOST: db
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+      <<: *kong-env
     secrets:
       - kong_postgres_password
     networks:
@@ -42,11 +45,7 @@ services:
     depends_on:
       - db
     environment:
-      KONG_DATABASE: postgres
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_HOST: db
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+      <<: *kong-env
     secrets:
       - kong_postgres_password
     networks:
@@ -62,18 +61,13 @@ services:
     depends_on:
       - db
     environment:
+      <<: *kong-env
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_PROXY_LISTEN: "${KONG_PROXY_LISTEN:-0.0.0.0:8000}"
       KONG_ADMIN_LISTEN: "${KONG_ADMIN_LISTEN:-0.0.0.0:8001}"
-      KONG_CASSANDRA_CONTACT_POINTS: db
-      KONG_DATABASE: postgres
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_HOST: db
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
       KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
     secrets:
       - kong_postgres_password
