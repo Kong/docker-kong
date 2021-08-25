@@ -29,10 +29,17 @@ file_env() {
 export KONG_NGINX_DAEMON=${KONG_NGINX_DAEMON:=off}
 
 if [[ "$1" == "kong" ]]; then
+
+  all_kong_options="/usr/local/share/lua/5.1/kong/templates/kong_defaults.lua"
+  set +Eeo pipefail
+  while IFS='' read -r LINE || [ -n "${LINE}" ]; do
+      opt=$(echo "$LINE" | grep "=" | sed "s/=.*$//" | sed "s/ //" | tr '[:lower:]' '[:upper:]')
+      file_env "KONG_$opt"
+  done < $all_kong_options
+  set -Eeo pipefail
+
+  file_env KONG_PASSWORD
   PREFIX=${KONG_PREFIX:=/usr/local/kong}
-  file_env KONG_PG_PASSWORD
-  file_env KONG_PG_USER
-  file_env KONG_PG_DATABASE
 
   if [[ "$2" == "docker-start" ]]; then
     kong prepare -p "$PREFIX"
