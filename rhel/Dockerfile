@@ -1,4 +1,4 @@
-ARG RHEL_VERSION=7
+ARG RHEL_VERSION=8
 
 FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
 

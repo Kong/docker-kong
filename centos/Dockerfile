@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 LABEL maintainer="Kong <support@konghq.com>"
 
 ARG ASSET=ce

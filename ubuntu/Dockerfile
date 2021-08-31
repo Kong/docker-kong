@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:focal
 
 ARG ASSET=ce
 ENV ASSET $ASSET
