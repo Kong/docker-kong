@@ -11,6 +11,7 @@ env:
 before_install:
   - curl -fsSL https://get.docker.com -o get-docker.sh
   - sh ./get-docker.sh
+  - echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin
 
 before_script:
   - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi
