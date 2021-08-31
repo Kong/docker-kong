@@ -23,7 +23,7 @@ function run_test {
   fi
   popd
 
-
+  docker scan kong-$BASE
 
   # Docker swarm test
   ttest "Docker swarm test"
