@@ -23,7 +23,6 @@ function run_test {
   fi
   popd
 
-  set +x
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --login --token "${SNYK_SCAN_TOKEN}"
     docker scan --accept-license --exclude-base --file $BASE/Dockerfile kong-$BASE
