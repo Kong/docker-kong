@@ -1,9 +1,7 @@
-ARG RHEL_VERSION=8
+ARG RHEL_VERSION=7
 
-# hadolint ignore=DL3006
 FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
 
-# hadolint ignore=DL4000
 MAINTAINER Kong
 
 LABEL name="Kong" \
@@ -29,17 +27,15 @@ ENV KONG_VERSION $KONG_VERSION
 ARG RHEL_VERSION
 ENV RHEL_VERSION $RHEL_VERSION
 
-ARG KONG_SHA256="8c3eb956d61df6359828e0eb41cafc1305a4256f68863c84e6835f23a267157a"
+ARG KONG_SHA256="8db0f15fc2d9478bceded4f06575a27c4e8c5e7fccab067b73ea81544a1da526"
 ENV KONG_SHA256 $KONG_SHA256
 
-# hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
-    yum update -y \
-    && yum install -y -q unzip shadow-utils \
+    yum install -y -q unzip shadow-utils \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
