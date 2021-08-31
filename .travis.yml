@@ -3,6 +3,11 @@ language: generic
 services:
   - docker
 
+addons:
+  apt:
+    packages:
+      - docker-ce
+
 env:
   matrix:
     - BASE="centos" KONG_DOCKER_TAG="kong-centos" PACKAGE_TYPE="rpm"

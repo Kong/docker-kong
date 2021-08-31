@@ -23,7 +23,11 @@ function run_test {
   fi
   popd
 
-  docker scan kong-$BASE
+  set +x
+  if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
+    docker scan --login --token "${SNYK_SCAN_TOKEN}"
+    docker scan --accept-license --exclude-base --file $BASE/Dockerfile kong-$BASE
+  fi
 
   # Docker swarm test
   ttest "Docker swarm test"
