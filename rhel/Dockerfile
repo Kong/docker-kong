@@ -1,7 +1,9 @@
 ARG RHEL_VERSION=8
 
+# hadolint ignore=DL3006
 FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
 
+# hadolint ignore=DL4000
 MAINTAINER Kong
 
 LABEL name="Kong" \
@@ -30,6 +32,7 @@ ENV RHEL_VERSION $RHEL_VERSION
 ARG KONG_SHA256="8c3eb956d61df6359828e0eb41cafc1305a4256f68863c84e6835f23a267157a"
 ENV KONG_SHA256 $KONG_SHA256
 
+# hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \

@@ -10,6 +10,7 @@ COPY kong.deb /tmp/kong.deb
 ARG KONG_VERSION=2.5.0
 ENV KONG_VERSION $KONG_VERSION
 
+# hadolint ignore=DL3015
 RUN set -ex \
     && apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \

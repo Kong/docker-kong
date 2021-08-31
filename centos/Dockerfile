@@ -13,6 +13,7 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="87b789aed871991b92d264b02ceca3c66246c825c28dd71e73faac7293e43fa2"
 
+# hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \

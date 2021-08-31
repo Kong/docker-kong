@@ -7,6 +7,7 @@ ENV ASSET $ASSET
 
 ARG EE_PORTS
 
+# hadolint ignore=DL3010
 COPY kong.tar.gz /tmp/kong.tar.gz
 
 ARG KONG_VERSION=2.5.0
@@ -19,6 +20,7 @@ ENV KONG_AMD64_SHA $KONG_AMD64_SHA
 ARG KONG_ARM64_SHA="131964ce443f2d08dc98191fcc442867f2dee2f741ccee9cc519bb99c765f3cf"
 ENV KONG_ARM64_SHA $KONG_ARM64_SHA
 
+# hadolint ignore=DL3018
 RUN set -eux; \
     arch="$(apk --print-arch)"; \
     case "${arch}" in \

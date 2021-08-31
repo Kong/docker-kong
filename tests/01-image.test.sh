@@ -3,7 +3,12 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
+  docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint < $BASE/Dockerfile
 
+  if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
+    docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
+    docker scan --accept-license --exclude-base --severity=high --file $BASE/Dockerfile kong-$BASE
+  fi
 
   # Test the proper version was buid
   tchapter "test $BASE image"
@@ -22,11 +27,6 @@ function run_test {
     tsuccess
   fi
   popd
-
-  if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
-    docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
-    docker scan --accept-license --exclude-base --severity=high --file $BASE/Dockerfile kong-$BASE
-  fi
 
   # Docker swarm test
   ttest "Docker swarm test"
