@@ -19,7 +19,8 @@ RUN set -ex; \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
-    yum install -y -q unzip shadow-utils git \
+    yum update -y \
+    && yum install -y -q unzip shadow-utils git \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the centos install docs if the below line is changed so that

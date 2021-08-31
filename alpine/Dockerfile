@@ -38,6 +38,7 @@ RUN set -eux; \
     && mv /kong/usr/local/* /usr/local \
     && mv /kong/etc/* /etc \
     && rm -rf /kong \
+    && apk upgrade \
     && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates \
     && adduser -S kong \
     && addgroup -S kong \

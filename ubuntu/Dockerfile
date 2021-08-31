@@ -13,6 +13,7 @@ ENV KONG_VERSION $KONG_VERSION
 # hadolint ignore=DL3015
 RUN set -ex \
     && apt-get update \
+    && apt-get upgrade -y \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y curl \
       && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
