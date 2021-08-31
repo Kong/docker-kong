@@ -10,6 +10,8 @@ env:
 before_install:
   - curl -fsSL https://test.docker.com -o test-docker.sh
   - sudo sh test-docker.sh
+  - docker version
+  - docker scan --version
 
 before_script:
   - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi
