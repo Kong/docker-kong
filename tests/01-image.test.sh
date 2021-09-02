@@ -3,8 +3,6 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
-
-
   # Test the proper version was buid
   tchapter "test $BASE image"
   ttest "the proper version was build"
@@ -26,25 +24,28 @@ function run_test {
   ttest "Upgrade Test"
 
   pushd compose
-  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -f - up -d
+  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d db
+  sleep 5
+  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
+  sleep 5
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
-    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -f - ps
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
     docker ps
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
     sleep 20
   done
-
-  sleep 20
+  
+  sleep 5
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
-  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose up -d
-  sleep 20
+  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
+  sleep 5
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}:latest; do
-    docker-compose ps
+    docker-compose -p kong ps
     docker ps
     sleep 20
   done
 
-  sleep 20
   curl -I localhost:8001 | grep -E '(openresty|kong)'
   if [ $? -eq 0 ]; then
     tsuccess
@@ -52,14 +53,13 @@ function run_test {
     tfailure
   fi
 
-  docker-compose kill
-  docker-compose rm -f
-  sleep 20
+  docker-compose -p kong kill
+  docker-compose -p kong rm -f
+  sleep 5
   docker volume prune -f
+  docker system prune -y
   git checkout -- docker-compose.yml
   popd
-
-
 
   # Validate Kong is running as the Kong user (default)
   ttest "Kong is running as the Kong user (default)"
@@ -77,7 +77,6 @@ function run_test {
   else
     tsuccess
   fi
-
 
 
   # Validate Kong is running as the Kong user (overridden)
