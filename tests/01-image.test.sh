@@ -23,28 +23,24 @@ function run_test {
   fi
   popd
 
-
-
-  # Docker swarm test
-  ttest "Docker swarm test"
+  ttest "Upgrade Test"
 
   pushd compose
-  docker swarm init
-  KONG_DOCKER_TAG=kong:1.5.0 docker stack deploy -c<(curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml) kong
+  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -f - up -d
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
-    docker stack ps kong
-    docker service ps kong_kong
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -f - ps
+    docker ps
     sleep 20
   done
 
   sleep 20
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
-  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
+  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose up -d
   sleep 20
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}:latest; do
-    docker stack ps kong
-    docker service ps kong_kong
+    docker-compose ps
+    docker ps
     sleep 20
   done
 
@@ -56,9 +52,9 @@ function run_test {
     tfailure
   fi
 
-  docker stack rm kong
+  docker-compose kill
+  docker-compose rm -f
   sleep 20
-  docker swarm leave --force
   docker volume prune -f
   git checkout -- docker-compose.yml
   popd
