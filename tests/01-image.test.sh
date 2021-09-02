@@ -23,27 +23,23 @@ function run_test {
 
   ttest "Upgrade Test"
 
+  echo "run 1.5.0"
   pushd compose
-  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d db
-  sleep 5
   curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
-  sleep 5
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
     curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
     docker ps
+    sleep 15
     curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
-    sleep 20
   done
-  
-  sleep 5
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
+  
   KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
-  sleep 5
-  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}:latest; do
+  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
     docker-compose -p kong ps
     docker ps
-    sleep 20
+    sleep 15
   done
 
   curl -I localhost:8001 | grep -E '(openresty|kong)'
@@ -52,6 +48,8 @@ function run_test {
   else
     tfailure
   fi
+  
+  echo "cleanup"
 
   docker-compose -p kong kill
   docker-compose -p kong rm -f
