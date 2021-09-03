@@ -9,11 +9,12 @@ function run_test {
   ttest "CIS-Sec for docker-compose"
 
   pushd compose
-    docker-compose stop
-    docker-compose rm -f
-    docker system prune -f
-    KONG_INBOUND_PROXY_LISTEN=127.0.0.1 KONG_INBOUND_SSL_PROXY_LISTEN=127.0.0.1 docker-compose up -d
+    docker kill $(docker ps -q)
+    docker rm $(docker ps -a -q)
+    KONG_DOCKER_TAG=${KONG_DOCKER_TAG} KONG_INBOUND_PROXY_LISTEN=127.0.0.1 KONG_INBOUND_SSL_PROXY_LISTEN=127.0.0.1 docker-compose up -d
     until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
+    docker system prune --all -f
+    docker images
   popd
 
   rm -rf tests/docker-bench-security
