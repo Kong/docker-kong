@@ -3,6 +3,13 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
+  docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
+
+  if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
+    docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
+    docker scan --accept-license --exclude-base --severity=high --file $BASE/Dockerfile kong-$BASE
+  fi
+
   # Test the proper version was buid
   tchapter "test $BASE image"
   ttest "the proper version was build"
@@ -23,7 +30,6 @@ function run_test {
 
   ttest "Upgrade Test"
 
-  echo "run 1.5.0"
   pushd compose
   curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
