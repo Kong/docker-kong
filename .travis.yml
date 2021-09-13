@@ -1,5 +1,5 @@
 language: generic
-dist: bionic
+dist: focal
 
 env:
   matrix:
