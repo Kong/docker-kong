@@ -12,6 +12,10 @@ before_install:
   - curl -fsSL https://get.docker.com -o get-docker.sh
   - sh ./get-docker.sh
   - echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 before_script:
   - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi
