@@ -36,9 +36,6 @@ services:
     networks:
       - kong-net
     restart: on-failure
-    deploy:
-      restart_policy:
-        condition: on-failure
 
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -53,9 +50,6 @@ services:
     networks:
       - kong-net
     restart: on-failure
-    deploy:
-      restart_policy:
-        condition: on-failure
 
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
@@ -97,16 +91,6 @@ services:
       - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
       - kong_tmp_vol:/tmp
       - ./config:/opt/kong
-    deploy:
-      restart_policy:
-        delay: 50s
-        condition: on-failure
-        max_attempts: 5
-        window: 10s
-      resources:
-        limits:
-          cpus: "${KONG_CPU_LIMIT:-2}"
-          memory: ${KONG_MEMORY_LIMIT:-2g}
     security_opt:
       - no-new-privileges
 
@@ -125,9 +109,6 @@ services:
       timeout: 30s
       retries: 3
     restart: on-failure
-    deploy:
-      restart_policy:
-        condition: on-failure
     stdin_open: true
     tty: true
     networks:

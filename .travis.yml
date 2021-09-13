@@ -1,7 +1,5 @@
 language: generic
-
-services:
-  - docker
+dist: bionic
 
 env:
   matrix:
@@ -9,6 +7,11 @@ env:
     - BASE="alpine" KONG_DOCKER_TAG="kong-alpine" PACKAGE_TYPE="apk"
     - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu" PACKAGE_TYPE="deb"
     - BASE="rhel" KONG_DOCKER_TAG="kong-rhel" PACKAGE_TYPE="rpm"
+
+before_install:
+  - curl -fsSL https://get.docker.com -o get-docker.sh
+  - sh ./get-docker.sh
+  - echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin
 
 before_script:
   - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi

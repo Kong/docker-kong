@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 LABEL maintainer="Kong <support@konghq.com>"
 
 ARG ASSET=ce
@@ -13,12 +13,14 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="87b789aed871991b92d264b02ceca3c66246c825c28dd71e73faac7293e43fa2"
 
+# hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
-    yum install -y -q unzip shadow-utils git \
+    yum update -y \
+    && yum install -y -q unzip shadow-utils git \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the centos install docs if the below line is changed so that
