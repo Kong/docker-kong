@@ -8,11 +8,11 @@ function run_test {
   tchapter "CIS-Sec tests $KONG_DOCKER_TAG"
   ttest "CIS-Sec for docker-compose"
 
-  pushd compose
-    docker-compose stop
-    KONG_INBOUND_PROXY_LISTEN=127.0.0.1 KONG_INBOUND_SSL_PROXY_LISTEN=127.0.0.1 docker-compose up -d
-    until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
-  popd
+  docker kill $(docker ps -q)
+  docker run -d kong-$BASE tail -f /dev/null
+  docker rmi kong:1.5.0
+  docker rmi postgres:9.5
+  docker images
 
   rm -rf tests/docker-bench-security
 
