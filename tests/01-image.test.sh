@@ -28,8 +28,33 @@ function run_test {
   fi
   popd
 
+  ttest "Dbless Test"
+  
+  pushd compose
+  docker-compose up -d
+  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
+    docker-compose up -d
+    docker ps
+    sleep 15
+  done
+  
+  curl -I localhost:8001 | grep -E '(openresty|kong)'
+  if [ $? -eq 0 ]; then
+    tsuccess
+  else
+    tfailure
+  fi
+  
+  docker-compose kill
+  docker-compose rm -f
+  sleep 5
+  docker volume prune -f
+  popd
+
   ttest "Upgrade Test"
 
+  export COMPOSE_PROFILES=database
+  export KONG_DATABASE=postgres
   pushd compose
   curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do

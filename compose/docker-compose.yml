@@ -1,7 +1,7 @@
 version: '3.9'
 
 x-kong-config: &kong-env
-  KONG_DATABASE: ${KONG_DATABASE:-postgres}
+  KONG_DATABASE: ${KONG_DATABASE:-off}
   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
   KONG_PG_HOST: db
   KONG_PG_USER: ${KONG_PG_USER:-kong}
