@@ -28,45 +28,42 @@ function run_test {
   fi
   popd
 
-  # Docker swarm test
-  ttest "Docker swarm test"
+  ttest "Upgrade Test"
 
   pushd compose
-  docker swarm init
-  KONG_DOCKER_TAG=kong:1.5.0 docker stack deploy -c<(curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml) kong
+  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
-    docker stack ps kong
-    docker service ps kong_kong
-    sleep 20
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
+    docker ps
+    sleep 15
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
   done
-
-  sleep 20
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
-  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker stack deploy -c docker-compose.yml kong
-  sleep 20
-  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}:latest; do
-    docker stack ps kong
-    docker service ps kong_kong
-    sleep 20
+  
+  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
+  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
+    docker-compose -p kong ps
+    docker ps
+    sleep 15
   done
 
-  sleep 20
   curl -I localhost:8001 | grep -E '(openresty|kong)'
   if [ $? -eq 0 ]; then
     tsuccess
   else
     tfailure
   fi
+  
+  echo "cleanup"
 
-  docker stack rm kong
-  sleep 20
-  docker swarm leave --force
+  docker-compose -p kong kill
+  docker-compose -p kong rm -f
+  sleep 5
   docker volume prune -f
+  docker system prune -y
   git checkout -- docker-compose.yml
   popd
-
-
 
   # Validate Kong is running as the Kong user (default)
   ttest "Kong is running as the Kong user (default)"
@@ -84,7 +81,6 @@ function run_test {
   else
     tsuccess
   fi
-
 
 
   # Validate Kong is running as the Kong user (overridden)
