@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 x-kong-config: &kong-env
   KONG_DATABASE: ${KONG_DATABASE:-postgres}
@@ -11,12 +11,12 @@ volumes:
   kong_data: {}
   kong_prefix_vol:
     driver_opts:
-     type: tmpfs
-     device: tmpfs
+      type: tmpfs
+      device: tmpfs
   kong_tmp_vol:
     driver_opts:
-     type: tmpfs
-     device: tmpfs
+      type: tmpfs
+      device: tmpfs
 
 networks:
   kong-net:
@@ -70,6 +70,14 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
       KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+      KONG_LICENSE_DATA: "${KONG_LICENSE_DATA}"
+
+      # EE
+      KONG_PORTAL: "on"
+      KONG_SMTP_HOST: mailhog
+      KONG_SMTP_PORT: 1025
+      KONG_SMTP_STARTTLS: "off"
+      KONG_PORTAL_EMAIL_VERIFICATION: "on"
     secrets:
       - kong_postgres_password
     networks:
@@ -79,6 +87,10 @@ services:
       # according to the CIS Security test.
       - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8000:8000/tcp"
       - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
+      - "0.0.0.0:8002:8002/tcp"
+      - "0.0.0.0:8003:8003/tcp"
+      - "0.0.0.0:8004:8004/tcp"
+      - "0.0.0.0:8005:8005/tcp"
       # Making them mandatory but undefined, like so would be backwards-breaking:
       # - "${KONG_INBOUND_PROXY_LISTEN?Missing inbound proxy host}:8000:8000/tcp"
       # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
@@ -109,6 +121,13 @@ services:
           memory: ${KONG_MEMORY_LIMIT:-2g}
     security_opt:
       - no-new-privileges
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    networks:
+      - kong-net
+    ports:
+      - "0.0.0.0:8025:8025/tcp"
 
   db:
     image: postgres:9.5
