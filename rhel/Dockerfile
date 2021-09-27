@@ -35,13 +35,10 @@ RUN set -ex; \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
-    yum install -y -q unzip shadow-utils \
-    && yum clean all -q \
-    && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
     # and that our CI does not diverge from our docs.
-    && yum install -y /tmp/kong.rpm \
+    yum install -y /tmp/kong.rpm \
     && yum clean all \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
