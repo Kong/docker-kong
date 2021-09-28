@@ -7,7 +7,7 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.5.1
+ARG KONG_VERSION=2.6.0
 ENV KONG_VERSION $KONG_VERSION
 
 # hadolint ignore=DL3015
