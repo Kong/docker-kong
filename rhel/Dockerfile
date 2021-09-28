@@ -4,9 +4,12 @@ FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
 
 MAINTAINER Kong
 
+ARG KONG_VERSION=2.5.1
+ENV KONG_VERSION $KONG_VERSION
+
 LABEL name="Kong" \
       vendor="Kong" \
-      version="2.4.0" \
+      version="$KONG_VERSION" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \
@@ -20,9 +23,6 @@ ENV ASSET $ASSET
 ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
-
-ARG KONG_VERSION=2.5.1
-ENV KONG_VERSION $KONG_VERSION
 
 ARG RHEL_VERSION
 ENV RHEL_VERSION $RHEL_VERSION
