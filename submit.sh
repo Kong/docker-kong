@@ -220,7 +220,7 @@ then
         v = "'$version'"
         xy = "'$xy'"
         commit = "'$commit'"
-        print "Tags: " v "-alpine, " v ", " xy ", latest"
+        print "Tags: " v "-alpine, " v ", " xy ", alpine, latest"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: alpine"
@@ -238,8 +238,10 @@ then
         print "Directory: centos"
         print "Architectures: amd64"
         print ""
+        print
         before_first = 0
-      } else if (!(in_rc_tag == 1)) {
+      }
+      if (!(in_rc_tag == 1)) {
         gsub(", latest", "")
         gsub(", alpine", "")
         gsub(", ubuntu", "")
