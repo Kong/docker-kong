@@ -185,7 +185,6 @@ then
         print "Directory: centos"
         print "Architectures: amd64"
         print ""
-        print
         before_first = 0
       } else {
         print
@@ -238,7 +237,6 @@ then
         print "Directory: centos"
         print "Architectures: amd64"
         print ""
-        print
         before_first = 0
       }
       if (!(in_rc_tag == 1)) {
