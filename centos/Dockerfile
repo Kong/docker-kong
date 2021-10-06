@@ -1,5 +1,8 @@
-FROM centos:8
+ARG CENTOS_VERSION=8
+FROM centos:$CENTOS_VERSION
 LABEL maintainer="Kong <support@konghq.com>"
+
+ARG CENTOS_VERSION
 
 ARG ASSET=ce
 ENV ASSET $ASSET
@@ -11,13 +14,15 @@ COPY kong.rpm /tmp/kong.rpm
 ARG KONG_VERSION=2.6.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="f83a1030b01aa3deb4535394b550228f4804a6fd35a4ea4b11e12dcbcacdadc0"
+ARG KONG_SHA256_7="f83a1030b01aa3deb4535394b550228f4804a6fd35a4ea4b11e12dcbcacdadc0"
+ARG KONG_SHA256_8="95422738b65f8700823bf873bedab695973b17e3b67a117e524aeaa55d09f043"
 
 # hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \
-      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+      export KONG_SHA256="KONG_SHA256_$CENTOS_VERSION" \
+      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-$CENTOS_VERSION/Packages/k/kong-$KONG_VERSION.el$CENTOS_VERSION.amd64.rpm -o /tmp/kong.rpm \
+      && echo "${!KONG_SHA256}  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils git \
     && yum clean all -q \
