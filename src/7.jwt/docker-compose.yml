@@ -1,0 +1,44 @@
+version: "3.9"
+
+networks:
+  kong-net:
+    external: false
+
+services:
+  kong:
+    image: "kong:latest"
+    user: "kong"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_PROXY_LISTEN: "0.0.0.0:8080"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+    networks:
+      - kong-net
+    ports:
+      - "127.0.0.1:8001:8001/tcp"
+      - "127.0.0.1:8080:8080/tcp"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure:5
+    volumes:
+      - ./config:/opt/kong
+
+  konga:
+    image: "pantsel/konga"
+    environment:
+      NODE_ENV: production
+      TOKEN_SECRET: tokensecret
+      NO_AUTH: "true"
+    networks:
+      - kong-net
+    ports:
+      - "127.0.0.1:1337:1337/tcp"
+    restart: on-failure:5

@@ -1,0 +1,78 @@
+# a very minimal declarative config file
+_format_version: "2.1"
+_transform: true
+
+upstreams:
+  - name: mock-upstream
+    targets:
+      - target: mockbin.org:80
+        weight: 100
+
+  - name: ip-upstream
+    targets:
+      - target: ip-api.com:80
+        weight: 100
+
+plugins:
+  - name: correlation-id
+    config:
+      header_name: Request-ID
+      generator: uuid#counter
+      echo_downstream: true
+
+services:
+  - name: mock-service
+    protocol: http
+    host: mock-upstream
+    port: 80
+    routes:
+      - name: mock-route
+        paths:
+          - /
+    plugins:
+      - name: jwt
+        enabled: true
+        config:
+          secret_is_base64: false
+          run_on_preflight: true
+          maximum_expiration: 1800
+      - name: proxy-cache
+        enabled: true
+        config:
+          content_type:
+            - "application/json; charset=utf-8"
+          cache_ttl: 30
+          strategy: memory
+
+  - name: ip-service
+    protocol: http
+    host: ip-upstream
+    port: 80
+    routes:
+      - name: ip-route
+        strip_path: true
+        paths:
+          - /search-ip
+    plugins:
+      - name: rate-limiting
+        enabled: true
+        config:
+          minute: 400
+          policy: local
+      - name: proxy-cache
+        enabled: true
+        config:
+          content_type:
+            - "application/json; charset=utf-8"
+          cache_ttl: 30
+          strategy: memory
+
+consumers:
+  - username: mock-user
+    custom_id: ab4bf4a1-a8bd-4bec-a999-75b1eb281743
+
+jwt_secrets:
+  - consumer: mock-user
+    algorithm: HS256
+    key: a36c3049b36249a3c9f8891cb127243c
+    secret: e71829c351aa4242c2719cbfbe671c09
