@@ -1,0 +1,16 @@
+ _format_version: "1.1"
+ services:
+ - host: mockbin.org
+   name: example_service
+   port: 80
+   protocol: http
+   routes:
+   - name: mocking
+     paths:
+     - /mock
+     strip_path: true
+ plugins:
+ - name: rate-limiting
+   config:
+     minute: 5
+     policy: local

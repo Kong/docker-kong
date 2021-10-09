@@ -1,3 +1,69 @@
 # a very minimal declarative config file
 _format_version: "2.1"
 _transform: true
+
+upstreams:
+  - name: mock-upstream
+    targets:
+      - target: mockbin.org:80
+        weight: 100
+
+  - name: ip-upstream
+    targets:
+      - target: ip-api.com:80
+        weight: 100
+
+plugins:
+  - name: correlation-id
+    config:
+      header_name: Request-ID
+      generator: uuid#counter
+      echo_downstream: true
+
+services:
+  - name: mock-service
+    protocol: http
+    host: mock-upstream
+    port: 80
+    routes:
+      - name: mock-route
+        paths:
+          - /
+    plugins:
+      - name: key-auth
+        enabled: true
+      - name: proxy-cache
+        enabled: true
+        config:
+          content_type:
+            - "application/json; charset=utf-8"
+          cache_ttl: 30
+          strategy: memory
+
+  - name: ip-service
+    protocol: http
+    host: ip-upstream
+    port: 80
+    routes:
+      - name: ip-route
+        strip_path: true
+        paths:
+          - /search-ip
+    plugins:
+      - name: rate-limiting
+        enabled: true
+        config:
+          minute: 400
+          policy: local
+      - name: proxy-cache
+        enabled: true
+        config:
+          content_type:
+            - "application/json; charset=utf-8"
+          cache_ttl: 30
+          strategy: memory
+
+consumers:
+  - username: mock-user
+    keyauth_credentials:
+      - key: mock-key

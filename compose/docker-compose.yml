@@ -116,6 +116,18 @@ services:
     volumes:
       - kong_data:/var/lib/postgresql/data
 
+  konga:
+    image: "pantsel/konga"
+    environment:
+      NODE_ENV: production
+      TOKEN_SECRET: tokensecret
+      NO_AUTH: "true"
+    networks:
+      - kong-net
+    ports:
+      - "127.0.0.1:1337:1337/tcp"
+    restart: on-failure
+
 secrets:
   kong_postgres_password:
     file: ./POSTGRES_PASSWORD
