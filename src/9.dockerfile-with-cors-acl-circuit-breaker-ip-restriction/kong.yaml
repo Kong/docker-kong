@@ -19,6 +19,21 @@ plugins:
       header_name: Request-ID
       generator: uuid#counter
       echo_downstream: true
+  - name: ip-restriction
+    config:
+      deny:
+        - 54.13.21.1
+        - 143.1.0.0/24
+  - name: circuit-breaker
+    config:
+      version: 0
+      window_time: 15
+      min_calls_in_window: 20
+      api_call_timeout_ms: 500
+      failure_percent_threshold: 51
+      wait_duration_in_open_state: 15
+      wait_duration_in_half_open_state: 180
+      error_status_code: 599
 
 services:
   - name: mock-service
@@ -49,6 +64,18 @@ services:
           uri_param_names: [jwt]
           claims_to_include: [.*]
           continue_on_error: true
+      - name: acl
+        enabled: true
+        config:
+          hide_groups_header: true
+          allow:
+            - group1
+            - group2
+      - name: request-termination
+        enabled: true
+        config:
+          status_code: 403
+          message: So long and thanks for all the fish!
 
   - name: ip-service
     protocol: http
@@ -72,10 +99,39 @@ services:
             - "application/json; charset=utf-8"
           cache_ttl: 30
           strategy: memory
+      - name: cors
+        enabled: true
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - X-Auth-Token
+            - User-Agent
+            - Cache-Control
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+          preflight_continue: false
 
 consumers:
   - username: mock-user
     custom_id: ab4bf4a1-a8bd-4bec-a999-75b1eb281743
+
+acls:
+  - consumer: mock-user
+    group: group1
 
 jwt_secrets:
   - consumer: mock-user

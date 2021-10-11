@@ -11,8 +11,13 @@ up-stats:
 	docker run -d --rm --name monitor --memory=64m --memory-swap=64m -p 8081:8080 -v /var/run/docker.sock:/var/run/docker.sock vasilvasilev97/docker-stats-monitor
 
 down:
-	docker kill $(docker ps -q)
+	docker stop kong
 	docker container prune -f
+	docker rmi heitorcarneiro/kong-test
+
+prune:
+	docker container prune -f
+	docker rmi heitorcarneiro/kong-test
 
 restart:
 	docker restart kong

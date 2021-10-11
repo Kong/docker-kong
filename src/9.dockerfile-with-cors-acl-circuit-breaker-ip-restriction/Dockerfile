@@ -8,7 +8,7 @@ ENV KONG_ADMIN_ERROR_LOG="/dev/stderr"
 ENV KONG_PROXY_ACCESS_LOG="/dev/stdout"
 ENV KONG_PROXY_ERROR_LOG="/dev/stderr"
 ENV KONG_DECLARATIVE_CONFIG="/opt/kong/kong.yaml"
-ENV KONG_PLUGINS="bundled,oidc,circuit-breaker,scalable-rate-limiter,jwt-claims-headers"
+ENV KONG_PLUGINS="bundled,circuit-breaker,jwt-claims-headers"
 
 USER root
 RUN mkdir -p /opt/kong
@@ -16,8 +16,6 @@ COPY kong.yaml /opt/kong/kong.yaml
 RUN chown -R kong:kong /opt/kong
 
 EXPOSE 8080
-
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health || exit 1
 
 STOPSIGNAL SIGTERM
 
