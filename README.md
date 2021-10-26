@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/Kong/docker-kong.svg?branch=master)](https://travis-ci.com/Kong/docker-kong)
+![Build Status](https://github.com/kong/docker-kong/actions/workflows/test.yml/badge.svg)
 
 # About this Repo
 
