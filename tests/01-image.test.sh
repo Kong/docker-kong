@@ -16,7 +16,7 @@ function run_test {
 
   pushd $BASE
   version_given="$(grep 'ARG KONG_VERSION' Dockerfile | awk -F "=" '{print $2}')"
-  version_built="$(docker run -ti --rm kong-$BASE kong version | tr -d '[:space:]')"
+  version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
 
   if [[ "$version_given" != "$version_built" ]]; then
     echo "Kong version mismatch:";
