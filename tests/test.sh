@@ -237,7 +237,7 @@ function tfinish {
 
     if [ "$T_COUNT_FAILURE" -eq 0 ] && [ "$T_COUNT_SUCCESS" -gt 0 ]; then
       if [ $T_FIGLET_AVAILABLE -eq 0 ]; then
-        # split in lines and colorize each individually for Travis CI
+        # split in lines and colorize each individually for CI
         figlet -c -w 120 "Success!" | while IFS= read -r line; do echo -e "$T_COLOR_GREEN$line $T_COLOR_CLEAR"; done
       else
         echo -e "$T_COLOR_GREEN  Overall succes!$T_COLOR_CLEAR"
@@ -245,7 +245,7 @@ function tfinish {
       texit 0
     else
       if [ $T_FIGLET_AVAILABLE -eq 0 ]; then
-        # split in lines and colorize each individually for Travis CI
+        # split in lines and colorize each individually for CI
         figlet -c -w 120 "Failed!" | while IFS= read -r line; do echo -e "$T_COLOR_RED$line $T_COLOR_CLEAR"; done
       else
         echo -e "$T_COLOR_RED  Overall failed!$T_COLOR_CLEAR"
