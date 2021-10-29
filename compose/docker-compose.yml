@@ -78,8 +78,8 @@ services:
       # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
       # Alternative is deactivating check 5.13 in the security bench, if we consider Kong's own config to be enough security here
 
-      - "127.0.0.1:8001:8001/tcp"
-      - "127.0.0.1:8444:8444/tcp"
+      - "8001:8001/tcp"
+      - "8444:8444/tcp"
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s

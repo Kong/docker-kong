@@ -1,8 +1,9 @@
 KONG_BUILD_TOOLS?=4.21.0
 BASE?=centos
+ASSET?=ce
 
 build:
-	docker build --no-cache -t kong-$(BASE) $(BASE)/
+	docker build --no-cache --build-arg ASSET=$(ASSET) -t kong-$(BASE) $(BASE)/
 
 .PHONY: test
 test:
