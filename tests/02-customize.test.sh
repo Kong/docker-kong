@@ -245,6 +245,9 @@ function run_test {
   tfinish
 }
 
+if [[ $ASSET == "ce" ]]; then
+  exit 0
+fi
 
 # No need to modify anything below this comment
 
