@@ -20,7 +20,7 @@ RUN set -ex \
       apt-get install -y curl \
       && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
-      && echo "$KONG_EE_SHA256  /tmp/kong.deb" | sha256sum -c -; \
+      && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     elif [ "$ASSET" = "ee" ] ; then \
       apt-get install -y curl \
       && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong-enterprise-edition/kong-enterprise-edition_${KONG_EE_VERSION}_all.deb -o /tmp/kong.deb \
