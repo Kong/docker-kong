@@ -9,6 +9,8 @@ ARG EE_PORTS
 COPY kong.rpm /tmp/kong.rpm
 
 ARG KONG_VERSION=2.6.0
+ENV KONG_VERSION $KONG_VERSION
+
 ARG KONG_SHA256="f83a1030b01aa3deb4535394b550228f4804a6fd35a4ea4b11e12dcbcacdadc0"
 
 # hadolint ignore=DL3033

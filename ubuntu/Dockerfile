@@ -8,6 +8,8 @@ ARG EE_PORTS
 COPY kong.deb /tmp/kong.deb
 
 ARG KONG_VERSION=2.6.0
+ENV KONG_VERSION $KONG_VERSION
+
 ARG KONG_SHA256="53adb6b1a5fd95b388a0c0bcf57b135dd9773acefa9567e092d5e49d95a76c91"
 
 # hadolint ignore=DL3015
@@ -15,7 +17,7 @@ RUN set -ex \
     && apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y curl \
-      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_$(dpkg --print-architecture).deb -o /tmp/kong.deb \
+      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     else \

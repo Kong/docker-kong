@@ -7,6 +7,8 @@ MAINTAINER Kong
 ARG KONG_VERSION=2.6.0
 ENV KONG_VERSION $KONG_VERSION
 
+ARG KONG_SHA256="490dfceb423ffdfb0621b06774b880f80ec7d51279f54b10e0fa380eec84135b"
+
 LABEL name="Kong" \
       vendor="Kong" \
       version="$KONG_VERSION" \
@@ -26,9 +28,6 @@ COPY kong.rpm /tmp/kong.rpm
 
 ARG RHEL_VERSION
 ENV RHEL_VERSION $RHEL_VERSION
-
-ARG KONG_SHA256="490dfceb423ffdfb0621b06774b880f80ec7d51279f54b10e0fa380eec84135b"
-ENV KONG_SHA256 $KONG_SHA256
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
