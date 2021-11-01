@@ -12,21 +12,24 @@ function run_test {
 
   # Test the proper version was buid
   tchapter "test $BASE image"
-  ttest "the proper version was build"
-
-  pushd $BASE
-  version_given="$(grep 'ARG KONG_VERSION' Dockerfile | awk -F "=" '{print $2}')"
-  version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
-
-  if [[ "$version_given" != "$version_built" ]]; then
-    echo "Kong version mismatch:";
-    echo "\tVersion given is $version_given";
-    echo "\tVersion built is $version_built";
-    tfailure
-  else
-    tsuccess
+  
+  if [[ $ASSET == "ce" ]]; then
+    ttest "the proper version was build"
+  
+    pushd $BASE
+    version_given="$(grep 'ARG KONG_VERSION' Dockerfile | awk -F "=" '{print $2}')"
+    version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
+  
+    if [[ "$version_given" != "$version_built" ]]; then
+      echo "Kong version mismatch:";
+      echo "\tVersion given is $version_given";
+      echo "\tVersion built is $version_built";
+      tfailure
+    else
+      tsuccess
+    fi
+    popd
   fi
-  popd
 
   ttest "Dbless Test"
   
@@ -51,44 +54,46 @@ function run_test {
   docker volume prune -f
   popd
 
-  ttest "Upgrade Test"
-
-  export COMPOSE_PROFILES=database
-  export KONG_DATABASE=postgres
-  pushd compose
-  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
-  until docker ps -f health=healthy | grep -q kong:1.5.0;  do
-    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
-    docker ps
-    sleep 15
+  if [[ $ASSET == "ce" ]]; then
+    ttest "Upgrade Test"
+  
+    export COMPOSE_PROFILES=database
+    export KONG_DATABASE=postgres
+    pushd compose
     curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
-  done
-  curl -I localhost:8001 | grep 'Server: openresty'
-  sed -i -e 's/127.0.0.1://g' docker-compose.yml
+    until docker ps -f health=healthy | grep -q kong:1.5.0;  do
+      curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
+      docker ps
+      sleep 15
+      curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
+    done
+    curl -I localhost:8001 | grep 'Server: openresty'
+    sed -i -e 's/127.0.0.1://g' docker-compose.yml
+    
+    KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
+    until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
+      docker-compose -p kong ps
+      docker ps
+      sleep 15
+    done
   
-  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
-  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
-    docker-compose -p kong ps
-    docker ps
-    sleep 15
-  done
-
-  curl -I localhost:8001 | grep -E '(openresty|kong)'
-  if [ $? -eq 0 ]; then
-    tsuccess
-  else
-    tfailure
+    curl -I localhost:8001 | grep -E '(openresty|kong)'
+    if [ $? -eq 0 ]; then
+      tsuccess
+    else
+      tfailure
+    fi
+    
+    echo "cleanup"
+  
+    docker-compose -p kong kill
+    docker-compose -p kong rm -f
+    sleep 5
+    docker volume prune -f
+    docker system prune -y
+    git checkout -- docker-compose.yml
+    popd
   fi
-  
-  echo "cleanup"
-
-  docker-compose -p kong kill
-  docker-compose -p kong rm -f
-  sleep 5
-  docker volume prune -f
-  docker system prune -y
-  git checkout -- docker-compose.yml
-  popd
 
   # Validate Kong is running as the Kong user (default)
   ttest "Kong is running as the Kong user (default)"

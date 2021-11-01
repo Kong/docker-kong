@@ -9,9 +9,11 @@ jobs:
     strategy:
       matrix:
         image: [alpine, centos, ubuntu, rhel]
+        asset: [ce, ee]
 
     env:
       BASE: ${{ matrix.image }}
+      ASSET: ${{ matrix.asset }}
       KONG_DOCKER_TAG: kong-${{ matrix.image }}
 
     steps:
