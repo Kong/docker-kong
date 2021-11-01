@@ -13,7 +13,6 @@ COPY kong.tar.gz /tmp/kong.tar.gz
 ARG KONG_VERSION=2.6.0
 ENV KONG_VERSION $KONG_VERSION
 
-
 ARG KONG_AMD64_SHA="43fb5f27185e274e22b4a36b93b1b7e27afe94b9fd2efbe4ec69b8ed8a9e5902"
 ENV KONG_AMD64_SHA $KONG_AMD64_SHA
 
@@ -32,6 +31,8 @@ RUN set -eux; \
       && curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c - \
       && apk del .build-deps; \
+    else \
+      apk upgrade; \
     fi; \
     mkdir /kong \
     && tar -C /kong -xzf /tmp/kong.tar.gz \

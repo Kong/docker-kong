@@ -1,4 +1,4 @@
-FROM centos:8
+FROM centos:7
 LABEL maintainer="Kong <support@konghq.com>"
 
 ARG ASSET=ce
@@ -9,15 +9,16 @@ ARG EE_PORTS
 COPY kong.rpm /tmp/kong.rpm
 
 ARG KONG_VERSION=2.6.0
-ENV KONG_VERSION $KONG_VERSION
-
-ARG KONG_SHA256="95422738b65f8700823bf873bedab695973b17e3b67a117e524aeaa55d09f043"
+ARG KONG_SHA256="f83a1030b01aa3deb4535394b550228f4804a6fd35a4ea4b11e12dcbcacdadc0"
 
 # hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-8/Packages/k/kong-$KONG_VERSION.el8.amd64.rpm -o /tmp/kong.rpm \
+      curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+    else \
+      yum update -y \
+      && yum upgrade -y ; \
     fi; \
     yum install -y -q unzip shadow-utils git \
     && yum clean all -q \
@@ -35,7 +36,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
     && if [ "$ASSET" = "ce" ] ; then \
-      kong version ; \
+      kong version; \
     fi
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
