@@ -245,7 +245,9 @@ function run_test {
   tfinish
 }
 
-
+if [[ $ASSET == "ee" ]]; then
+  exit 0
+fi
 # No need to modify anything below this comment
 
 # shellcheck disable=SC1090  # do not follow source
