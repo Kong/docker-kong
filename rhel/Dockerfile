@@ -9,6 +9,9 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="490dfceb423ffdfb0621b06774b880f80ec7d51279f54b10e0fa380eec84135b"
 
+ARG KONG_ENTERPRISE_VERSION=2.6.0.0
+ARG KONG_ENTERPRISE_SHA256="a0bc3b607f36c9473c3b73bb8f69d0757b9e2aae83064476eb770da031198886"
+
 LABEL name="Kong" \
       vendor="Kong" \
       version="$KONG_VERSION" \
@@ -33,6 +36,9 @@ RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+    elif [ "$ASSET" = "ee" ] ; then \
+      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-enterprise-edition-$KONG_ENTERPRISE_VERSION.rhel${RHEL_VERSION}.noarch.rpm" -o /tmp/kong.rpm \
+      && echo "$KONG_ENTERPRISE_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi; \
     yum install -y -q unzip shadow-utils \
     && yum clean all -q \

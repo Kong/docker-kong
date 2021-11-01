@@ -12,6 +12,9 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="53adb6b1a5fd95b388a0c0bcf57b135dd9773acefa9567e092d5e49d95a76c91"
 
+ARG KONG_EE_VERSION=2.6.0.0
+ARG KONG_EE_SHA256="71f4ee3a1a2bba384a41275e29cce4c5737925188d095d2ab92e0e27504311c5"
+
 # hadolint ignore=DL3015
 RUN set -ex \
     && apt-get update \
@@ -20,6 +23,12 @@ RUN set -ex \
       && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
+    elif [ "$ASSET" = "ee" ] ; then \
+      apt-get install -y curl \
+      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong-enterprise-edition/kong-enterprise-edition_${KONG_EE_VERSION}_all.deb -o /tmp/kong.deb \
+      && apt-get purge -y curl \
+      && apt-get upgrade -y \
+      && echo "$KONG_EE_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     else \
       apt-get upgrade -y ; \
     fi; \
@@ -36,7 +45,7 @@ RUN set -ex \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && if [ "$ASSET" = "ce" ] ; then \
+    && if [ "$ASSET" = "ce" ] || [ "$ASSET" = "ee" ] ; then \
       kong version ; \
     fi
 

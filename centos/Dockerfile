@@ -13,11 +13,19 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="f83a1030b01aa3deb4535394b550228f4804a6fd35a4ea4b11e12dcbcacdadc0"
 
+ARG KONG_EE_VERSION=2.6.0.0
+ARG KONG_EE_SHA256="e77576fe2904fdf4709c3adf1431826ac3f26b82b24b98e1bd6abaddd1590d54"
+
 # hadolint ignore=DL3033
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-$KONG_VERSION.el7.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+    elif [ "$ASSET" = "ee" ] ; then \
+      curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-7/Packages/k/kong-enterprise-edition-$KONG_EE_VERSION.el7.noarch.rpm -o /tmp/kong.rpm \
+      && echo "$KONG_EE_SHA256 /tmp/kong.rpm" | sha256sum -c - \
+      && yum update -y \
+      && yum upgrade -y ; \
     else \
       yum update -y \
       && yum upgrade -y ; \
@@ -37,7 +45,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && if [ "$ASSET" = "ce" ] ; then \
+    && if [ "$ASSET" = "ce" ] || [ "$ASSET" = "ee" ] ; then \
       kong version; \
     fi
 
