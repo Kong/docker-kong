@@ -18,6 +18,9 @@ RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-8/Packages/k/kong-$KONG_VERSION.el8.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+    else \
+      yum update -y \
+      && yum upgrade -y ; \
     fi; \
     yum install -y -q unzip shadow-utils git \
     && yum clean all -q \
@@ -35,7 +38,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
     && if [ "$ASSET" = "ce" ] ; then \
-      kong version ; \
+      kong version; \
     fi
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
