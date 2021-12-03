@@ -135,7 +135,7 @@ function run_test {
   else
     tsuccess
   fi
-  
+
   ttest "injected plugin are added to KONG_PLUGINS if set with 'bundled'"
   TEST_CMD_OPTS="-e KONG_PLUGINS=bundled,custom-one"
   run_kong_cmd "printenv" | grep "bundled,myplugin,custom-one"
@@ -145,7 +145,7 @@ function run_test {
   else
     tsuccess
   fi
-  
+
   ttest "injected plugin are NOT added to KONG_PLUGINS if set without 'bundled'"
   TEST_CMD_OPTS="-e KONG_PLUGINS=custom-one,custom-two"
   run_kong_cmd "printenv" | grep "$test_plugin_name"

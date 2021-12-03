@@ -50,4 +50,3 @@ pointing to the latest Kong code, the process can be semi-automated as follows:
 
 Not semi-automated yet. Note that minor releases are more likely to require more
 extensive changes to the Dockerfiles.
-

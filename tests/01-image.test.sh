@@ -29,7 +29,7 @@ function run_test {
   popd
 
   ttest "Dbless Test"
-  
+
   pushd compose
   docker-compose up -d
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
@@ -37,14 +37,14 @@ function run_test {
     docker ps
     sleep 15
   done
-  
+
   curl -I localhost:8001 | grep -E '(openresty|kong)'
   if [ $? -eq 0 ]; then
     tsuccess
   else
     tfailure
   fi
-  
+
   docker-compose kill
   docker-compose rm -f
   sleep 5
@@ -65,7 +65,7 @@ function run_test {
   done
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
-  
+
   KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
     docker-compose -p kong ps
@@ -79,7 +79,7 @@ function run_test {
   else
     tfailure
   fi
-  
+
   echo "cleanup"
 
   docker-compose -p kong kill

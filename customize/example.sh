@@ -27,5 +27,3 @@ docker build \
    --build-arg PLUGINS="kong-plugin-request-validator" \
    --build-arg ROCKS_DIR="./rocksdir" \
    --tag "your_new_image" .
-
-

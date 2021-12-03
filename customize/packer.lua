@@ -444,4 +444,3 @@ stdout(script)
 
 
 header("Completed packing rocks and/or template")
-
