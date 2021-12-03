@@ -1,5 +1,11 @@
 FROM ubuntu:focal
 
+LABEL  maintainer="Kong <support@konghq.com>" \
+    org.opencontainers.image.vendor="Kong" \
+    org.opencontainers.image.url="https://konghq.com/" \
+    org.opencontainers.image.title="Kong" \
+    org.opencontainers.image.documentation="https://docs.konghq.com"
+
 ARG ASSET=ce
 ENV ASSET $ASSET
 
