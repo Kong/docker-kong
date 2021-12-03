@@ -3,7 +3,7 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
-  docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
+  docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 <$BASE/Dockerfile
 
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
@@ -19,9 +19,9 @@ function run_test {
   version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
 
   if [[ "$version_given" != "$version_built" ]]; then
-    echo "Kong version mismatch:";
-    echo "\tVersion given is $version_given";
-    echo "\tVersion built is $version_built";
+    echo "Kong version mismatch:"
+    echo "\tVersion given is $version_given"
+    echo "\tVersion built is $version_built"
     tfailure
   else
     tsuccess
@@ -57,7 +57,7 @@ function run_test {
   export KONG_DATABASE=postgres
   pushd compose
   curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
-  until docker ps -f health=healthy | grep -q kong:1.5.0;  do
+  until docker ps -f health=healthy | grep -q kong:1.5.0; do
     curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
     docker ps
     sleep 15
@@ -99,14 +99,13 @@ function run_test {
   sleep 20
   docker-compose exec kong ps aux | sed -n 2p | grep -q kong
   if [ $? -ne 0 ]; then
-    echo "Kong is not running as the Kong user";
-    echo "\tRunning instead as ";
+    echo "Kong is not running as the Kong user"
+    echo "\tRunning instead as "
     docker-compose exec kong ps aux | sed -n 2p
     tfailure
   else
     tsuccess
   fi
-
 
   # Validate Kong is running as the Kong user (overridden)
   ttest "Kong is running as the Kong user (overridden)"
@@ -116,8 +115,8 @@ function run_test {
   sleep 20
   docker-compose exec kong ps aux | sed -n 2p | grep -q 1001
   if [ $? -ne 0 ]; then
-    echo "Kong is not running as the overridden 1001 user";
-    echo "\tRunning instead as ";
+    echo "Kong is not running as the overridden 1001 user"
+    echo "\tRunning instead as "
     docker-compose exec kong ps aux | sed -n 2p
     tfailure
   else
@@ -126,8 +125,6 @@ function run_test {
   docker-compose stop
 
   popd
-
-
 
   # Run Kong functional tests
   ttest "Kong functional test"
@@ -147,7 +144,6 @@ function run_test {
     tfailure
   fi
   popd
-
 
   tfinish
 }

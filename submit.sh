@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-gawk --version &> /dev/null || {
+gawk --version &>/dev/null || {
   echo "gawk is required to run this script."
   exit 1
 }
@@ -18,8 +18,7 @@ function usage() {
   echo "example: $0 -p 1.1.2"
 }
 
-while [ "$1" ]
-do
+while [ "$1" ]; do
   case "$1" in
   --help)
     usage
@@ -55,31 +54,26 @@ function die() {
   exit 1
 }
 
-hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
+hub --version &>/dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-if [ "$mode" = "" ]
-then
+if [ "$mode" = "" ]; then
   die "Error: mode flag is mandatory"
 fi
 
-if ! [ "$version" ]
-then
+if ! [ "$version" ]; then
   die "Error: missing version"
 fi
 
 git checkout master
 git pull
 
-if ! grep -q "$version" alpine/Dockerfile
-then
-  if [[ "$force" = "yes" ]]
-  then
+if ! grep -q "$version" alpine/Dockerfile; then
+  if [[ "$force" = "yes" ]]; then
     echo "Forcing to use the tag even though it is not in master."
 
     git checkout "$version"
 
-    if ! grep -q "$version$" alpine/Dockerfile
-    then
+    if ! grep -q "$version$" alpine/Dockerfile; then
       die "Error: version in build script doesn't match required version."
     fi
   else
@@ -97,21 +91,18 @@ fi
 xy=${version%.*}
 z=${version#$xy.}
 
-if [ "$mode" = "rc" ]
-then
+if [ "$mode" = "rc" ]; then
   rc=${version#*rc}
   z=${z%rc*}
 fi
 
 commit=$(git show "$version" | grep "^commit" | head -n 1 | cut -b8-48)
 
-if [ "$mode" = "patch" ]
-then
-  prev="$xy.$[z-1]"
+if [ "$mode" = "patch" ]; then
+  prev="$xy.$((z - 1))"
   prevcommit=$(git show "$prev" | grep "^commit" | head -n 1 | cut -b8-48)
-elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
-then
-  prev="$xy.${z}rc$[rc-1]"
+elif [ "$mode" = "rc" -a "$rc" -gt 1 ]; then
+  prev="$xy.${z}rc$((rc - 1))"
   prevcommit=$(git show "$prev" | grep "^commit" | head -n 1 | cut -b8-48)
 fi
 
@@ -127,29 +118,26 @@ git merge upstream/master
 
 git checkout -b release/$version
 
-if [ "$mode" = "patch" ]
-then
+if [ "$mode" = "patch" ]; then
   sed "s|$prev-alpine|$version-alpine|;
        s|$prev-centos|$version-centos|;
        s|$prev-ubuntu|$version-ubuntu|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
-       s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
+       s|refs/tags/$prev|refs/tags/$version|" library/kong >library/kong.new
   mv library/kong.new library/kong
 
-elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
-then
+elif [ "$mode" = "rc" -a "$rc" -gt 1 ]; then
   sed "s|$prev-alpine|$version-alpine|;
        s|$prev-centos|$version-centos|;
        s|$prev-ubuntu|$version-ubuntu|;
-       s|, ${xy}rc$[rc-1]|, ${xy}rc${rc}|;
+       s|, ${xy}rc$((rc - 1))|, ${xy}rc${rc}|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
-       s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
+       s|refs/tags/$prev|refs/tags/$version|" library/kong >library/kong.new
   mv library/kong.new library/kong
 
-elif [ "$mode" = "rc" -a "$rc" -eq 1 ]
-then
+elif [ "$mode" = "rc" -a "$rc" -eq 1 ]; then
   gawk '
     BEGIN {
       reset = 0
@@ -190,11 +178,10 @@ then
         print
       }
     }
-  ' library/kong > library/kong.new
+  ' library/kong >library/kong.new
   mv library/kong.new library/kong
 
-elif [ "$mode" = "minor" ]
-then
+elif [ "$mode" = "minor" ]; then
   gawk '
     BEGIN {
       reset = 0
@@ -251,7 +238,7 @@ then
         reset = 0
       }
     }
-  ' library/kong > library/kong.new
+  ' library/kong >library/kong.new
   mv library/kong.new library/kong
 fi
 
@@ -262,8 +249,7 @@ echo "****************************************"
 echo "Everything looks all right? (y/n)"
 echo "(Answering y will commit, push the branch, and submit the PR)"
 read
-if ! [ "$REPLY" == "y" ]
-then
+if ! [ "$REPLY" == "y" ]; then
   exit 1
 fi
 

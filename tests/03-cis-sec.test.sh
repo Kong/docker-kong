@@ -38,7 +38,7 @@ function run_test {
       -v /var/lib:/var/lib:ro \
       -v /var/run/docker.sock:/var/run/docker.sock:ro \
       --label docker_bench_security \
-      docker/docker-bench-security -e $LINUX_EXCLUDE_TESTS > $LOG_OUTPUT
+      docker/docker-bench-security -e $LINUX_EXCLUDE_TESTS >$LOG_OUTPUT
 
   else # all other linux distros
     mkdir tests/docker-bench-security
@@ -52,7 +52,7 @@ function run_test {
       -v /var/lib:/var/lib:ro \
       -v /var/run/docker.sock:/var/run/docker.sock:ro \
       --label docker_bench_security \
-      docker/docker-bench-security -e $LINUX_EXCLUDE_TESTS > $LOG_OUTPUT
+      docker/docker-bench-security -e $LINUX_EXCLUDE_TESTS >$LOG_OUTPUT
   fi
 
   if cat "$LOG_OUTPUT" | grep WARN | grep kong -B 1; then

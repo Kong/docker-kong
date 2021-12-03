@@ -20,13 +20,12 @@ if [[ "$T_INIT_COUNT" == "" ]]; then
   T_FAILURE_ARRAY=()
   T_DEBUGGING=""
 
-  figlet -v > /dev/null 2>&1
+  figlet -v >/dev/null 2>&1
   T_FIGLET_AVAILABLE=$?
 else
   # assuming we're being sourced again, just exit
   return 0
 fi
-
 
 function texit {
   # internal function only
@@ -48,7 +47,6 @@ function texit {
   unset T_DEBUGGING
   exit "$1"
 }
-
 
 function tfooter {
   # internal function only
@@ -75,7 +73,6 @@ function tfooter {
   echo -e "$T_COLOR_YELLOW$indent""Failures : $2$T_COLOR_CLEAR"
 }
 
-
 function theader {
   # internal function only
   local header=$1
@@ -83,16 +80,14 @@ function theader {
   if [ $T_FIGLET_AVAILABLE -eq 0 ]; then
     figlet -c -w 120 "$header"
   else
-    printf "%*s\n" $(( (${#header} + 120) / 2)) "$header"
+    printf "%*s\n" $(((${#header} + 120) / 2)) "$header"
   fi
   echo "========================================================================================================================"
 }
 
-
 function tmessage {
   echo -e "$T_COLOR_YELLOW$T_PROJECT_NAME [  info   ] $*$T_COLOR_CLEAR"
 }
-
 
 function tdebug {
   if [[ "$T_CURRENT_TEST" == "" ]]; then
@@ -102,7 +97,6 @@ function tdebug {
   T_DEBUGGING=true
   set -x
 }
-
 
 function tinitialize {
   # Initializes either a test suite or a single test file. Every tinitialize
@@ -132,7 +126,6 @@ function tinitialize {
   T_FILE_NAME=$2
 }
 
-
 function tchapter {
   # Initializes a test chapter.
   # Call after tinitialize, and before ttest.
@@ -156,7 +149,6 @@ function tchapter {
   theader "$T_CURRENT_CHAPTER"
 }
 
-
 function ttest {
   # Marks the start of a test.
   # The test MUST be finished with either tsuccess or tfailure.
@@ -174,11 +166,13 @@ function ttest {
   echo -e "$T_COLOR_YELLOW$T_PROJECT_NAME [  start  ] $T_CURRENT_CHAPTER: $T_CURRENT_TEST$T_COLOR_CLEAR"
 }
 
-
 function tfailure {
   # Marks the end of a test, with a failure.
   # no arguments
-  if [[ "$T_DEBUGGING" == "true" ]]; then set +x; T_DEBUGGING=""; fi
+  if [[ "$T_DEBUGGING" == "true" ]]; then
+    set +x
+    T_DEBUGGING=""
+  fi
   if [[ "$T_CURRENT_TEST" == "" ]]; then
     echo "calling tfailure without a test, call ttest first"
     exit 1
@@ -197,11 +191,13 @@ function tfailure {
   T_CURRENT_TEST=""
 }
 
-
 function tsuccess {
   # Marks the end of a test, as a success.
   # no arguments
-  if [[ "$T_DEBUGGING" == "true" ]]; then set +x; T_DEBUGGING=""; fi
+  if [[ "$T_DEBUGGING" == "true" ]]; then
+    set +x
+    T_DEBUGGING=""
+  fi
   if [[ "$T_CURRENT_TEST" == "" ]]; then
     echo "calling tsuccess without a test, call ttest first"
     exit 1
@@ -211,7 +207,6 @@ function tsuccess {
   ((T_COUNT_SUCCESS = T_COUNT_SUCCESS + 1))
   T_CURRENT_TEST=""
 }
-
 
 function tfinish {
   # Finishes either a test suite or a single test file.
@@ -258,7 +253,6 @@ function tfinish {
   fi
 }
 
-
 function tcreate {
   # Creates a new testfile from template.
   # Arguments:
@@ -285,7 +279,7 @@ function tcreate {
     texit 1
   fi
 
-cat <<EOF > "$FILENAME"
+  cat <<EOF >"$FILENAME"
 #!/usr/bin/env bash
 
 : '
@@ -370,7 +364,6 @@ EOF
   texit 0
 }
 
-
 function main {
   # usage: test.sh [--suite <suitename>] [filenames...]
   # if no filenames given then will execute all "*.test.sh" files in the
@@ -394,14 +387,14 @@ function main {
   if [[ $# -gt 0 ]]; then
     # filenames passed; only execute filenames passed in
     while [[ $# -gt 0 ]]; do
-      if [ ! -f "$1" ] ; then
-        if [ ! -d "$1" ] ; then
+      if [ ! -f "$1" ]; then
+        if [ ! -d "$1" ]; then
           echo "test file not found: $1"
           texit 1
         fi
         # it's a directory, add all files in it
         for FILENAME in "$1"/*.test.sh; do
-          if [ -f "$FILENAME" ] ; then
+          if [ -f "$FILENAME" ]; then
             FILE_LIST+=("$FILENAME")
           fi
         done
@@ -423,7 +416,7 @@ function main {
     fi
     for FILENAME in "$MY_PATH"/*.test.sh; do
       if [[ "$FILENAME" != "$(realpath "$0")" ]]; then
-        if [ -f "$FILENAME" ] ; then
+        if [ -f "$FILENAME" ]; then
           FILE_LIST+=("$FILENAME")
         fi
       fi
@@ -439,7 +432,6 @@ function main {
 
   tfinish
 }
-
 
 # see 'main' for usage
 if [[ $0 == "${BASH_SOURCE[0]}" ]]; then

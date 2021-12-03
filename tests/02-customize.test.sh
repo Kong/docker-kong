@@ -22,12 +22,12 @@ function build_custom_image {
     rockserver="--build-arg ROCKS_DIR=./rockserver"
   fi
   docker build --build-arg KONG_BASE="kong-$BASE" \
-               --build-arg "KONG_LICENSE_DATA=$KONG_LICENSE_DATA" \
-               $plugins \
-               $template \
-               $rockserver \
-               --tag "kong-$BASE-customize" \
-               .
+    --build-arg "KONG_LICENSE_DATA=$KONG_LICENSE_DATA" \
+    $plugins \
+    $template \
+    $rockserver \
+    --tag "kong-$BASE-customize" \
+    .
   local result=$?
   # cleanup the temporary files/directories
   if [ -d rockserver ]; then
@@ -40,15 +40,13 @@ function build_custom_image {
 }
 
 function delete_custom_image {
-  docker rmi "kong-$BASE-customize" > /dev/null 2>&1
+  docker rmi "kong-$BASE-customize" >/dev/null 2>&1
 }
 
 unset TEST_CMD_OPTS
 function run_kong_cmd {
   docker run -ti --rm $TEST_CMD_OPTS "kong-$BASE-customize" $1
 }
-
-
 
 function run_test {
   # the suite name below will only be used when rtunning this file directly, when
@@ -58,8 +56,6 @@ function run_test {
   local mypath
   mypath=$(dirname "$(realpath "$0")")
   pushd "$mypath/../customize"
-
-
 
   tchapter "Customize $BASE"
 
@@ -79,8 +75,6 @@ function run_test {
   fi
   delete_custom_image
 
-
-
   ttest "injects a plugin, with self-contained C code (no binding)"
   local test_plugin_name="lua-protobuf"
   build_custom_image "$test_plugin_name"
@@ -97,8 +91,6 @@ function run_test {
   fi
   delete_custom_image
 
-
-
   ttest "injects a plugin with local rockserver"
   local test_plugin_name="kong-plugin-myplugin"
   build_custom_image "$test_plugin_name" "" "$mypath/rockserver"
@@ -114,8 +106,6 @@ function run_test {
     fi
   fi
   delete_custom_image
-
-
 
   ttest "build image to test KONG_PLUGINS settings"
   local test_plugin_name="kong-plugin-myplugin"
@@ -160,8 +150,6 @@ function run_test {
   unset TEST_CMD_OPTS
   delete_custom_image
 
-
-
   ttest "fails injecting an unavailable plugin with local rockserver"
   # the plugin is PUBLICLY available, but NOT on our local one, so should fail
   local test_plugin_name="kong-upstream-jwt"
@@ -173,8 +161,6 @@ function run_test {
     tfailure
   fi
   delete_custom_image
-
-
 
   ttest "injects a custom template"
   build_custom_image "" "$mypath/bad_file.conf"
@@ -201,8 +187,6 @@ function run_test {
     docker rm --force kong-testsuite-container
   fi
   delete_custom_image
-
-
 
   ttest "injects a custom template and a plugin"
   local test_plugin_name="kong-plugin-myplugin"
@@ -239,12 +223,9 @@ function run_test {
   fi
   delete_custom_image
 
-
-
   popd
   tfinish
 }
-
 
 # No need to modify anything below this comment
 
