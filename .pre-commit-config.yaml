@@ -1,0 +1,39 @@
+---
+repos:
+- repo: meta
+  hooks:
+  - id: check-hooks-apply
+  - id: check-useless-excludes
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+  - id: mixed-line-ending
+  - id: check-yaml
+  - id: check-byte-order-marker
+  - id: check-merge-conflict
+  - id: end-of-file-fixer
+  - id: check-added-large-files
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.1.10
+  hooks:
+  - id: forbid-crlf
+  - id: remove-crlf
+  - id: forbid-tabs
+  - id: remove-tabs
+- repo: https://github.com/Yelp/detect-secrets
+  rev: v1.1.0
+  hooks:
+  - id: detect-secrets
+    args: [--baseline, .secrets.baseline]
+- repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+  rev: 0.1.0
+  hooks:
+  - id: yamlfmt
+    args: [--mapping, '2', --sequence, '2', --offset, '0', --width, '150']
+- repo: https://github.com/adrienverge/yamllint
+  rev: v1.26.1
+  hooks:
+  - id: yamllint
+    args: [--format, parsable, --strict]

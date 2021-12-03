@@ -1,0 +1,26 @@
+---
+name: pre-commit
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+  push:
+    branches:
+    - main
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.4.0
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v2
+    - name: install shfmt
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/bin
+        curl -L -s -o $GITHUB_WORKSPACE/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.1.2/shfmt_v3.1.2_linux_amd64
+        chmod +x $GITHUB_WORKSPACE/bin/shfmt
+        echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+    - uses: pre-commit/action@v2.0.3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
