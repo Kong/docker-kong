@@ -423,6 +423,14 @@ fi
 %s
 %s
 
+# set ownership to kong user/group
+find /usr/local/share/lua/5.1/          -type f -exec chown 1000:1000 "{}" +
+find /usr/local/share/lua/5.1/          -type d -exec chown 1000:1000 "{}" +
+find /usr/local/lib/lua/5.1/            -type f -exec chown 1000:1000 "{}" +
+find /usr/local/lib/lua/5.1/            -type d -exec chown 1000:1000 "{}" +
+find /usr/local/lib/luarocks/rocks-5.1/ -type f -exec chown 1000:1000 "{}" +
+find /usr/local/lib/luarocks/rocks-5.1/ -type d -exec chown 1000:1000 "{}" +
+
 # clean up by deleting all the temporary stuff
 rm -rf /plugins
 ]=]
