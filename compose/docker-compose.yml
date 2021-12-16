@@ -52,6 +52,7 @@ services:
     restart: on-failure
 
   kong:
+    platform: linux/arm64
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
     environment:
