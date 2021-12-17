@@ -29,6 +29,7 @@ RUN set -eux; \
       && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c - \
       && apk del .build-deps; \
     else \
+      # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apk upgrade; \
     fi; \
     mkdir /kong \
