@@ -10,12 +10,17 @@ ENV KONG_VERSION $KONG_VERSION
 ARG KONG_SHA256="490dfceb423ffdfb0621b06774b880f80ec7d51279f54b10e0fa380eec84135b"
 
 LABEL name="Kong" \
-      vendor="Kong" \
-      version="$KONG_VERSION" \
-      release="1" \
-      url="https://konghq.com" \
-      summary="Next-Generation API Platform for Modern Architectures" \
-      description="Next-Generation API Platform for Modern Architectures"
+    vendor="Kong" \
+    version="$KONG_VERSION" \
+    release="1" \
+    url="https://konghq.com" \
+    summary="Next-Generation API Platform for Modern Architectures" \
+    description="Next-Generation API Platform for Modern Architectures" \
+    maintainer="Kong <support@konghq.com>" \
+    org.opencontainers.image.vendor="Kong" \
+    org.opencontainers.image.url="https://konghq.com/" \
+    org.opencontainers.image.title="Kong" \
+    org.opencontainers.image.documentation="https://docs.konghq.com"
 
 COPY LICENSE /licenses/
 
