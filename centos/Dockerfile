@@ -15,6 +15,8 @@ ARG KONG_SHA256="d3769c15297d1b1b20cf684792a664ac851977b2c466f2776f2ae705708539e
 
 # hadolint ignore=DL3033
 RUN set -ex; \
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*; \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-8/Packages/k/kong-$KONG_VERSION.el8.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
