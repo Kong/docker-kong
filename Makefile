@@ -1,5 +1,5 @@
 KONG_BUILD_TOOLS?=4.25.3
-BASE?=centos
+BASE?=alpine
 
 build:
 	docker build --no-cache -t kong-$(BASE) $(BASE)/

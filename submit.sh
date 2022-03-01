@@ -130,7 +130,6 @@ git checkout -b release/$version
 if [ "$mode" = "patch" ]
 then
   sed "s|$prev-alpine|$version-alpine|;
-       s|$prev-centos|$version-centos|;
        s|$prev-ubuntu|$version-ubuntu|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
@@ -140,7 +139,6 @@ then
 elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
 then
   sed "s|$prev-alpine|$version-alpine|;
-       s|$prev-centos|$version-centos|;
        s|$prev-ubuntu|$version-ubuntu|;
        s|, ${xy}rc$[rc-1]|, ${xy}rc${rc}|;
        s|$prev,|$version,|;
@@ -177,13 +175,6 @@ then
         print "GitFetch: refs/tags/" v
         print "Directory: ubuntu"
         print "Architectures: amd64, arm64v8"
-        print ""
-        print "Tags: " v "-centos"
-        print "GitCommit: " commit
-        print "GitFetch: refs/tags/" v
-        print "Constraints: !aufs"
-        print "Directory: centos"
-        print "Architectures: amd64"
         print ""
         before_first = 0
       } else {
@@ -231,19 +222,12 @@ then
         print "Directory: ubuntu"
         print "Architectures: amd64, arm64v8"
         print ""
-        print "Tags: " v "-centos, " xy "-centos, centos"
-        print "GitCommit: " commit
-        print "GitFetch: refs/tags/" v
-        print "Directory: centos"
-        print "Architectures: amd64"
-        print ""
         before_first = 0
       }
       if (!(in_rc_tag == 1)) {
         gsub(", latest", "")
         gsub(", alpine", "")
         gsub(", ubuntu", "")
-        gsub(", centos", "")
         print
       }
       if (reset == 1) {
