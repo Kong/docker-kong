@@ -33,18 +33,17 @@ RUN set -eux; \
       apk upgrade; \
     fi; \
     mkdir /kong \
+    && addgroup -S kong \
+    && adduser -S -G kong kong \
     && tar -C /kong -xzf /tmp/kong.tar.gz \
+    && chown -R root:kong /kong \
+    && chmod -R g=u /kong \
     && mv /kong/usr/local/* /usr/local \
     && mv /kong/etc/* /etc \
     && rm -rf /kong \
-    && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates \
-    && adduser -S kong \
-    && addgroup -S kong \
-    && mkdir -p "/usr/local/kong" \
-    && chown -R kong:0 /usr/local/kong \
-    && chown kong:0 /usr/local/bin/kong \
-    && chmod -R g=u /usr/local/kong \
     && rm -rf /tmp/kong.tar.gz \
+    && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates \
+    && mkdir -p "/usr/local/kong" \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
