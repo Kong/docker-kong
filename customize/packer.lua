@@ -60,7 +60,7 @@ local platforms = {
     target_commands = {       -- run before installing in the target image
     },
   }, {
-    check = "yum --version",  -- check for CentOS + rhel
+    check = "yum --version",  -- check for rhel
     commands = {              -- run before anything else in build container
       "yum -y install git",
       "yum -y install unzip",
