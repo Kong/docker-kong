@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.15
 
 LABEL maintainer="Kong <support@konghq.com>"
 
@@ -10,11 +10,11 @@ ARG EE_PORTS
 # hadolint ignore=DL3010
 COPY kong.tar.gz /tmp/kong.tar.gz
 
-ARG KONG_VERSION=2.6.0
+ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_AMD64_SHA="43fb5f27185e274e22b4a36b93b1b7e27afe94b9fd2efbe4ec69b8ed8a9e5902"
-ARG KONG_ARM64_SHA="a057eaa6d10ecf49443ec0cac6e1b70a62ee357a777e0e169c780e18fd5c5544"
+ARG KONG_AMD64_SHA="60ef680e0fc4d2cf52934758e6a0dc0f173d2a3b32aca49c7eb31ab478c24583"
+ARG KONG_ARM64_SHA="5c23f448eeae1b363ece51d066405c13798ee08ca413097a23d9b5ccb49cbf35"
 
 # hadolint ignore=DL3018
 RUN set -eux; \
@@ -29,6 +29,7 @@ RUN set -eux; \
       && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c - \
       && apk del .build-deps; \
     else \
+      # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apk upgrade; \
     fi; \
     mkdir /kong \

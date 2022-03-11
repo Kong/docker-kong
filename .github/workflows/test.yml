@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        image: [alpine, centos, ubuntu, rhel]
+        image: [alpine, ubuntu, rhel]
 
     env:
       BASE: ${{ matrix.image }}

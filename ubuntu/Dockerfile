@@ -7,20 +7,22 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=2.6.0
+ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="53adb6b1a5fd95b388a0c0bcf57b135dd9773acefa9567e092d5e49d95a76c91"
+ARG KONG_SHA256="f49c6733bf71d5a9079fa7238f8b8cbdab11077a6afd81077a025268c6611744"
 
 # hadolint ignore=DL3015
 RUN set -ex \
     && apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y curl \
-      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2)/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb -o /tmp/kong.deb \
+      && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
+      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     else \
+      # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apt-get upgrade -y ; \
     fi; \
     apt-get install -y --no-install-recommends unzip git \

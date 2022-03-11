@@ -8,10 +8,10 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG KONG_VERSION=2.6.0
+ARG KONG_VERSION=2.7.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="95422738b65f8700823bf873bedab695973b17e3b67a117e524aeaa55d09f043"
+ARG KONG_SHA256="d3769c15297d1b1b20cf684792a664ac851977b2c466f2776f2ae705708539e6"
 
 # hadolint ignore=DL3033
 RUN set -ex; \
@@ -19,6 +19,7 @@ RUN set -ex; \
       curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-centos-8/Packages/k/kong-$KONG_VERSION.el8.amd64.rpm -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     else \
+      # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       yum update -y \
       && yum upgrade -y ; \
     fi; \
