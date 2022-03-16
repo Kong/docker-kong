@@ -53,6 +53,7 @@ local platforms = {
       "apk update",
       "apk add git",
       "apk add wget",
+      "apk add curl",
       "apk add zip",
       "apk add gcc",
       "apk add musl-dev",
@@ -274,6 +275,7 @@ local function start_rocks_server()
   assert(exec("luarocks-admin make_manifest /rocks-server"))
   stdout("Local LuaRocks server manifest created")
   assert(exec("mkdir /nginx"))
+  assert(exec("chmod -R 777 /rocks-server"))
   assert(exec("mkdir /nginx/logs"))
   assert(writefile("/nginx/nginx.conf", [[
 events {

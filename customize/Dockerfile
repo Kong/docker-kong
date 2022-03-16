@@ -7,9 +7,6 @@ FROM ${KONG_BASE} AS build
 ARG PLUGINS
 ENV INJECTED_PLUGINS=${PLUGINS}
 
-ARG TEMPLATE=empty_file
-ENV TEMPLATE=${TEMPLATE}
-
 ARG ROCKS_DIR=empty_file
 ENV ROCKS_DIR=${ROCKS_DIR}
 
@@ -30,6 +27,18 @@ FROM ${KONG_BASE}
 
 COPY --from=build /usr/local /usr/local
 COPY --from=build /docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=build /old-entrypoint.sh /old-entrypoint.sh
+
+ARG TEMPLATE=empty_file
+ENV TEMPLATE=${TEMPLATE}
+
+COPY $TEMPLATE /tmp/custom_nginx.conf
+
+USER root
+
+RUN test -s $TEMPLATE || ( cp /tmp/custom_nginx.conf /custom_nginx.conf \
+    && chmod +rx /custom_nginx.conf )
+RUN chmod +rx /old-entrypoint.sh
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
 
