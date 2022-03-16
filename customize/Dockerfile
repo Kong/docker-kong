@@ -22,16 +22,14 @@ COPY packer.lua /packer.lua
 
 USER root
 
-RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS"
+RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS" \
+    && /plugins/install_plugins.sh
 
 
 FROM ${KONG_BASE}
 
-COPY --from=build /plugins /plugins
-
-USER root
-
-RUN /plugins/install_plugins.sh
+COPY --from=build /usr/local /usr/local
+COPY --from=build /docker-entrypoint.sh /docker-entrypoint.sh
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
 
