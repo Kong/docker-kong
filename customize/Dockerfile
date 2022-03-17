@@ -26,7 +26,6 @@ RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS" \
 FROM ${KONG_BASE}
 
 COPY --from=build /usr/local /usr/local
-COPY --from=build /docker-entrypoint.sh /docker-entrypoint.sh
 COPY --from=build /old-entrypoint.sh /old-entrypoint.sh
 
 ARG TEMPLATE=empty_file
