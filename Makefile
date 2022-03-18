@@ -4,6 +4,9 @@ BASE?=alpine
 build:
 	docker build --no-cache -t kong-$(BASE) $(BASE)/
 
+build_v2:
+	docker build --no-cache -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
+
 .PHONY: test
 test:
 	if cd kong-build-tools; \

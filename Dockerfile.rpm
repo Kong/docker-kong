@@ -1,0 +1,49 @@
+FROM redhat/ubi8 as download
+
+ARG KONG_VERSION=2.8.0
+ENV KONG_VERSION $KONG_VERSION
+
+ARG KONG_SHA256="f6568a0a19883baf3f6b075eebb025e8f8ed00d062e3fc74a10812aec0355ac8"
+
+ARG ASSET=remote
+
+COPY kong.rpm /tmp/kong.rpm
+COPY download-package.sh /tmp/download-package.sh
+
+RUN set -ex; \
+    if [ "$ASSET" = "remote" ] ; then \
+      ./tmp/download-package.sh $KONG_VERSION \
+      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+    fi
+
+FROM redhat/ubi8
+
+ARG EE_PORTS
+
+COPY --from=download /tmp/kong.rpm /tmp/kong.rpm
+
+# hadolint ignore=DL3015
+RUN set -ex; \
+    yum install -y /tmp/kong.rpm \
+    && rm /tmp/kong.rpm \
+    && chown kong:0 /usr/local/bin/kong \
+    && chown -R kong:0 /usr/local/kong \
+    && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
+    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
+    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
+    && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    && kong version
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+USER kong
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
+
+STOPSIGNAL SIGQUIT
+
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+
+CMD ["kong", "docker-start"]

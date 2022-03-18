@@ -1,0 +1,27 @@
+name: Build & Test Version 2
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Build & Test Version 2
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        package: [apk, deb, rpm]
+
+    env:
+      BASE: ${{ matrix.package }}
+      PACKAGE: ${{ matrix.package }}
+      KONG_DOCKER_TAG: kong-${{ matrix.package }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          make build_v2
+      - name: Test
+        shell: 'script -q -e -c "bash {0}"'
+        run: |
+          make test
