@@ -1,4 +1,4 @@
-FROM library/debian:stable-slim as download
+FROM debian:stable-slim@sha256:86e95a5e47a11a186cb16e6dd7212a560e952af63d12e4dd401075d4932f695b as download
 
 ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
@@ -16,7 +16,7 @@ RUN set -ex; \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     fi
 
-FROM library/debian:stable-slim
+FROM debian:stable-slim@sha256:86e95a5e47a11a186cb16e6dd7212a560e952af63d12e4dd401075d4932f695b
 
 ARG EE_PORTS
 

@@ -1,4 +1,4 @@
-FROM redhat/ubi8 as download
+FROM redhat/ubi8@sha256:bee8be0c882cb580ec667e66cacaee98adad9494450b55df7ac1d169d594337b as download
 
 ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION

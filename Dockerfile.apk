@@ -1,4 +1,4 @@
-FROM library/alpine as download
+FROM alpine@sha256:d6d0a0eb4d40ef96f2310ead734848b9c819bb97c9d846385c4aca1767186cd4 as download
 
 ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
@@ -23,7 +23,7 @@ RUN set -ex; \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
     fi
 
-FROM library/alpine
+FROM alpine@sha256:d6d0a0eb4d40ef96f2310ead734848b9c819bb97c9d846385c4aca1767186cd4
 
 ARG EE_PORTS
 
