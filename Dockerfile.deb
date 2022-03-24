@@ -1,4 +1,4 @@
-FROM debian:stable-slim as download
+FROM debian:bullseye-slim as download
 
 ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
@@ -6,23 +6,19 @@ ENV KONG_VERSION $KONG_VERSION
 ARG KONG_SHA256="54a3079ccb9e3751bb096500b25d6d34bdcdf4894e3b34b84b8778a5f99e18d2"
 
 ARG ASSET=remote
-
-COPY kong.deb /tmp/kong.deb
-COPY download-package.sh /tmp/download-package.sh
-
-RUN set -ex; \
-    if [ "$ASSET" = "remote" ] ; then \
-      ./tmp/download-package.sh $KONG_VERSION \
-      && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
-    fi
-
-FROM debian:stable-slim
-
 ARG EE_PORTS
 
-COPY --from=download /tmp/kong.deb /tmp/kong.deb
+COPY kong.deb /tmp/kong.deb
 
-RUN set -ex \
+RUN set -ex; \
+    apt-get update; \
+    apt-get install -y curl; \
+    if [ "$ASSET" = "remote" ] ; then \
+      CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
+      && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-debian-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
+      && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
+      && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
+    fi \
     && apt-get update \
     && apt install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
@@ -33,7 +29,8 @@ RUN set -ex \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && kong version
+    && kong version \
+    && apt-get purge curl -y
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
