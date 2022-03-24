@@ -9,7 +9,7 @@ ARG KONG_ARM64_SHA="5c23f448eeae1b363ece51d066405c13798ee08ca413097a23d9b5ccb49c
 ARG ASSET=remote
 ARG EE_PORTS
 
-COPY kong.tar.gz /tmp/kong.tar.gz
+COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
 
 RUN set -ex; \
     apk add bash curl ca-certificates; \
