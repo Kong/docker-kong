@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim as download
+FROM debian:bullseye-slim
 
 ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
@@ -20,7 +20,7 @@ RUN set -ex; \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     fi \
     && apt-get update \
-    && apt install --yes /tmp/kong.deb \
+    && apt-get install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \
