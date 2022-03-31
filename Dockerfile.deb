@@ -1,12 +1,11 @@
-FROM debian:jessie
+FROM debian:bullseye-slim as download
 
 ARG KONG_VERSION=2.8.0
 ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="54a3079ccb9e3751bb096500b25d6d34bdcdf4894e3b34b84b8778a5f99e18d2"
 
-ARG DOWNLOAD_UL
-ARG ASSET_LOCATION=official
+ARG ASSET=remote
 ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
@@ -14,16 +13,14 @@ COPY kong.deb /tmp/kong.deb
 RUN set -ex; \
     apt-get update; \
     apt-get install -y curl; \
-    if [ "$ASSET_LOCATION" = "official" ] ; then \
+    if [ "$ASSET" = "remote" ] ; then \
       CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-debian-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
-    elif [ "$ASSET_LOCATION" = "remote"] ; then \
-      curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
     fi \
     && apt-get update \
-    && apt install --yes -n /tmp/kong.deb \
+    && apt install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \

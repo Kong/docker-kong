@@ -6,8 +6,7 @@ ENV KONG_VERSION $KONG_VERSION
 ARG KONG_AMD64_SHA="60ef680e0fc4d2cf52934758e6a0dc0f173d2a3b32aca49c7eb31ab478c24583"
 ARG KONG_ARM64_SHA="5c23f448eeae1b363ece51d066405c13798ee08ca413097a23d9b5ccb49cbf35"
 
-ARG DOWNLOAD_UL
-ARG ASSET_LOCATION=official
+ARG ASSET=remote
 ARG EE_PORTS
 
 COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
@@ -19,11 +18,9 @@ RUN set -ex; \
       x86_64) export ARCH='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
       aarch64) export ARCH='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
     esac; \
-    if [ "$ASSET_LOCATION" = "official" ] ; then \
+    if [ "$ASSET" = "remote" ] ; then \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-${KONG_VERSION}.${ARCH}.apk.tar.gz" -o /tmp/kong.apk.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
-    elif [ "$ASSET_LOCATION" = "remote"] ; then \
-      curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
     fi \
     && apk add --no-cache --virtual .build-deps tar gzip \
     && tar -C / -xzf /tmp/kong.apk.tar.gz \

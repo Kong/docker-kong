@@ -5,21 +5,18 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="f6568a0a19883baf3f6b075eebb025e8f8ed00d062e3fc74a10812aec0355ac8"
 
-ARG DOWNLOAD_UL
-ARG ASSET_LOCATION=official
+ARG ASSET=remote
 ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
 # hadolint ignore=DL3015
 RUN set -ex; \
-    if [ "$ASSET_LOCATION" = "official" ] ; then \
+    if [ "$ASSET" = "remote" ] ; then \
       VERSION=$(grep '^VERSION_ID' /etc/os-release | cut -d = -f 2 | sed -e 's/^"//' -e 's/"$//' | cut -d . -f 1) \
       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$VERSION/Packages/k/kong-$KONG_VERSION.rhel$VERSION.amd64.rpm" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
-    elif [ "$ASSET_LOCATION" = "remote"] ; then \
-      curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
     fi \
     && yum install -y /tmp/kong.rpm \
     && rm /tmp/kong.rpm \
