@@ -1,4 +1,5 @@
 KONG_BUILD_TOOLS?=4.25.3
+PACKAGE?=apk
 BASE?=alpine
 
 build:
