@@ -1,12 +1,13 @@
+ASSET_LOCATION?=official
+BASE?=alpine
 KONG_BUILD_TOOLS?=4.25.3
 PACKAGE?=apk
-BASE?=alpine
 
 build:
 	docker build --no-cache -t kong-$(BASE) $(BASE)/
 
 build_v2:
-	docker build --no-cache -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
+	docker build --no-cache --build-arg ASSET_LOCATION=$(ASSET_LOCATION) -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
 
 .PHONY: test
 test:
