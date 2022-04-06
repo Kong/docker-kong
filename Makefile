@@ -1,4 +1,4 @@
-KONG_BUILD_TOOLS?=4.25.3
+KONG_BUILD_TOOLS?=4.23.0
 BASE?=alpine
 
 build:
