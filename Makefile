@@ -1,8 +1,13 @@
 KONG_BUILD_TOOLS?=4.25.3
+PACKAGE?=apk
 BASE?=alpine
+ASSET_LOCATION?=remote
 
 build:
 	docker build --no-cache -t kong-$(BASE) $(BASE)/
+
+build_v2:
+	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
 
 .PHONY: test
 test:
