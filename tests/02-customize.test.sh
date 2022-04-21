@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# to run this test locally do the following:
+# > docker pull kong:latest
+# > docker tag kong:latest kong-alpine
+# > BASE=alpine tests/02-customize.test.sh
+
+
 function build_custom_image {
   # arg1: plugins; eg. "kong-http-to-https,kong-upstream-jwt"
   # arg2: template; eg. "/mykong/nginx.conf"
@@ -21,6 +27,7 @@ function build_custom_image {
     cp -r -v "$3" .
     rockserver="--build-arg ROCKS_DIR=./rockserver"
   fi
+  #export BUILDKIT_PROGRESS=plain
   docker build --build-arg KONG_BASE="kong-$BASE" \
                --build-arg "KONG_LICENSE_DATA=$KONG_LICENSE_DATA" \
                $plugins \
@@ -135,7 +142,7 @@ function run_test {
   else
     tsuccess
   fi
-  
+
   ttest "injected plugin are added to KONG_PLUGINS if set with 'bundled'"
   TEST_CMD_OPTS="-e KONG_PLUGINS=bundled,custom-one"
   run_kong_cmd "printenv" | grep "bundled,myplugin,custom-one"
@@ -145,7 +152,7 @@ function run_test {
   else
     tsuccess
   fi
-  
+
   ttest "injected plugin are NOT added to KONG_PLUGINS if set without 'bundled'"
   TEST_CMD_OPTS="-e KONG_PLUGINS=custom-one,custom-two"
   run_kong_cmd "printenv" | grep "$test_plugin_name"

@@ -14,7 +14,7 @@ ENV ROCKS_DIR=${ROCKS_DIR}
 ARG KONG_LICENSE_DATA
 ENV KONG_LICENSE_DATA=${KONG_LICENSE_DATA}
 
-COPY $TEMPLATE /plugins/custom_nginx.conf
+COPY $TEMPLATE /custom_nginx.conf
 COPY $ROCKS_DIR /rocks-server
 COPY packer.lua /packer.lua
 
@@ -24,12 +24,25 @@ RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS"
 
 FROM ${KONG_BASE}
 
-COPY --from=build /plugins /plugins
-
 USER root
 
-COPY install_tools.sh /install_tools.sh
-RUN /install_tools.sh && /plugins/install_plugins.sh
+# replace the entrypoint, add the custom template if it exists
+# Trick: the * wildcard ensures it doesn't fail if it doesn't exist
+COPY --from=build /docker-entrypoint.sh /old-entrypoint.sh /custom_nginx.conf* /
+
+# add the Lua files (.lua)
+COPY --from=build /usr/local/share/lua/5.1 /usr/local/share/lua/5.1
+
+# add the compiled libraries (.so)
+COPY --from=build /usr/local/lib/lua/5.1 /usr/local/lib/lua/5.1
+
+# add the Luarocks manifest
+COPY --from=build /usr/local/lib/luarocks/rocks-5.1 /usr/local/lib/luarocks/rocks-5.1
+
+# add any Lua commandline scripts
+# TODO: should commandline scripts be copied at all?
+#COPY --from=build /usr/local/bin /usr/local/bin
+
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
 
