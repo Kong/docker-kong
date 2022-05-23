@@ -1,4 +1,4 @@
-KONG_BUILD_TOOLS?=4.18.1
+KONG_BUILD_TOOLS?=4.26.0
 BASE?=centos
 
 build:
