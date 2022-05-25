@@ -1,0 +1,27 @@
+FROM redhat/ubi8-minimal
+
+ARG KONG_VERSION=2.8.1
+ENV KONG_VERSION $KONG_VERSION
+
+# hadolint ignore=DL3015
+RUN microdnf install perl-Time-HiRes perl zlib-devel \
+    && rpm -ivh https://download.konghq.com/gateway-2.x-rhel-8/Packages/k/kong-$KONG_VERSION.rhel8.amd64.rpm \
+    && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
+    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
+    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
+    && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    && kong version
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+USER kong
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+EXPOSE 8000 8443 8001 8444 $EE_PORTS
+
+STOPSIGNAL SIGQUIT
+
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+
+CMD ["kong", "docker-start"]
