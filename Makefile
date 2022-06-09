@@ -1,4 +1,6 @@
-KONG_BUILD_TOOLS?=4.27.0
+# DO NOT update KONG_BUILD_TOOLS manually - it's set by update.sh
+# to ensure same version is used here and in the respective kong version
+KONG_BUILD_TOOLS?=4.25.3
 PACKAGE?=apk
 BASE?=alpine
 ASSET_LOCATION?=remote
