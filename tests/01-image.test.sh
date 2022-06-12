@@ -3,7 +3,13 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
-  docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
+  if [[ -f Dockerfile.$BASE ]]; then
+    docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < Dockerfile.$BASE
+  fi
+  
+  if [[ -f $BASE/Dockerfile ]]; then
+    docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
+  fi
 
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
@@ -14,8 +20,14 @@ function run_test {
   tchapter "test $BASE image"
   ttest "the proper version was build"
 
-  pushd $BASE
-  version_given="$(grep 'ARG KONG_VERSION' Dockerfile | awk -F "=" '{print $2}')"
+  if [[ -f Dockerfile.$BASE ]]; then
+    version_given="$(grep 'ARG KONG_VERSION' Dockerfile.$BASE | awk -F "=" '{print $2}')"
+  fi
+  
+  if [[ -f $BASE/Dockerfile ]]; then
+    version_given="$(grep 'ARG KONG_VERSION' $BASE/Dockerfile | awk -F "=" '{print $2}')"
+  fi
+  
   version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
 
   if [[ "$version_given" != "$version_built" ]]; then
@@ -26,7 +38,6 @@ function run_test {
   else
     tsuccess
   fi
-  popd
 
   ttest "Dbless Test"
   
@@ -89,45 +100,6 @@ function run_test {
   docker system prune -y
   git checkout -- docker-compose.yml
   popd
-
-  # Validate Kong is running as the Kong user (default)
-  ttest "Kong is running as the Kong user (default)"
-
-  pushd compose
-  docker-compose up -d
-  until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
-  sleep 20
-  docker-compose exec kong ps aux | sed -n 2p | grep -q kong
-  if [ $? -ne 0 ]; then
-    echo "Kong is not running as the Kong user";
-    echo "\tRunning instead as ";
-    docker-compose exec kong ps aux | sed -n 2p
-    tfailure
-  else
-    tsuccess
-  fi
-
-
-  # Validate Kong is running as the Kong user (overridden)
-  ttest "Kong is running as the Kong user (overridden)"
-
-  KONG_USER=1001 docker-compose up -d
-  until docker-compose ps | grep compose_kong_1 | grep -q "Up"; do sleep 1; done
-  sleep 20
-  docker-compose exec kong ps aux | sed -n 2p | grep -q 1001
-  if [ $? -ne 0 ]; then
-    echo "Kong is not running as the overridden 1001 user";
-    echo "\tRunning instead as ";
-    docker-compose exec kong ps aux | sed -n 2p
-    tfailure
-  else
-    tsuccess
-  fi
-  docker-compose stop
-
-  popd
-
-
 
   # Run Kong functional tests
   ttest "Kong functional test"

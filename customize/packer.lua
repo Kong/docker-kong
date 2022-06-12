@@ -4,14 +4,13 @@ local strip = require("pl.stringx").strip
 local lines = require("pl.stringx").splitlines
 local _execex = require("pl.utils").executeex
 local _exec = require("pl.utils").execute
-local files = require("pl.dir").getfiles
 local directories = require("pl.dir").getdirectories
 local writefile = require("pl.utils").writefile
 local readfile = require("pl.utils").readfile
 local is_dir = require("pl.path").isdir
 local is_file = require("pl.path").isfile
 
-local CUSTOM_TEMPLATE="/plugins/custom_nginx.conf"
+local CUSTOM_TEMPLATE="/custom_nginx.conf"
 
 io.stdout:setvbuf("no")
 io.stderr:setvbuf("no")
@@ -57,18 +56,13 @@ local platforms = {
       "apk add gcc",
       "apk add musl-dev",
     },
-    target_commands = {       -- run before installing in the target image
-    },
   }, {
-    check = "yum --version",  -- check for CentOS + rhel
+    check = "yum --version",  -- check for rhel
     commands = {              -- run before anything else in build container
       "yum -y install git",
       "yum -y install unzip",
       "yum -y install zip",
       "yum -y install gcc gcc-c++ make",
-    },
-    target_commands = {       -- run before installing in the target image
-      "yum -y install unzip",
     },
   }, {
     check = "apt -v",         -- check for Ubuntu
@@ -77,8 +71,6 @@ local platforms = {
       "apt install -y zip",
       "apt install -y wget",
       "apt install -y build-essential",
-    },
-    target_commands = {       -- run before installing in the target image
     },
   },
 }
@@ -105,12 +97,12 @@ local function prep_platform()
       stdout(("platform test '%s' was positive"):format(platform.check))
       for _, cmd in ipairs(platform.commands) do
         stdout(cmd)
-        local ok = exec(cmd)
+        ok = exec(cmd)
         if not ok then
           fail(("failed executing '%s'"):format(cmd))
         end
       end
-      return platform.target_commands
+      return true
     end
   end
   stderr("WARNING: no platform match!")
@@ -240,21 +232,6 @@ local function install_plugins(plugins, lr_flag)
 end
 
 
-local function pack_rocks(rocks)
-  local cmd = "cd /plugins && luarocks pack %s %s"
-  for _, rock in pairs(rocks) do
-    stdout(cmd:format(rock.name, rock.spec))
-
-    local ok = exec(cmd:format(rock.name, rock.spec))
-    if not ok then
-      fail(("failed packing rock: '%s-%s' failed"):format(rock.name, rock.spec))
-    end
-
-    stdout("packed: "..rock.name.."-"..rock.spec)
-  end
-end
-
-
 local function check_custom_template()
   if is_empty_file(CUSTOM_TEMPLATE) then
     -- it's the empty_file, delete it
@@ -304,7 +281,7 @@ end
 -- Do the actual work
 -- **********************************************************
 header("Set up platform")
-local target_commands = prep_platform()
+prep_platform()
 
 header("Set up LuaRocks server")
 local lr_flag = start_rocks_server()
@@ -365,19 +342,9 @@ if not next(plugins) then
 end
 
 
-header("Pack newly installed rocks")
-pack_rocks(added_rocks)
-
-
-header("Write install script")
-local script = [=[
-#!/bin/sh
-
-# replace the entry point
-mv /docker-entrypoint.sh /old-entrypoint.sh
-
-################### new entrypoint script ###################
-cat <<'EOF' >> /docker-entrypoint.sh
+header("Write new entry-point script")
+assert(exec("mv /docker-entrypoint.sh /old-entrypoint.sh"))
+local entrypoint = [=[
 #!/bin/sh
 set -e
 
@@ -409,39 +376,12 @@ if [ ! "$1" = "" ]; then
 fi
 
 exec /old-entrypoint.sh $INITIAL "$@"
-EOF
-#############################################################
-
-chmod +x /docker-entrypoint.sh
-
-# install custom template if it is provided
-if [ -f /plugins/custom_nginx.conf ]; then
-  mv /plugins/custom_nginx.conf /custom_nginx.conf
-fi
-
-# install the rocks
-%s
-%s
-
-# clean up by deleting all the temporary stuff
-rm -rf /plugins
 ]=]
-local t = {}
-local cmd = "luarocks install --tree=system --deps-mode=none %s && rm %s"
-for _, filename in ipairs(files("/plugins/")) do
-  if filename:find("%.rock$") then
-    table.insert(t, cmd:format(filename, filename))
-  end
-end
-script = script:format(
-  table.concat(plugins, ","),
-  table.concat(target_commands, "\n"),
-  table.concat(t, "\n")
-)
-assert(writefile("/plugins/install_plugins.sh", script))
-assert(exec("chmod +x /plugins/install_plugins.sh"))
-stdout(script)
+entrypoint = entrypoint:format(table.concat(plugins, ","))
+assert(writefile("/docker-entrypoint.sh", entrypoint))
+assert(exec("chmod +x /docker-entrypoint.sh"))
+stdout(entrypoint)
 
 
-header("Completed packing rocks and/or template")
+header("Completed building plugins, rocks and/or template")
 

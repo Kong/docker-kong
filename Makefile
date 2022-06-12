@@ -1,8 +1,13 @@
-KONG_BUILD_TOOLS?=4.23.0
-BASE?=centos
+KONG_BUILD_TOOLS?=4.27.0
+PACKAGE?=apk
+BASE?=alpine
+ASSET_LOCATION?=remote
 
 build:
 	docker build --no-cache -t kong-$(BASE) $(BASE)/
+
+build_v2:
+	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
 
 .PHONY: test
 test:
