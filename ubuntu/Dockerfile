@@ -10,15 +10,21 @@ COPY kong.deb /tmp/kong.deb
 ARG KONG_VERSION=2.6.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="f70757f9317a1d40316f0187ae6e91c0c94b5b4346e564f7ae8430775bf7ad7e"
+ARG KONG_AMD64_SHA="f70757f9317a1d40316f0187ae6e91c0c94b5b4346e564f7ae8430775bf7ad7e"
+ARG KONG_ARM64_SHA="5cba6e7e28685fb7d80b77b70586cfb92c1de4b5198a6218bb1ca0c7f2502c89"
 
 # hadolint ignore=DL3015
-RUN set -ex \
-    && apt-get update \
+RUN set -ex; \
+    arch=$(dpkg --print-architecture); \
+    case "${arch}" in \
+      amd64) KONG_SHA256=$KONG_AMD64_SHA ;; \
+      arm64) KONG_SHA256=$KONG_ARM64_SHA ;; \
+    esac; \
+    apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y curl \
       && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
-      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb -o /tmp/kong.deb \
+      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_$arch.deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     else \
