@@ -1,3 +1,4 @@
+# When you update this file substantially, please update build_your_own_images.md as well.
 FROM alpine:3.16.0
 
 ARG KONG_VERSION=2.8.1

@@ -8,6 +8,7 @@ ASSET_LOCATION?=remote
 build:
 	docker build --no-cache -t kong-$(BASE) $(BASE)/
 
+# (yzl, 14 June 2022) Should you change this substantially, please update build_your_own_images.md.
 build_v2:
 	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
 

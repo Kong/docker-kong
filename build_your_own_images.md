@@ -7,15 +7,23 @@ contain the Kong Gateway. We will use
 implementation for describing how to build your own Docker images that contain the Kong
 Gateway.
 
+We do not provide a Dockerfile with the `FROM` argument parametrized to allow you to use your
+own base image because doing so impedes our ability to get public images
+accepted promptly by Dockerhub. If you wish, you can clone the [docker-kong github
+repository](https://github.com/Kong/docker-kong/) and adjust the Dockerfile for 
+your desired package type to use your desired base image and package version, 
+then use the `build_v2` target in our `Makefile` to build your image. This
+document instead takes the approach of walking through the contents of the Dockerfiles
+so that you can create and maintain your own.  
+
 To build your Docker image, you will need to provide 
 
 1. A base image of your choice
 1. An entrypoint script that runs the Kong Gateway
 1. A Dockerfile that installs the Kong Gateway from a location you specify
 
-
 ## Base image
-Use whatever your org makes you use. Kong Software pushes `.apk`, `.deb`, and
+You can use images derived from Alpine, RHEL, or Debian; Kong Software pushes `.apk`, `.deb`, and
 `.rpm` packages to our [public package repository](https://download.konghq.com/).
 
 ## Entrypoint script
@@ -23,7 +31,7 @@ Use whatever your org makes you use. Kong Software pushes `.apk`, `.deb`, and
 Get the [entrypoint
 script](https://raw.githubusercontent.com/Kong/docker-kong/master/docker-entrypoint.sh)
 from the [docker-kong github repository](https://github.com/Kong/docker-kong/) and put it in
-directory where you are planning to run the command to build your Docker image.
+directory where you are planning to run thecommand to build your Docker image.
 
 ## Create a Dockerfile to install Kong Gateway
 
@@ -48,8 +56,9 @@ Use the template below to create your Dockerfile. Angle brackets (`<>`) indicate
 values that you need to provide. Comments that start "# Uncomment" indicate that
 you need to uncomment lines relevant to your context.
 
-The template is based upon the Dockerfiles in the the [docker-kong github
-repository](https://github.com/Kong/docker-kong/).
+The template is based upon the Dockerfiles in the [docker-kong github
+repository](https://github.com/Kong/docker-kong/) and created manually. Check
+the Dockerfiles for changes. 
 
 ```
 FROM <your-base-image> 
