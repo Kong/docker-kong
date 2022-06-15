@@ -4,3 +4,6 @@ kong-build-tools
 kong
 *.bak
 submit
+**/*.deb
+**/*.rpm
+**/*.apk
