@@ -19,7 +19,7 @@ LABEL name="Kong" \
 
 COPY LICENSE /licenses/
 
-ARG ASSET=isa
+ARG ASSET=ce
 ENV ASSET $ASSET
 
 ARG EE_PORTS
