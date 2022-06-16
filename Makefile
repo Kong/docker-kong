@@ -5,11 +5,11 @@ PACKAGE?=apk
 BASE?=alpine
 ASSET_LOCATION?=remote
 
-DOCKER_TAG_PREFIX?=kong-
+DOCKER_TAG_PREFIX?=kong
 
 build: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
 build:
-	docker build --no-cache -t $(DOCKER_TAG) $(BASE)/
+	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) $(BASE)/
 
 build_v2: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(PACKAGE)
 build_v2:
