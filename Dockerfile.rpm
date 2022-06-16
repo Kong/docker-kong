@@ -1,4 +1,4 @@
-FROM redhat/ubi8
+FROM redhat/ubi8-minimal
 
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
@@ -18,7 +18,12 @@ RUN set -ex; \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi \
-    && yum install -y /tmp/kong.rpm \
+    && microdnf install -y unzip shadow-utils hostname perl zlib-devel \
+    # Please update the rhel install docs if the below line is changed so that
+    # end users can properly install Kong along with its required dependencies
+    # and that our CI does not diverge from our docs.
+    && rpm -iv /tmp/kong.rpm \
+    && microdnf clean all \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 /usr/local/kong \
