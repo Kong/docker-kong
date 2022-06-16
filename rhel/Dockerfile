@@ -36,8 +36,8 @@ RUN set -ex; \
     else \
       yum update -y \
       && yum upgrade -y ; \
-    fi; \
-    yum install -y -q unzip shadow-utils \
+    fi \
+    && yum install -y -q unzip shadow-utils \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
