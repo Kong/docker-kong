@@ -5,11 +5,15 @@ PACKAGE?=apk
 BASE?=alpine
 ASSET_LOCATION?=remote
 
-build:
-	docker build --no-cache -t kong-$(BASE) $(BASE)/
+DOCKER_TAG_PREFIX?=kong-
 
+build: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
+build:
+	docker build --no-cache -t $(DOCKER_TAG) $(BASE)/
+
+build_v2: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(PACKAGE)
 build_v2:
-	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t kong-$(PACKAGE) -f Dockerfile.$(PACKAGE) .
+	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) -f Dockerfile.$(PACKAGE) .
 
 .PHONY: test
 test:
