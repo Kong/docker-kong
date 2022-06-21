@@ -31,7 +31,7 @@ You can use images derived from Alpine, RHEL, or Debian; Kong Software pushes `.
 Get the [entrypoint
 script](https://raw.githubusercontent.com/Kong/docker-kong/master/docker-entrypoint.sh)
 from the [docker-kong github repository](https://github.com/Kong/docker-kong/) and put it in
-directory where you are planning to run thecommand to build your Docker image.
+directory where you are planning to run the command to build your Docker image.
 
 ## Create a Dockerfile to install Kong Gateway
 
