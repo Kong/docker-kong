@@ -48,9 +48,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && if [ "$ASSET" = "ce" ] ; then \
-      kong version ; \
-    fi
+    && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
