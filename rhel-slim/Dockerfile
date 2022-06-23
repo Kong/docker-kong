@@ -34,7 +34,14 @@ RUN set -ex; \
     else \
       microdnf update -y ; \
     fi \
-    && microdnf install -y unzip shadow-utils hostname perl zlib-devel \
+    # findutils provides xargs (temporarily)
+    && microdnf install --assumeyes --nodocs \
+      findutils \
+      shadow-utils \
+      unzip \
+    && rpm -qpR /tmp/kong.rpm \
+      | grep -v rpmlib \
+      | xargs microdnf install --assumeyes --nodocs \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
@@ -51,6 +58,7 @@ RUN set -ex; \
     # ubi-minimal comes with libz in /usr/lib64 but named libz.so.1/1.2.7
     # lua-ffi-zlib expects, and the zlib-devel pkg previously delivered libz.so
     && ln -s /usr/lib64/libz.so.1 /usr/lib64/libz.so \
+    && microdnf remove findutils \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh

@@ -18,12 +18,19 @@ RUN set -ex; \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi \
-    && microdnf install -y unzip shadow-utils hostname perl zlib-devel \
+    # findutils provides xargs (temporarily)
+    && microdnf install --assumeyes --nodocs \
+      findutils \
+      shadow-utils \
+      unzip \
+    && rpm -qpR /tmp/kong.rpm \
+      | grep -v rpmlib \
+      | xargs microdnf install --assumeyes --nodocs \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
     # and that our CI does not diverge from our docs.
     && rpm -iv /tmp/kong.rpm \
-    && microdnf clean all \
+    && microdnf -y clean all \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 /usr/local/kong \
@@ -31,6 +38,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    && microdnf remove findutils \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
