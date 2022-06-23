@@ -11,6 +11,9 @@ function run_test {
     docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
   fi
 
+  # set KONG_DOCKER_TAG to kong-$BASE (if not already set)
+  export KONG_DOCKER_TAG="${KONG_DOCKER_TAG:-kong-${BASE}}"
+
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
     docker scan --accept-license --exclude-base --severity=high --file $BASE/Dockerfile kong-$BASE
