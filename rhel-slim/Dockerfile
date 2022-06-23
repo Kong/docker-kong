@@ -29,7 +29,7 @@ ENV RHEL_VERSION $RHEL_VERSION
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
+      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-${RHEL_VERSION}/Packages/k/kong-${KONG_VERSION}.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     else \
       microdnf update -y ; \
