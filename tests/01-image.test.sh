@@ -19,7 +19,7 @@ function run_test {
   fi
 
   # set KONG_DOCKER_TAG to kong-$BASE (if not already set)
-  export KONG_DOCKER_TAG="${KONG_DOCKER_TAG:-kong-${BASE}}"
+  export KONG_DOCKER_TAG="${KONG_DOCKER_TAG:-kong-$BASE}"
 
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
