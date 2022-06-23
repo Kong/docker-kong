@@ -41,7 +41,7 @@ RUN set -ex; \
       unzip \
     && rpm -qpR /tmp/kong.rpm \
       | grep -v rpmlib \
-      | xargs microdnf install --assumeyes --nodocs \
+      | xargs -n1 -t microdnf install --assumeyes --nodocs \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
