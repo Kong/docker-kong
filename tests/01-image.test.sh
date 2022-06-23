@@ -55,7 +55,7 @@ function run_test {
     # 40 retries at 3 secs each = 120 seconds = 2 mins
     local retry=0 retries=40
 
-    until [ -n "$(docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG})" ]; do
+    until docker ps -f health=healthy | grep -q "${KONG_DOCKER_TAG}"; do
       if [ $retry -ge $retries ]; then
         echo
         return 2
