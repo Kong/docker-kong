@@ -65,6 +65,14 @@ local platforms = {
       "yum -y install gcc gcc-c++ make",
     },
   }, {
+    check = "stat /usr/bin/microdnf",  -- check for ubi-minimal
+    commands = {                       -- run before anything else in build container
+      "microdnf -y install git",
+      "microdnf -y install unzip",
+      "microdnf -y install zip",
+      "microdnf -y install gcc gcc-c++ make",
+    },
+  }, {
     check = "apt -v",         -- check for Ubuntu
     commands = {              -- run before anything else in build container
       "apt update",
