@@ -59,7 +59,6 @@ RUN set -ex; \
     # symlink from the versioned filenames to the unversioned.. version
     # lua-ffi-zlib expects, and the zlib-devel pkg previously provided libz.so
     && [ -s /usr/lib64/libz.so ] || ln -vs /usr/lib64/libz.so.1 /usr/lib64/libz.so \
-    && microdnf remove findutils \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
