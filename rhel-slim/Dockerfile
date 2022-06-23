@@ -48,6 +48,9 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    # ubi-minimal comes with libz in /usr/lib64 but named libz.so.1/1.2.7
+    # lua-ffi-zlib expects, and the zlib-devel pkg previously delivered libz.so
+    && ln -s /usr/lib64/libz.so.1 /usr/lib64/libz.so \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
