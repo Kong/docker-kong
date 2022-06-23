@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bullseye-20220509-slim
 
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
