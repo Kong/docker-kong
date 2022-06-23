@@ -55,9 +55,10 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    # ubi-minimal comes with libz in /usr/lib64 but named libz.so.1/1.2.7
-    # lua-ffi-zlib expects, and the zlib-devel pkg previously delivered libz.so
-    && ln -s /usr/lib64/libz.so.1 /usr/lib64/libz.so \
+    # ubi-minimal comes with libz in /usr/lib64 but is sometimes missing the
+    # symlink from the versioned filenames to the unversioned.. version
+    # lua-ffi-zlib expects, and the zlib-devel pkg previously provided libz.so
+    && [ -s /usr/lib64/libz.so ] || ln -vs /usr/lib64/libz.so.1 /usr/lib64/libz.so \
     && microdnf remove findutils \
     && kong version
 
