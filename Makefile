@@ -16,6 +16,9 @@ build_v2:
 	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) -f Dockerfile.$(PACKAGE) .
 
 .PHONY: test
+
+
+test: KONG_DOCKER_TAG?=$(DOCKER_TAG)
 test:
 	if cd kong-build-tools; \
 	then git pull; \
