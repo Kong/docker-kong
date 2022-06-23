@@ -3,6 +3,13 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
+  # detect which type of image we're building
+  # 1) less than 3.0, <os>/Dockerfile or
+  # 2) greater than 3.0, Dockerfile.<package type>
+  #
+  # ideally there's smarter logic, but right now, the logic containing the
+  # image tag being built and tested are scattered across this and more repos,
+  # and assume a "kong-" prefix
   if [[ -f Dockerfile.$BASE ]]; then
     docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < Dockerfile.$BASE
   fi
