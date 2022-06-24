@@ -6,6 +6,9 @@ BASE?=alpine
 
 DOCKER_TAG_PREFIX?=kong
 
+RHEL_REGISTRY?=scan.connect.redhat.com
+RHEL_REGISTRY_REPO?=$(RHEL_REGISTRY)/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong
+
 build: ASSET_LOCATION?=ce
 build: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
 build:
@@ -28,6 +31,10 @@ test:
 	BASE=$(BASE) ./tests/test.sh --suite "Docker-Kong test suite"
 
 release-rhel: build
-	echo $$RHEL_REGISTRY_KEY | docker login -u unused scan.connect.redhat.com --password-stdin
-	docker tag kong-rhel scan.connect.redhat.com/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong:$$TAG
-	docker push scan.connect.redhat.com/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong:$$TAG
+	echo '$(RHEL_REGISTRY_KEY)' \
+		| docker login -u unused $(RHEL_REGISTRY) --password-stdin
+	docker tag kong-rhel $(RHEL_REGISTRY_REPO)/kong:$$TAG
+	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG
+	docker tag kong-rhel-slim $(RHEL_REGISTRY_REPO)/kong:$$TAG-slim
+	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG-slim
+
