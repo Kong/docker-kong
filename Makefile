@@ -35,6 +35,6 @@ release-rhel: build
 		| docker login -u unused $(RHEL_REGISTRY) --password-stdin
 	docker tag kong-rhel $(RHEL_REGISTRY_REPO)/kong:$$TAG
 	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG
-	docker tag kong-rhel-slim $(RHEL_REGISTRY_REPO)/kong:$$TAG-slim
-	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG-slim
+	docker tag kong-rhel-minimal $(RHEL_REGISTRY_REPO)/kong:$$TAG-minimal
+	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG-minimal
 
