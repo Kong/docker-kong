@@ -3,14 +3,15 @@
 KONG_BUILD_TOOLS?=4.25.3
 PACKAGE?=apk
 BASE?=alpine
-ASSET_LOCATION?=remote
 
 DOCKER_TAG_PREFIX?=kong
 
+build: ASSET_LOCATION?=ce
 build: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
 build:
 	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) $(BASE)/
 
+build_v2: ASSET_LOCATION?=remote
 build_v2: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(PACKAGE)
 build_v2:
 	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) -f Dockerfile.$(PACKAGE) .
