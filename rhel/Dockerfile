@@ -7,14 +7,17 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="4f2d073122c97be80de301e6037d0913f15de1d8bb6eea2871542e9a4c164c72"
 
+# RedHat required labels
 LABEL name="Kong" \
       vendor="Kong" \
+      maintainer="Kong <support@konghq.com>" \
       version="$KONG_VERSION" \
       release="1" \
       url="https://konghq.com" \
       summary="Next-Generation API Platform for Modern Architectures" \
       description="Next-Generation API Platform for Modern Architectures"
 
+# RedHat required LICENSE file approved path
 COPY LICENSE /licenses/
 
 ARG ASSET=ce
