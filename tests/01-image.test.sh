@@ -3,6 +3,13 @@
 function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
+  # detect which type of image we're building
+  # 1) less than 3.0, <os>/Dockerfile or
+  # 2) greater than 3.0, Dockerfile.<package type>
+  #
+  # ideally there's smarter logic, but right now, the logic containing the
+  # image tag being built and tested are scattered across this and more repos,
+  # and assume a "kong-" prefix
   if [[ -f Dockerfile.$BASE ]]; then
     docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < Dockerfile.$BASE
   fi
@@ -10,6 +17,9 @@ function run_test {
   if [[ -f $BASE/Dockerfile ]]; then
     docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
   fi
+
+  # set KONG_DOCKER_TAG to kong-$BASE (if not already set)
+  export KONG_DOCKER_TAG="${KONG_DOCKER_TAG:-kong-$BASE}"
 
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
@@ -40,15 +50,27 @@ function run_test {
   fi
 
   ttest "Dbless Test"
-  
+
+  function retry_health() {
+    # 40 retries at 3 secs each = 120 seconds = 2 mins
+    local retry=0 retries=40
+
+    until docker ps -f health=healthy | grep -q "${KONG_DOCKER_TAG}"; do
+      if [ $retry -ge $retries ]; then
+        echo
+        return 2
+      fi
+      echo -n '.'
+      sleep 3
+      retry=$(( retry + 1 ))
+    done
+    echo
+  }
+
   pushd compose
   docker-compose up -d
-  until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
-    docker-compose up -d
-    docker ps
-    sleep 15
-  done
-  
+  retry_health
+
   curl -I localhost:8001 | grep -E '(openresty|kong)'
   if [ $? -eq 0 ]; then
     tsuccess
