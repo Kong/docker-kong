@@ -1,6 +1,6 @@
 ARG RHEL_VERSION=7
 
-FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
+FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi-minimal
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
@@ -33,20 +33,25 @@ ENV RHEL_VERSION $RHEL_VERSION
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
+      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-${RHEL_VERSION}/Packages/k/kong-${KONG_VERSION}.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     else \
-      yum update -y \
-      && yum upgrade -y ; \
+      microdnf update -y ; \
     fi \
-    && yum install -y -q unzip shadow-utils \
-    && yum clean all -q \
+    # findutils provides xargs (temporarily)
+    && microdnf install --assumeyes --nodocs \
+      findutils \
+      shadow-utils \
+      unzip \
+    && rpm -qpR /tmp/kong.rpm \
+      | grep -v rpmlib \
+      | xargs -n1 -t microdnf install --assumeyes --nodocs \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
     # and that our CI does not diverge from our docs.
-    && yum localinstall -y /tmp/kong.rpm \
-    && yum clean all \
+    && rpm -iv /tmp/kong.rpm \
+    && microdnf clean all \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 /usr/local/kong \
@@ -54,6 +59,10 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    # ubi-minimal comes with libz in /usr/lib64 but is sometimes missing the
+    # symlink from the versioned filenames to the unversioned.. version
+    # lua-ffi-zlib expects, and the zlib-devel pkg previously provided libz.so
+    && [ -s /usr/lib64/libz.so ] || ln -vs /usr/lib64/libz.so.1 /usr/lib64/libz.so \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
