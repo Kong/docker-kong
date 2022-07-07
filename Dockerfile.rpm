@@ -3,6 +3,8 @@ FROM redhat/ubi8-minimal
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
+
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
 

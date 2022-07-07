@@ -1,6 +1,8 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
 FROM alpine:3.16.0
 
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
+
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
 
