@@ -29,7 +29,8 @@ RUN set -ex; \
     if [ "$ASSET" = "remote" ] ; then \
       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-8/Packages/k/kong-$KONG_VERSION.rhel8.amd64.rpm" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
-      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
+      || exit 1 \
     fi \
     # findutils provides xargs (temporarily)
     && microdnf install --assumeyes --nodocs \
