@@ -1,10 +1,31 @@
 # DO NOT update KONG_BUILD_TOOLS manually - it's set by update.sh
 # to ensure same version is used here and in the respective kong version
 KONG_BUILD_TOOLS?=4.25.3
+
 PACKAGE?=apk
 BASE?=alpine
 
 DOCKER_TAG_PREFIX?=kong
+
+KONG_VERSION?=
+KONG_SHA256?=
+
+# these two flags cannot be specified in this makefile <at all> if the default
+# values from the Dockerfiles are desired
+#
+# this way, the build-arg flag variables are empty (preventing a flag from
+# being passed to docker at all) if the parent VARs are unset
+ifeq ($(strip $(KONG_VERSION)),)
+KONG_VERSION_FLAG:=
+else
+KONG_VERSION_FLAG:=--build-arg KONG_VERSION=$(KONG_VERSION)
+endif
+
+ifeq ($(strip $(KONG_SHA256)),)
+KONG_SHA256_FLAG:=
+else
+KONG_SHA256_FLAG:=--build-arg KONG_SHA256=$(KONG_SHA256)
+endif
 
 RHEL_REGISTRY?=scan.connect.redhat.com
 RHEL_REGISTRY_REPO?=$(RHEL_REGISTRY)/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong
@@ -17,11 +38,24 @@ endif
 
 build: ASSET_LOCATION?=ce
 build:
-	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) $(BASE)/
+	docker build \
+		--no-cache \
+		--build-arg ASSET=$(ASSET_LOCATION) \
+		$(KONG_VERSION_FLAG) \
+		$(KONG_SHA256_FLAG) \
+		-t $(DOCKER_TAG) \
+		$(BASE)/
 
 build_v2: ASSET_LOCATION?=remote
 build_v2:
-	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) -f Dockerfile.$(PACKAGE) .
+	docker build \
+		--no-cache \
+		--build-arg ASSET=$(ASSET_LOCATION) \
+		$(KONG_VERSION_FLAG) \
+		$(KONG_SHA256_FLAG) \
+		-t $(DOCKER_TAG) \
+		-f Dockerfile.$(PACKAGE) \
+		.
 
 .PHONY: test
 
