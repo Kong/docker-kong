@@ -27,8 +27,11 @@ else
 KONG_SHA256_FLAG:=--build-arg KONG_SHA256=$(KONG_SHA256)
 endif
 
+RHEL_REGISTRY_KEY?=
 RHEL_REGISTRY?=scan.connect.redhat.com
-RHEL_REGISTRY_REPO?=$(RHEL_REGISTRY)/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong
+RHEL_PID?=
+RHEL_REGISTRY_REPO?=$(RHEL_REGISTRY)/$(RHEL_PID)/kong
+
 # search for "build_v2" in the invocation make goals and set tags accordingly
 ifneq ($(findstring build_v2,$(MAKECMDGOALS)),)
 	DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(PACKAGE)
@@ -68,10 +71,16 @@ test:
 	BASE=$(BASE) ./tests/test.sh --suite "Docker-Kong test suite"
 
 release-rhel: build
-	echo '$(RHEL_REGISTRY_KEY)' \
+	@if \
+		test -z '$(KONG_VERSION)' || \
+		test -z '$(RHEL_PID)' || \
+		test -z '$(RHEL_REGISTRY_KEY)' \
+	; then \
+		echo 'one of $$KONG_VERSION, $$RHEL_PID, $$RHEL_REGISTRY_KEY unset'; \
+		exit 2; \
+	fi
+	@echo '$(RHEL_REGISTRY_KEY)' \
 		| docker login -u unused $(RHEL_REGISTRY) --password-stdin
-	docker tag kong-rhel $(RHEL_REGISTRY_REPO)/kong:$$TAG
-	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG
-	docker tag kong-rhel-minimal $(RHEL_REGISTRY_REPO)/kong:$$TAG-minimal
-	docker push $(RHEL_REGISTRY_REPO)/kong:$$TAG-minimal
+	docker tag $(DOCKER_TAG) $(RHEL_REGISTRY_REPO):$(KONG_VERSION)
+	docker push $(RHEL_REGISTRY_REPO):$(KONG_VERSION)
 
