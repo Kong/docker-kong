@@ -1,5 +1,6 @@
 FROM centos:8
-LABEL maintainer="Kong <support@konghq.com>"
+
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
 ARG ASSET=ce
 ENV ASSET $ASSET

@@ -1,5 +1,7 @@
 FROM ubuntu:focal
 
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
+
 ARG ASSET=ce
 ENV ASSET $ASSET
 
