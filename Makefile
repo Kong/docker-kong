@@ -8,19 +8,22 @@ DOCKER_TAG_PREFIX?=kong
 
 RHEL_REGISTRY?=scan.connect.redhat.com
 RHEL_REGISTRY_REPO?=$(RHEL_REGISTRY)/ospid-dd198cd0-ed8b-41bd-9c18-65fd85059d31/kong
+# search for "build_v2" in the invocation make goals and set tags accordingly
+ifneq ($(findstring build_v2,$(MAKECMDGOALS)),)
+	DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(PACKAGE)
+else
+	DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
+endif
 
 build: ASSET_LOCATION?=ce
-build: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
 build:
 	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) $(BASE)/
 
 build_v2: ASSET_LOCATION?=remote
-build_v2: DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(PACKAGE)
 build_v2:
 	docker build --no-cache --build-arg ASSET=$(ASSET_LOCATION) -t $(DOCKER_TAG) -f Dockerfile.$(PACKAGE) .
 
 .PHONY: test
-
 
 test: KONG_DOCKER_TAG?=$(DOCKER_TAG)
 test:
