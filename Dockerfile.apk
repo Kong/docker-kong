@@ -1,4 +1,6 @@
-FROM alpine:3.15
+FROM alpine:3.16.0
+
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
@@ -12,7 +14,7 @@ ARG EE_PORTS
 COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
 
 RUN set -ex; \
-    apk add bash curl ca-certificates; \
+    apk add --virtual .build-deps curl tar gzip ca-certificates; \
     arch="$(apk --print-arch)"; \
     case "${arch}" in \
       x86_64) export ARCH='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
@@ -22,7 +24,6 @@ RUN set -ex; \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-${KONG_VERSION}.${ARCH}.apk.tar.gz" -o /tmp/kong.apk.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
     fi \
-    && apk add --no-cache --virtual .build-deps tar gzip \
     && tar -C / -xzf /tmp/kong.apk.tar.gz \
     && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash \
     && adduser -S kong \

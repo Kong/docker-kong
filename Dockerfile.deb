@@ -1,4 +1,6 @@
-FROM debian:bullseye-slim
+FROM debian:bullseye-20220509-slim
+
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION

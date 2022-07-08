@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [ -n "${DEBUG:-}" ]; then
+  set -x
+fi
+
 # source: https://github.com/Tieske/test.sh
 
 if [[ "$T_INIT_COUNT" == "" ]]; then

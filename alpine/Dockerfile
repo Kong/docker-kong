@@ -1,6 +1,6 @@
-FROM alpine:3.15
+FROM alpine:3.16
 
-LABEL maintainer="Kong <support@konghq.com>"
+LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
 ARG ASSET=ce
 ENV ASSET $ASSET
