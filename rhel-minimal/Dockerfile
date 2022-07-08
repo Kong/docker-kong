@@ -1,4 +1,4 @@
-ARG RHEL_VERSION=7
+ARG RHEL_VERSION=8
 
 FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi-minimal
 
@@ -7,7 +7,7 @@ LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="4f2d073122c97be80de301e6037d0913f15de1d8bb6eea2871542e9a4c164c72"
+ARG KONG_SHA256="8bae61982b8d439e12037e24432adc185f87113989c27c89521d8cc024b38ddc"
 
 # RedHat required labels
 LABEL name="Kong" \
