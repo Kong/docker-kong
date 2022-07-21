@@ -70,7 +70,7 @@ fi
 git checkout master
 git pull
 
-if ! grep -q "$version" alpine/Dockerfile
+if ! grep -q "$version" Dockerfile.apk
 then
   if [[ "$force" = "yes" ]]
   then
@@ -78,7 +78,7 @@ then
 
     git checkout "$version"
 
-    if ! grep -q "$version$" alpine/Dockerfile
+    if ! grep -q "$version$" Dockerfile.apk
     then
       die "Error: version in build script doesn't match required version."
     fi
@@ -130,7 +130,7 @@ git checkout -b release/$version
 if [ "$mode" = "patch" ]
 then
   sed "s|$prev-alpine|$version-alpine|;
-       s|$prev-ubuntu|$version-ubuntu|;
+       s|$prev-debian|$version-debian|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
        s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
@@ -139,7 +139,7 @@ then
 elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
 then
   sed "s|$prev-alpine|$version-alpine|;
-       s|$prev-ubuntu|$version-ubuntu|;
+       s|$prev-debian|$version-debian|;
        s|, ${xy}rc$[rc-1]|, ${xy}rc${rc}|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
@@ -164,17 +164,17 @@ then
         v = "'$version'"
         xy = "'$xy'"
         commit = "'$commit'"
-        print "Tags: " v "-alpine, " v ", " xy ", alpine"
+        print "Tags: " v "-alpine, " xy "-alpine, " z "-alpine, alpine"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
-        print "Directory: alpine"
-        print "Architectures: amd64"
-        print ""
-        print "Tags: " v "-ubuntu"
-        print "GitCommit: " commit
-        print "GitFetch: refs/tags/" v
-        print "Directory: ubuntu"
+        print "File: Dockerfile.apk
         print "Architectures: amd64, arm64v8"
+        print ""
+        print "Tags: " v "-debian, " xy "-debian, " z "-debian, debian"
+        print "GitCommit: " commit
+        print "GitFetch: refs/tags/" v
+        print "File: Dockerfile.deb"
+        print "Architectures: amd64"
         print ""
         before_first = 0
       } else {
@@ -210,24 +210,24 @@ then
         v = "'$version'"
         xy = "'$xy'"
         commit = "'$commit'"
-        print "Tags: " v "-alpine, " v ", " xy ", alpine, latest"
+        print "Tags: " v "-alpine, " xy "-alpine, " z "-alpine, alpine"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
-        print "Directory: alpine"
+        print "File: Dockerfile.apk"
         print "Architectures: amd64, arm64v8"
         print ""
-        print "Tags: " v "-ubuntu, " xy "-ubuntu, ubuntu"
+        print "Tags: " v "-debian, " xy "-debian, " z "-debian, debian, latest"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
-        print "Directory: ubuntu"
-        print "Architectures: amd64, arm64v8"
+        print "File: Dockerfile.deb"
+        print "Architectures: amd64"
         print ""
         before_first = 0
       }
       if (!(in_rc_tag == 1)) {
         gsub(", latest", "")
         gsub(", alpine", "")
-        gsub(", ubuntu", "")
+        gsub(", debian", "")
         print
       }
       if (reset == 1) {
