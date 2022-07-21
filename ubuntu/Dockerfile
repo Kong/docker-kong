@@ -28,7 +28,8 @@ RUN set -ex; \
       && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
       && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_$arch.deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
-      && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
+      && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c - \
+      || exit 1; \
     else \
       # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apt-get upgrade -y ; \
