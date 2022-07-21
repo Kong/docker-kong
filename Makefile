@@ -49,6 +49,7 @@ build:
 		-t $(DOCKER_TAG) \
 		$(BASE)/
 
+# (yzl, 14 June 2022) Should you change this substantially, please update build_your_own_images.md.
 build_v2: ASSET_LOCATION?=remote
 build_v2:
 	docker build \
