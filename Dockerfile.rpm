@@ -3,8 +3,6 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:8.6@sha256:c7b45019f4db32e536e6
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
-LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
-
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
 
