@@ -1,6 +1,6 @@
 ARG RHEL_VERSION=8
 
-FROM registry.access.redhat.com/ubi7/ubi-minimal:7.9@sha256:8fd64370a136d7d2816012819d143d76ff678ceab94682beb31af0080b7b7292
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.6@sha256:2c8e091b26cc5a73cc7c61f4baee718021cfe5bd2fbc556d1411499c9a99ccdb
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 

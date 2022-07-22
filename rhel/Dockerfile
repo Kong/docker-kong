@@ -28,7 +28,7 @@ COPY kong.rpm /tmp/kong.rpm
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-7/Packages/k/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
+      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-8/Packages/k/kong-$KONG_VERSION.rhel8.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
       || exit 1; \
     else \
