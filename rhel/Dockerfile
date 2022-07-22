@@ -1,6 +1,4 @@
-ARG RHEL_VERSION=8
-
-FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
+FROM registry.access.redhat.com/ubi8/ubi:8.6@sha256:8515a6e8a783b41249a7885c8f2c36380d58eb15dd3a377ea76ed3e932e3766d
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
@@ -28,13 +26,11 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG RHEL_VERSION
-ENV RHEL_VERSION $RHEL_VERSION
-
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
-      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-7/Packages/k/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
+      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
+      || exit 1; \
     else \
       yum update -y \
       && yum upgrade -y ; \
