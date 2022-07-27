@@ -24,6 +24,11 @@ template will automatically be applied. So there is no need to specify the
 environment variable `KONG_PLUGINS` nor the `--nginx-conf` command line
 switch to enable them.
 
+# Checking the available plugins
+
+To check the plugins available in an image, use the example
+[`list_plugins.sh`](list_plugins.sh) script.
+
 # Curated list of plugins
 
 This tool is based on the LuaRocks packagemanager to include all plugin
@@ -31,7 +36,7 @@ dependencies. The `ROCKS_DIR` variable allows you to only use a curated list of
 rocks to be used (instead of the public ones).
 
 It will generate a local LuaRocks server, and not allow any public ones to be
-used. For an example of how to use it see the `example.sh` script.
+used. For an example of how to use it see the [`example.sh`](example.sh) script.
 
 ## Arguments:
 
