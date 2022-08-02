@@ -10,34 +10,29 @@ function run_test {
   # ideally there's smarter logic, but right now, the logic containing the
   # image tag being built and tested are scattered across this and more repos,
   # and assume a "kong-" prefix
-  if [[ -f Dockerfile.$BASE ]]; then
-    docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < Dockerfile.$BASE
+  DOCKERFILE="Dockerfile.${BASE}"
+  if [ -f "${BASE}/Dockerfile" ]; then
+    DOCKERFILE="${BASE}/Dockerfile"
   fi
-  
-  if [[ -f $BASE/Dockerfile ]]; then
-    docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
-  fi
+
+  echo "testing ${DOCKERFILE}"
+
+  docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < "$DOCKEFILE"
 
   # set KONG_DOCKER_TAG to kong-$BASE (if not already set)
   export KONG_DOCKER_TAG="${KONG_DOCKER_TAG:-kong-$BASE}"
 
   if [[ ! -z "${SNYK_SCAN_TOKEN}" ]]; then
     docker scan --accept-license --login --token "${SNYK_SCAN_TOKEN}"
-    docker scan --accept-license --exclude-base --severity=high --file $BASE/Dockerfile kong-$BASE
+    docker scan --accept-license --exclude-base --severity=high --file "$DOCKERFILE" kong-$BASE
   fi
 
   # Test the proper version was buid
   tchapter "test $BASE image"
-  ttest "the proper version was build"
+  ttest "the proper version was built"
 
-  if [[ -f Dockerfile.$BASE ]]; then
-    version_given="$(grep 'ARG KONG_VERSION' Dockerfile.$BASE | awk -F "=" '{print $2}')"
-  fi
-  
-  if [[ -f $BASE/Dockerfile ]]; then
-    version_given="$(grep 'ARG KONG_VERSION' $BASE/Dockerfile | awk -F "=" '{print $2}')"
-  fi
-  
+  version_given="$(grep 'ARG KONG_VERSION' "$DOCKERFILE" | awk -F "=" '{print $2}')"
+
   version_built="$(docker run -i --rm kong-$BASE kong version | grep -Eo '([0-9\.]+)')"
 
   if [[ "$version_given" != "$version_built" ]]; then
@@ -48,6 +43,35 @@ function run_test {
   else
     tsuccess
   fi
+
+
+  ttest "Exposed Ports Test"
+
+  docker run -d --rm -e KONG_DATABASE=off --name ports-test kong-$BASE
+  blob="$(docker inspect --format '{{json .NetworkSettings.Ports}}' ports-test)"
+
+  _exposed_ports="$(grep '^EXPOSE ' "$DOCKERFILE" | cut -d' ' -f2-)"
+
+  # populate $EE_PORTS if available
+  EE_PORTS="${EE_PORTS:-}"
+  exposed_ports="$(eval echo "$_exposed_ports")"
+
+  unexposed_ports=''
+  for port in $exposed_ports; do
+    if echo "$blob" | grep -vqs "$port"; then
+      unexposed_ports="${unexposed_ports} ${port}"
+    fi
+  done
+
+  if [ -n "$unexposed_ports" ]; then
+    tmessage "port ${unexposed_ports} not exposed via Dockerfile ${DOCKERFILE}"
+    tfailure
+  else
+    tsuccess
+  fi
+
+  docker stop ports-test
+
 
   ttest "Dbless Test"
 
@@ -77,7 +101,7 @@ function run_test {
   else
     tfailure
   fi
-  
+
   docker-compose kill
   docker-compose rm -f
   sleep 5
@@ -98,7 +122,7 @@ function run_test {
   done
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
-  
+
   KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
     docker-compose -p kong ps
@@ -112,7 +136,7 @@ function run_test {
   else
     tfailure
   fi
-  
+
   echo "cleanup"
 
   docker-compose -p kong kill
