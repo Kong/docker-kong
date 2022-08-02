@@ -38,7 +38,7 @@ function run_test {
     version_given="$(grep 'ARG KONG_VERSION' $BASE/Dockerfile | awk -F "=" '{print $2}')"
   fi
   
-  version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
+  version_built="$(docker run -i --rm kong-$BASE kong version | grep -Eo '([0-9\.]+)')"
 
   if [[ "$version_given" != "$version_built" ]]; then
     echo "Kong version mismatch:";
