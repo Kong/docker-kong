@@ -65,6 +65,14 @@ local platforms = {
       "yum -y install gcc gcc-c++ make",
     },
   }, {
+    check = "stat /usr/bin/microdnf",  -- check for ubi-minimal
+    commands = {                       -- run before anything else in build container
+      "microdnf -y install git",
+      "microdnf -y install unzip",
+      "microdnf -y install zip",
+      "microdnf -y install gcc gcc-c++ make",
+    },
+  }, {
     check = "apt -v",         -- check for Ubuntu
     commands = {              -- run before anything else in build container
       "apt update",
@@ -352,7 +360,7 @@ if [ "$KONG_PLUGINS" = "" ]; then
   KONG_PLUGINS="bundled"
 fi
 # replace 'bundled' with the new set, including the custom ones
-export KONG_PLUGINS=$(echo ",$KONG_PLUGINS," | sed "s/,bundled,/,bundled,%s,/" | sed 's/^,//' | sed 's/,$//')
+export KONG_PLUGINS=$(echo ",$KONG_PLUGINS," | sed "s/,bundled,/,bundled%s,/" | sed 's/^,//' | sed 's/,$//')
 
 # prefix the custom template option, since the last one on the command line
 # wins, so the user can still override this template
@@ -377,7 +385,12 @@ fi
 
 exec /old-entrypoint.sh $INITIAL "$@"
 ]=]
-entrypoint = entrypoint:format(table.concat(plugins, ","))
+local plugin_list = "," .. table.concat(plugins, ",")
+if plugin_list == "," then
+  -- no plugins added
+  plugin_list = ""
+end
+entrypoint = entrypoint:format(plugin_list)
 assert(writefile("/docker-entrypoint.sh", entrypoint))
 assert(exec("chmod +x /docker-entrypoint.sh"))
 stdout(entrypoint)
