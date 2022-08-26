@@ -7,9 +7,6 @@ ENV ASSET $ASSET
 
 ARG EE_PORTS
 
-# hadolint ignore=DL3010
-COPY kong.tar.gz /tmp/kong.tar.gz
-
 ARG KONG_VERSION=2.8.1
 ENV KONG_VERSION $KONG_VERSION
 

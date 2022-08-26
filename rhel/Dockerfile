@@ -24,8 +24,6 @@ ENV ASSET $ASSET
 
 ARG EE_PORTS
 
-COPY kong.rpm /tmp/kong.rpm
-
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-7/Packages/k/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
