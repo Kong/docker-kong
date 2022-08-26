@@ -28,6 +28,18 @@ file_env() {
 
 export KONG_NGINX_DAEMON=${KONG_NGINX_DAEMON:=off}
 
+if [[ -n ${KONG_CLUSTER_CERT_BASE64_VALUE} ]];
+then
+    export KONG_CLUSTER_CERT="/tmp/cluster.crt" 
+    echo "${KONG_CLUSTER_CERT_BASE64_VALUE}" | base64 -d > ${KONG_CLUSTER_CERT}
+fi
+
+if [[ -n ${KONG_CLUSTER_CERT_KEY_BASE64_VALUE} ]];
+then
+    export KONG_CLUSTER_CERT_KEY="/tmp/cluster.key"
+    echo "${KONG_CLUSTER_CERT_KEY_BASE64_VALUE}" | base64 -d > ${KONG_CLUSTER_CERT_KEY}
+fi
+
 if [[ "$1" == "kong" ]]; then
 
   all_kong_options="/usr/local/share/lua/5.1/kong/templates/kong_defaults.lua"
