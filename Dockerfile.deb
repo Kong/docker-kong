@@ -13,6 +13,18 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
+ARG WASM_RUNTIME="wasmer"
+ENV WASM_RUNTIME $WASM_RUNTIME
+
+ARG NGX_WASM_RUNTIME_INC="/usr/local/wasm-runtime/include"
+ENV NGX_WASM_RUNTIME_INC $NGX_WASM_RUNTIME_INC
+
+ARG NGX_WASM_RUNTIME_LIB="/usr/local/wasm-runtime/lib"
+ENV NGX_WASM_RUNTIME_LIB $NGX_WASM_RUNTIME_LIB
+
+ARG LD_LIBRARY_PATH=$NGX_WASM_RUNTIME_LIB
+ENV LD_LIBRARY_PATH $NGX_WASM_RUNTIME_LIB
+
 RUN set -ex; \
     apt-get update; \
     apt-get install -y curl; \
