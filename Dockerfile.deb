@@ -13,7 +13,7 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG WASM_RUNTIME="wasmer"
+ARG WASM_RUNTIME=$WASM_RUNTIME
 ENV WASM_RUNTIME $WASM_RUNTIME
 
 ARG NGX_WASM_RUNTIME_INC="/usr/local/wasm-runtime/include"

@@ -14,7 +14,7 @@ ARG EE_PORTS
 
 COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
 
-ARG WASM_RUNTIME="wasmer"
+ARG WASM_RUNTIME=$WASM_RUNTIME
 ENV WASM_RUNTIME $WASM_RUNTIME
 
 ARG NGX_WASM_RUNTIME_INC="/usr/local/wasm-runtime/include"

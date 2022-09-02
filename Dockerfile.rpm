@@ -25,7 +25,7 @@ ARG EE_PORTS
 
 COPY kong.rpm /tmp/kong.rpm
 
-ARG WASM_RUNTIME="wasmer"
+ARG WASM_RUNTIME=$WASM_RUNTIME
 ENV WASM_RUNTIME $WASM_RUNTIME
 
 ARG NGX_WASM_RUNTIME_INC="/usr/local/wasm-runtime/include"
