@@ -3,26 +3,14 @@ FROM debian:bullseye-20220509-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
-ARG KONG_VERSION=2.8.1
-ENV KONG_VERSION $KONG_VERSION
-
-ARG KONG_SHA256="a57852f49eb6aea6b672a99d1361457b208e8a2d63df3fa362b2d2d6ac979b4c"
-
-ARG ASSET=remote
 ARG EE_PORTS
 
-COPY kong.deb /tmp/kong.deb
+ARG KONG_SHA256="a57852f49eb6aea6b672a99d1361457b208e8a2d63df3fa362b2d2d6ac979b4c"
+ARG ASSET_LOCATION="https://download.konghq.com/gateway-2.x-debian-bullseye/pool/all/k/kong/kong_2.8.1_amd64.deb"
+ADD ${ASSET_LOCATION} /tmp/kong.deb
 
 RUN set -ex; \
-    apt-get update; \
-    apt-get install -y curl; \
-    if [ "$ASSET" = "remote" ] ; then \
-      CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
-      && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-debian-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
-      && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
-      && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
-    fi \
-    && apt-get update \
+    apt-get update \
     && apt-get install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
@@ -32,8 +20,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && kong version \
-    && apt-get purge curl -y
+    && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
