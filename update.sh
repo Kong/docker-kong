@@ -75,7 +75,7 @@ pushd alpine
 popd
 
 pushd rhel
-   url=$(get_url Dockerfile amd64 "RHEL_VERSION=7")
+   url=$(get_url Dockerfile amd64 "RHEL_VERSION=7.9")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
