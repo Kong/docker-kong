@@ -6,6 +6,9 @@ x-kong-config: &kong-env
   KONG_PG_HOST: db
   KONG_PG_USER: ${KONG_PG_USER:-kong}
   KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+  KONG_PG_SSL_VERSION: tlsv1_2
+  KONG_PG_SSL_REQUIRED: "on"
+  KONG_PG_SSL: "on"
 
 volumes:
   kong_data: {}
@@ -95,19 +98,22 @@ services:
       - no-new-privileges
 
   db:
-    image: postgres:9.5
+    #image: temp
+    build: ./
     profiles: ["database"]
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
+    #command: tail -f /dev/null
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
       POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
     secrets:
       - kong_postgres_password
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
+    #healthcheck:
+    #  test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
+    #  interval: 30s
+    #  timeout: 30s
+    #  retries: 3
     restart: on-failure
     stdin_open: true
     tty: true
