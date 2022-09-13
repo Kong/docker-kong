@@ -2,10 +2,10 @@ FROM registry.access.redhat.com/ubi7/ubi:7.9@sha256:baccc7f4a9df7f4872116e254efb
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
-ARG KONG_VERSION=2.8.1
+ARG KONG_VERSION=3.0.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="4f2d073122c97be80de301e6037d0913f15de1d8bb6eea2871542e9a4c164c72"
+ARG KONG_SHA256="cc96b59c0ade4e6388487c5e8e1d132eb7de53fae963ddec93b143148c690cd3"
 
 # RedHat required labels
 LABEL name="Kong" \
@@ -28,7 +28,7 @@ COPY kong.rpm /tmp/kong.rpm
 
 RUN set -ex; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-7/Packages/k/kong-$KONG_VERSION.rhel7.amd64.rpm" -o /tmp/kong.rpm \
+      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-7/Packages/k/kong-$KONG_VERSION.rhel7.9.amd64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
       || exit 1; \
     else \

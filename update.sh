@@ -44,7 +44,8 @@ function get_url() {
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+#kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+kbt_in_kong_v=4.33.19
 if [[ -n "$kbt_in_kong_v" ]]; then
   sed -i.bak 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
 fi
@@ -74,7 +75,7 @@ pushd alpine
 popd
 
 pushd rhel
-   url=$(get_url Dockerfile amd64 "RHEL_VERSION=7")
+   url=$(get_url Dockerfile amd64 "RHEL_VERSION=7.9")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
