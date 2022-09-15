@@ -97,6 +97,7 @@ fi
 xy=${version%.*}
 z=${version#$xy.}
 
+rc=0
 if [ "$mode" = "rc" ]
 then
   rc=${version#*rc}
