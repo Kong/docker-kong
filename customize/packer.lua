@@ -314,29 +314,6 @@ header("Install the requested plugins")
 install_plugins(rocks, lr_flag)
 
 
-header("Get post-install rocks list and get the delta")
-local added_rocks
-do
-  local post_installed_rocks = get_rocks()
-  for k in pairs(pre_installed_rocks) do
-    if post_installed_rocks[k] then
-      post_installed_rocks[k] = nil  -- remove the ones we already had
-    end
-  end
-  added_rocks = post_installed_rocks
-end
-if (not next(added_rocks)) then
-  if is_empty_file(CUSTOM_TEMPLATE) then
-    fail("no additional rocks were added, nor a custom template specified")
-  end
-  stdout("No rocks were added")
-else
-  for k in pairs(added_rocks) do
-    stdout("added rock: "..k)
-  end
-end
-
-
 header("Get post-install plugin list and get the delta")
 local plugins = {}
 for plugin_name in pairs(get_plugins()) do
