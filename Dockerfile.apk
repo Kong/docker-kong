@@ -26,7 +26,7 @@ RUN set -ex; \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
     fi \
     && tar -C / -xzf /tmp/kong.apk.tar.gz \
-    && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash \
+    && apk add --no-cache libstdc++ libgcc pcre perl tzdata libcap zlib zlib-dev bash \
     && adduser -S kong \
     && addgroup -S kong \
     && mkdir -p "/usr/local/kong" \
