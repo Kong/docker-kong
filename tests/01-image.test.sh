@@ -111,7 +111,8 @@ function run_test {
 
   pushd kong-build-tools
   rm -rf test/tests/01-package
-  docker tag kong-$BASE $BASE:$BASE
+  docker tag kong-$BASE $BASE:amd64-$BASE
+
   KONG_VERSION=$version_given KONG_TEST_IMAGE_NAME=kong-$BASE RESTY_IMAGE_BASE=$BASE RESTY_IMAGE_TAG=$BASE make test
   if [ $? -eq 0 ]; then
     tsuccess
