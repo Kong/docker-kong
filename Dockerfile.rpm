@@ -20,6 +20,9 @@ COPY LICENSE /licenses/
 
 ARG KONG_SHA256="c8b529f8e9dbcb2923b847f61c1039965426b141c96cb11c754dcf45e3088bdc"
 
+ARG KONG_PREFIX=/usr/local/kong
+ENV KONG_PREFIX $KONG_PREFIX
+
 ARG ASSET=remote
 ARG EE_PORTS
 
@@ -48,7 +51,7 @@ RUN set -ex; \
     && microdnf -y clean all \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
-    && chown -R kong:0 /usr/local/kong \
+    && chown -R kong:0 ${KONG_PREFIX} \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
