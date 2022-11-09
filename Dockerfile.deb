@@ -3,10 +3,10 @@ FROM debian:bullseye-20220509-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
-ARG KONG_VERSION=3.0.0
+ARG KONG_VERSION=3.0.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="fa193923f0345a84af52497dc7d8a3d5d01416694cda415e2d69d901306d3fca"
+ARG KONG_SHA256="8e978f5f21c7996a889bbadbf25d001cdb2f486470ce61959b79c8d701ccedb4"
 
 ARG ASSET=remote
 ARG EE_PORTS
