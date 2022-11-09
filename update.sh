@@ -75,16 +75,7 @@ fi
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
 #popd
 
-#pushd rhel
-   url=$(get_url Dockerfile.apk amd64 "RHEL_VERSION=7.9")
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-
-   sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.apk
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
-#popd
-
+# Dockerfile.deb
 url=$(get_url Dockerfile.rpm amd64 "VERSION=8")
 echo $url
 curl -fL $url -o /tmp/kong
@@ -93,24 +84,25 @@ new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rpm
 sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
 
-#pushd ubuntu
-   url=$(get_url Dockerfile.apk amd64 "UBUNTU_CODENAME=focal")
+# ubuntu/Dockerfile
+pushd ubuntu
+   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=focal")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
+   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
 
-   url=$(get_url Dockerfile.apk arm64 "UBUNTU_CODENAME=focal")
+   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=focal")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
+   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+popd
 
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
-#popd
-
+# Dockerfile.deb
 url=$(get_url Dockerfile.deb amd64 "CODENAME=bullseye")
 echo $url
 curl -fL $url -o /tmp/kong
