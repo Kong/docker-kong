@@ -67,8 +67,8 @@ then
   die "Error: missing version"
 fi
 
-#git checkout master
-#git pull
+git checkout master
+git pull
 
 if ! grep -q "$version" Dockerfile.apk
 then
