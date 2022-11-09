@@ -84,24 +84,6 @@ new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rpm
 sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
 
-# ubuntu/Dockerfile
-pushd ubuntu
-   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=focal")
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-
-   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
-
-   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=focal")
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-
-   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-popd
-
 # Dockerfile.deb
 url=$(get_url Dockerfile.deb amd64 "CODENAME=bullseye")
 echo $url
