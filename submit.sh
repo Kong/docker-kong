@@ -67,10 +67,10 @@ then
   die "Error: missing version"
 fi
 
-git checkout master
-git pull
+#git checkout master
+#git pull
 
-if ! grep -q "$version" alpine/Dockerfile
+if ! grep -q "$version" Dockerfile.apk
 then
   if [[ "$force" = "yes" ]]
   then
@@ -78,7 +78,7 @@ then
 
     git checkout "$version"
 
-    if ! grep -q "$version$" alpine/Dockerfile
+    if ! grep -q "$version$" Dockerfile.apk
     then
       die "Error: version in build script doesn't match required version."
     fi
