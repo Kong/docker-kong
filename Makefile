@@ -52,6 +52,7 @@ build:
 # (yzl, 14 June 2022) Should you change this substantially, please update build_your_own_images.md.
 build_v2: ASSET_LOCATION?=remote
 build_v2:
+	docker image inspect -f='{{.Id}}' $(DOCKER_TAG) || \
 	docker build \
 		--no-cache \
 		--build-arg ASSET=$(ASSET_LOCATION) \
@@ -71,7 +72,8 @@ test:
 	cd kong-build-tools && git reset --hard $(KONG_BUILD_TOOLS)
 	BASE=$(BASE) ./tests/test.sh --suite "Docker-Kong test suite"
 
-release-rhel: build
+release-rhel: build_v2
+	$(MAKE) PACKAGE=rpm build_v2
 	@if \
 		test -z '$(KONG_VERSION)' || \
 		test -z '$(RHEL_PID)' || \
