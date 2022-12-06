@@ -3,7 +3,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7@sha256:6910799b75ad41f00891
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
-ARG KONG_VERSION=3.0.1
+ARG KONG_VERSION=3.1.0
 ENV KONG_VERSION $KONG_VERSION
 
 # RedHat required labels
@@ -18,7 +18,7 @@ LABEL name="Kong" \
 # RedHat required LICENSE file approved path
 COPY LICENSE /licenses/
 
-ARG KONG_SHA256="ccb185978e994df4c47fa3f5ba10f1820cfa5cfc6b676da98fb920e34b447291"
+ARG KONG_SHA256="535d999021a7f545c3f0626afd538fd68a57af78262f0fa7f0140049c92e0ce9"
 
 ARG ASSET=remote
 ARG EE_PORTS
