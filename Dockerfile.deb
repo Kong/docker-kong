@@ -5,6 +5,9 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_SHA256="5f1298c36791456f6ef67420a4aca391c90ba9051f38caa0d9cfac3c6424d839"
 
+ARG KONG_PREFIX=/usr/local/kong
+ENV KONG_PREFIX $KONG_PREFIX
+
 ARG ASSET=remote
 ARG EE_PORTS
 
@@ -24,7 +27,7 @@ RUN set -ex; \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \
-    && chown -R kong:0 /usr/local/kong \
+    && chown -R kong:0 ${KONG_PREFIX} \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
@@ -42,6 +45,6 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]
