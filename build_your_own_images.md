@@ -2,7 +2,7 @@
 
 Kong Software uses the [docker-kong github
 repository](https://github.com/Kong/docker-kong/) to build Docker images that
-contain the Kong Gateway. We will use  
+contain the Kong Gateway. We will use
 [docker-kong](https://github.com/Kong/docker-kong/) as a reference
 implementation for describing how to build your own Docker images that contain the Kong
 Gateway.
@@ -10,13 +10,13 @@ Gateway.
 We do not provide a Dockerfile with the `FROM` argument parametrized to allow you to use your
 own base image because doing so impedes our ability to get public images
 accepted promptly by Dockerhub. If you wish, you can clone the [docker-kong github
-repository](https://github.com/Kong/docker-kong/) and adjust the Dockerfile for 
-your desired package type to use your desired base image and package version, 
+repository](https://github.com/Kong/docker-kong/) and adjust the Dockerfile for
+your desired package type to use your desired base image and package version,
 then use the `build_v2` target in our `Makefile` to build your image. This
 document instead takes the approach of walking through the contents of the Dockerfiles
-so that you can create and maintain your own.  
+so that you can create and maintain your own.
 
-To build your Docker image, you will need to provide 
+To build your Docker image, you will need to provide
 
 1. A base image of your choice
 1. An entrypoint script that runs the Kong Gateway
@@ -46,7 +46,7 @@ Dockerfile to
 
 If you choose 1 or 2, run the command `touch kong.rpm` in the directory to which
 your Dockerfile will download the file; this guarantees that the downloaded file
-will have the correct user, groups, and permissions. 
+will have the correct user, groups, and permissions.
 
 If you choose 2 or 3, then download the package you wish to install and put it
 in the desired location.
@@ -58,28 +58,28 @@ you need to uncomment lines relevant to your context.
 
 The template is based upon the Dockerfiles in the [docker-kong github
 repository](https://github.com/Kong/docker-kong/) and created manually. Check
-the Dockerfiles for changes. 
+the Dockerfiles for changes.
 
 ```
-FROM <your-base-image> 
+FROM <your-base-image>
 
 ARG KONG_VERSION=<Kong-Gateway-version>=
 ENV KONG_VERSION $KONG_VERSION
 
-# Uncomment the ARG KONG_SHA256 line to build a container using a .deb or .rpm package 
+# Uncomment the ARG KONG_SHA256 line to build a container using a .deb or .rpm package
 # For .deb packages, the SHA is in
-# https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/dists/default/all/binary-amd64/Packages 
-# For .rpm packages, the SHA is in 
-# https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/repodata/<some-sha>-primary.xml.gz 
+# https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/dists/default/all/binary-amd64/Packages
+# For .rpm packages, the SHA is in
+# https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/repodata/<some-sha>-primary.xml.gz
 # ARG KONG_SHA256="<.deb-or.rpm-SHA>"
 
-# Uncomment to build a container using the .apk.tar.gz Kong Gateway package 
+# Uncomment to build a container using the .apk.tar.gz Kong Gateway package
 # For .apk.tar.gz packages, the SHA is in
-# https://download.konghq.com/gateway-<gateway-major-version>-alpine/PULP_MANIFEST 
+# https://download.konghq.com/gateway-<gateway-major-version>-alpine/PULP_MANIFEST
 # ARG KONG_AMD64_SHA="<amd64_sha>"
 # ARG KONG_ARM64_SHA="<arm64_sha>"
 
-# Uncomment to download package from a remote repository 
+# Uncomment to download package from a remote repository
 # ARG ASSET=remote
 
 # Uncomment to install package from local disk
@@ -87,7 +87,7 @@ ENV KONG_VERSION $KONG_VERSION
 
 ARG EE_PORTS
 
-# Uncomment if you are installing a .rpm 
+# Uncomment if you are installing a .rpm
 # COPY kong.rpm /tmp/kong.rpm
 
 # Uncomment if you are installing a .deb
@@ -118,7 +118,7 @@ ARG EE_PORTS
 #     && kong version
 
 # Uncomment the following section if you are installing a .deb
-# Edit the DOWNLOAD_URL line to install from a repository other than 
+# Edit the DOWNLOAD_URL line to install from a repository other than
 # download.konghq.com
 # RUN set -ex; \
 #     apt-get update; \
@@ -143,7 +143,7 @@ ARG EE_PORTS
 #    && apt-get purge curl -y
 
 # Uncomment the following section if you are installing a .apk.tar.gz
-# Edit the DOWNLOAD_URL line to install from a repository other than 
+# Edit the DOWNLOAD_URL line to install from a repository other than
 # download.konghq.com
 # RUN set -ex; \
 #     apk add bash curl ca-certificates; \
@@ -183,7 +183,7 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]
 ```

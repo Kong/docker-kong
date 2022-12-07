@@ -9,6 +9,9 @@ ENV KONG_VERSION $KONG_VERSION
 ARG KONG_AMD64_SHA="1bb302fede6a3081db998e1a6256f9def86f3ea31527888d08b745ff2dbc96f6"
 ARG KONG_ARM64_SHA="001e1be3f8fec9bf50b9313a661ab3f97e1ececcb6debeac50b04adbc346983c"
 
+ARG KONG_PREFIX=/usr/local/kong
+ENV KONG_PREFIX $KONG_PREFIX
+
 ARG ASSET=remote
 ARG EE_PORTS
 
@@ -29,10 +32,10 @@ RUN set -ex; \
     && apk add --no-cache libstdc++ libgcc pcre perl tzdata libcap zlib zlib-dev bash \
     && adduser -S kong \
     && addgroup -S kong \
-    && mkdir -p "/usr/local/kong" \
-    && chown -R kong:0 /usr/local/kong \
+    && mkdir -p "${KONG_PREFIX}" \
+    && chown -R kong:0 ${KONG_PREFIX} \
     && chown kong:0 /usr/local/bin/kong \
-    && chmod -R g=u /usr/local/kong \
+    && chmod -R g=u ${KONG_PREFIX} \
     && rm -rf /tmp/kong.tar.gz \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
@@ -51,6 +54,6 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]
