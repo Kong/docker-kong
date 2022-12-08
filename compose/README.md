@@ -13,13 +13,25 @@ This Docker Compose template provisions a Kong container with a Postgres databas
 To run this template execute:
 
 ```shell
-$ docker-compose up
+$ make kong-postgres
+```
+
+or run kong DB less(Alert: Kong API readonly):
+
+```shell
+$ make kong-dbless
 ```
 
 To scale Kong (ie, to three instances) execute:
 
 ```shell
 $ docker-compose scale kong=3
+```
+
+Clean:
+
+```shell
+$ make clean
 ```
 
 Kong will be available through the `nginx-lb` instance on port `8000`, and `8001`. You can customize the template with your own environment variables or datastore configuration.
