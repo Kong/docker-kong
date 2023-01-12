@@ -44,6 +44,13 @@ if [[ "$1" == "kong" ]]; then
   if [[ "$2" == "docker-start" ]]; then
     kong prepare -p "$PREFIX" "$@"
 
+    # remove all dangling sockets in $PREFIX dir before starting Kong
+    for localfile in "$PREFIX"/*; do
+      if [ -S $localfile ]; then
+        rm -f $localfile
+      fi
+    done
+
     ln -sf /dev/stdout $PREFIX/logs/access.log
     ln -sf /dev/stdout $PREFIX/logs/admin_access.log
     ln -sf /dev/stderr $PREFIX/logs/error.log
