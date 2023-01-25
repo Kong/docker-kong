@@ -92,13 +92,13 @@ pushd ubuntu
 
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
 
-#   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=focal")
-#   echo $url
-#   curl -fL $url -o /tmp/kong
-#   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=focal")
+   echo $url
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-#   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-#   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
 # Dockerfile.deb
