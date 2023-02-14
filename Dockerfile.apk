@@ -18,7 +18,7 @@ ARG EE_PORTS
 COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
 
 RUN set -ex; \
-    apk add --virtual .build-deps curl tar gzip ca-certificates; \
+    apk add curl tar gzip ca-certificates; \
     arch="$(apk --print-arch)"; \
     case "${arch}" in \
       x86_64) export ARCH='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
@@ -29,7 +29,7 @@ RUN set -ex; \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
     fi \
     && tar -C / -xzf /tmp/kong.apk.tar.gz \
-    && apk add --no-cache libstdc++ libgcc pcre perl tzdata libcap zlib zlib-dev bash \
+    && apk add --no-cache libstdc++ libgcc perl tzdata libcap zlib zlib-dev bash \
     && adduser -S kong \
     && addgroup -S kong \
     && mkdir -p "${KONG_PREFIX}" \
@@ -41,7 +41,6 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && apk del .build-deps \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
