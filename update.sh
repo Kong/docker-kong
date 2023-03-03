@@ -57,9 +57,6 @@ fi
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-#   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
-#   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-   
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
 
@@ -68,8 +65,6 @@ fi
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-#   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-#   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
    
    sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
