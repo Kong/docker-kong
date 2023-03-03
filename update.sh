@@ -60,14 +60,15 @@ fi
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
 
-   url=$(get_url Dockerfile.apk arm64)
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-   
-   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
+   # Note: Our Bazel-based build currently (3.2.x) does not support Alpine arm64 builds
+   # url=$(get_url Dockerfile.apk arm64)
+   # echo $url
+   # curl -fL $url -o /tmp/kong
+   # new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   # sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
+   # sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
 #popd
 
 # Dockerfile.deb
