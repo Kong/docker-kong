@@ -41,8 +41,11 @@ RUN set -ex; \
     && apt install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
-    && chown kong:0 /usr/local/bin/kong \
-    && chown -R kong:0 /usr/local/kong \
+    && chown -R root:kong /usr/local/kong \
+    && chown -R root:kong /usr/local/lib/lua \
+    && chown -R root:kong /usr/local/lib/luarocks \
+    && chown -R root:kong /usr/local/share/lua \
+    && chown root:kong /usr/local/bin/kong \
     && ln -sf /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
