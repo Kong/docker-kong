@@ -56,6 +56,7 @@ RUN set -ex; \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    && ln -sf /usr/local/lib/luarocks/*/luarocks/*/bin/luarocks-admin /usr/local/bin/luarocks-admin \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
