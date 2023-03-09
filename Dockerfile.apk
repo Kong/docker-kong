@@ -6,7 +6,7 @@ LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot
 ARG KONG_VERSION=3.2.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_AMD64_SHA="bf9a3d6b9b7fce1abfb1119e653e1609524a93ab34fc96af1f9b7428dac1ddf0"
+ARG KONG_SHA256="bf9a3d6b9b7fce1abfb1119e653e1609524a93ab34fc96af1f9b7428dac1ddf0"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
@@ -19,7 +19,6 @@ COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
 RUN set -ex; \
     apk add curl tar gzip ca-certificates; \
     export ARCH='amd64'; \
-    KONG_SHA256=$KONG_AMD64_SHA ; \
     if [ "$ASSET" = "remote" ] ; then \
       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-${KONG_VERSION}.${ARCH}.apk.tar.gz" -o /tmp/kong.apk.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
