@@ -37,7 +37,6 @@ RUN set -ex; \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-    && apk del .build-deps \
     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
