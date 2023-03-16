@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
@@ -9,11 +9,11 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=3.1.1
+ARG KONG_VERSION=3.2.2
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_AMD64_SHA="39bbefa14d348dedf7734c742da46acf7777ff0018f2cad7961799ba4663277b"
-ARG KONG_ARM64_SHA="ff2f7b5d0dc3bd97e08fe4254400daf8a7d23f6ef2e72d9cec7c14e64bbc38b3"
+ARG KONG_AMD64_SHA="bfb905c69950386397e8a975358324ec3e2c8fd6dd0425e4a5c2a4c80add4540"
+ARG KONG_ARM64_SHA="676335fefeb77eff168b27161678615575f3d573a62b19a5a86a5c8bba2c492a"
 
 # hadolint ignore=DL3015
 RUN set -ex; \
