@@ -328,7 +328,9 @@ end
 
 
 header("Write new entry-point script")
-assert(exec("mv /docker-entrypoint.sh /old-entrypoint.sh"))
+exec("mv /docker-entrypoint.sh /old-entrypoint.sh"). -- for old version
+exec("mv /entrypoint.sh /old-entrypoint.sh") -- for new version
+assert(exec("ls /old-entrypoint.sh"))
 local entrypoint = [=[
 #!/bin/sh
 set -e
