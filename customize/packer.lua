@@ -338,7 +338,6 @@ then
 else
     assert(exec("mv /entrypoint.sh /old-entrypoint.sh")) -- for new version
 end
-assert(exec("ls /old-entrypoint.sh"))
 local entrypoint = [=[
 #!/bin/sh
 set -e
