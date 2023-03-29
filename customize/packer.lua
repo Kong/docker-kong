@@ -116,6 +116,10 @@ local function prep_platform()
   stderr("WARNING: no platform match!")
 end
 
+local function file_exists(name)
+   local f = io.open(name, "r")
+   return f ~= nil and io.close(f)
+end
 
 local function is_empty_file(filename)
   local t = readfile(filename)
@@ -328,8 +332,12 @@ end
 
 
 header("Write new entry-point script")
-exec("mv /docker-entrypoint.sh /old-entrypoint.sh"). -- for old version
-exec("mv /entrypoint.sh /old-entrypoint.sh") -- for new version
+if file_exists("/docker-entrypoint.sh")
+then
+    assert(exec("mv /docker-entrypoint.sh /old-entrypoint.sh")) -- for old version
+else
+    assert(exec("mv /entrypoint.sh /old-entrypoint.sh")) -- for new version
+end
 assert(exec("ls /old-entrypoint.sh"))
 local entrypoint = [=[
 #!/bin/sh
