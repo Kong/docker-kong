@@ -39,7 +39,7 @@ file. Its format is further described [here][kong-docs-dbless-file].
 You can also run Kong with a backing Postgres database:
 
 ```shell
-$ KONG_DATABASE=postgres docker compose --profile database up -d
+$ KONG_DATABASE=postgres docker-compose --profile database up -d
 
 ```
 
