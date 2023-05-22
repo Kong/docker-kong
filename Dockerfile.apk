@@ -1,5 +1,5 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM alpine:3.17
+FROM alpine:3.18
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
