@@ -57,22 +57,18 @@ fi
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-#   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
-#   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-   
+
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
 
-   url=$(get_url Dockerfile.apk arm64)
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+   # Note: Our Bazel-based build currently (3.2.x) does not support Alpine arm64 builds
+   # url=$(get_url Dockerfile.apk arm64)
+   # echo $url
+   # curl -fL $url -o /tmp/kong
+   # new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
-#   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-#   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-   
-   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
+   # sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
+   # sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
 #popd
 
 # Dockerfile.deb
@@ -85,14 +81,14 @@ sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rp
 sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
 
 pushd ubuntu
-   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=focal")
+   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=jammy")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
 
-   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=focal")
+   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=jammy")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
