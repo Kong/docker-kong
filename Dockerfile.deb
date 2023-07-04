@@ -1,5 +1,5 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM debian:bullseye-20230502-slim
+FROM debian:bullseye-20230703-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
