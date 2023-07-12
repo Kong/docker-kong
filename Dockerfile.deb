@@ -1,5 +1,5 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM kong/kong:3.3.0-ubuntu@sha256:b476a8eacb0025fea9b7d3220990eb9b785c2ff24ef5f84f8bb2c0fbcb17254d
+FROM kong/kong:20230706-2-ubuntu@sha256:f98b7195e272da02b023a2a120ece74369e2d5464fd5a8a6b5d58efbc35f9c35
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
