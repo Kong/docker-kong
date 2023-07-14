@@ -25,23 +25,86 @@ function die() {
    exit 1
 }
 
-# get digest of a docker image
-function update_docker_image_sha() {
-   docker_file=$1
-   tag=$2
-   docker pull -q "$tag"
-   # outputs kong/kong:3.3.0-ubuntu@sha256:b476a8eacb0025fea9b7d3220990eb9b785c2ff24ef5f84f8bb2c0fbcb17254d
-   tag_with_sha256=$(docker inspect --format='{{index .RepoTags 0}}@sha256:{{ index (split (index .RepoDigests 0) ":" ) 1}}' "$tag")
+# get kong url from dockerfile
+# and fill it up with needed args
+function get_url() {
+  dockerfile=$1
+  arch=$2
+  args=$3
 
-   sed -i -e "s!FROM .*!FROM $tag_with_sha256!" "$docker_file"
+  eval $args
+
+  raw_url=$(egrep -o 'https?://download.konghq.com/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
+
+  # set variables contained in raw url
+  KONG_VERSION=$version
+  ARCH=$arch
+
+  eval echo $raw_url
 }
 
 
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-update_docker_image_sha Dockerfile.deb kong/kong:$version-ubuntu
-update_docker_image_sha Dockerfile.apk kong/kong:$version-alpine
+#kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+kbt_in_kong_v=4.33.19
+if [[ -n "$kbt_in_kong_v" ]]; then
+  sed -i.bak 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
+fi
 
+#pushd alpine
+   url=$(get_url Dockerfile.apk amd64)
+   echo $url
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
+
+   # Note: Our Bazel-based build currently (3.2.x) does not support Alpine arm64 builds
+   # url=$(get_url Dockerfile.apk arm64)
+   # echo $url
+   # curl -fL $url -o /tmp/kong
+   # new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   # sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile.apk
+   # sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.apk
+#popd
+
+# Dockerfile.deb
+url=$(get_url Dockerfile.rpm amd64 "VERSION=8")
+echo $url
+curl -fL $url -o /tmp/kong
+new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rpm
+sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
+
+pushd ubuntu
+   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=jammy")
+   echo $url
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
+
+   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=jammy")
+   echo $url
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+popd
+
+# Dockerfile.deb
+url=$(get_url Dockerfile.deb amd64 "CODENAME=bullseye")
+echo $url
+curl -fL $url -o /tmp/kong
+new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.deb
+sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.deb
 
 echo "****************************************"
 git diff

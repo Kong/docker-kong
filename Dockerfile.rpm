@@ -1,21 +1,68 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM kong/kong:3.3.0-rhel@sha256:f606d839f607634f89adbcd8d701912c8a0b7195dd60940a03b70bfb59e90d11
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7@sha256:6910799b75ad41f00891978575a0d955be2f800c51b955af73926e7ab59a41c3
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
 ARG KONG_VERSION=3.3.0
 ENV KONG_VERSION $KONG_VERSION
 
+# RedHat required labels
+LABEL name="Kong" \
+      vendor="Kong" \
+      version="$KONG_VERSION" \
+      release="1" \
+      url="https://konghq.com" \
+      summary="Next-Generation API Platform for Modern Architectures" \
+      description="Next-Generation API Platform for Modern Architectures"
+
+# RedHat required LICENSE file approved path
+COPY LICENSE /licenses/
+
+ARG KONG_SHA256="d5aef8421e962b97bb734bacb443ddf40733acfad61bf3cf97611619c348b2f6"
+
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
 
+ARG ASSET=remote
 ARG EE_PORTS
 
-RUN kong version
+COPY kong.rpm /tmp/kong.rpm
+
+# hadolint ignore=DL3015
+RUN set -ex; \
+    if [ "$ASSET" = "remote" ] ; then \
+      DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-8/Packages/k/kong-$KONG_VERSION.rhel8.amd64.rpm" \
+      && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
+      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
+      || exit 1; \
+    fi \
+    # findutils provides xargs (temporarily)
+    && microdnf install --assumeyes --nodocs \
+      findutils \
+      shadow-utils \
+      unzip \
+    && rpm -qpR /tmp/kong.rpm \
+      | grep -v rpmlib \
+      | xargs -n1 -t microdnf install --assumeyes --nodocs \
+    # Please update the rhel install docs if the below line is changed so that
+    # end users can properly install Kong along with its required dependencies
+    # and that our CI does not diverge from our docs.
+    && rpm -iv /tmp/kong.rpm \
+    && microdnf -y clean all \
+    && rm /tmp/kong.rpm \
+    && chown kong:0 /usr/local/bin/kong \
+    && chown -R kong:0 ${KONG_PREFIX} \
+    && ln -sf /usr/local/openresty/bin/resty /usr/local/bin/resty \
+    && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
+    && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
+    && ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    && kong version
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 USER kong
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8000 8443 8001 8444 $EE_PORTS
 

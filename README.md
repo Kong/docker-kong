@@ -9,10 +9,6 @@ See [the Docker Hub page](https://registry.hub.docker.com/_/kong/)
 for the full readme on how to use this Docker image and for information
 regarding contributing and issues.
 
-For nightly and release Docker images built by Kong and to build your own docker images from packages,
-use [Kong dockerfiles](https://github.com/Kong/kong/tree/master/build/dockerfiles), and [kong/kong]
-(https://registry.hub.docker.com/r/kong/kong) from Dockerhub.
-
 The full readme is generated over in [docker-library/docs](https://github.com/docker-library/docs),
 specifically in [docker-library/docs/kong](https://github.com/docker-library/docs/tree/master/kong).
 
