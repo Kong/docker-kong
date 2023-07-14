@@ -8,7 +8,6 @@ BASE?=alpine
 DOCKER_TAG_PREFIX?=kong
 
 KONG_VERSION?=
-KONG_SHA256?=
 
 # these two flags cannot be specified in this makefile <at all> if the default
 # values from the Dockerfiles are desired
@@ -21,11 +20,6 @@ else
 KONG_VERSION_FLAG:=--build-arg KONG_VERSION=$(KONG_VERSION)
 endif
 
-ifeq ($(strip $(KONG_SHA256)),)
-KONG_SHA256_FLAG:=
-else
-KONG_SHA256_FLAG:=--build-arg KONG_SHA256=$(KONG_SHA256)
-endif
 
 RHEL_REGISTRY_KEY?=
 RHEL_REGISTRY?=scan.connect.redhat.com
@@ -39,25 +33,19 @@ else
 	DOCKER_TAG?=$(DOCKER_TAG_PREFIX)-$(BASE)
 endif
 
-build: ASSET_LOCATION?=ce
 build:
 	docker build \
 		--no-cache \
-		--build-arg ASSET=$(ASSET_LOCATION) \
 		$(KONG_VERSION_FLAG) \
-		$(KONG_SHA256_FLAG) \
 		-t $(DOCKER_TAG) \
 		$(BASE)/
 
 # (yzl, 14 June 2022) Should you change this substantially, please update build_your_own_images.md.
-build_v2: ASSET_LOCATION?=remote
 build_v2:
 	docker image inspect -f='{{.Id}}' $(DOCKER_TAG) || \
 	docker build \
 		--no-cache \
-		--build-arg ASSET=$(ASSET_LOCATION) \
 		$(KONG_VERSION_FLAG) \
-		$(KONG_SHA256_FLAG) \
 		-t $(DOCKER_TAG) \
 		-f Dockerfile.$(PACKAGE) \
 		.
