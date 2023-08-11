@@ -47,16 +47,6 @@ end
 
 local platforms = {
   {
-    check = "apk -V",         -- check for alpine
-    commands = {              -- run before anything else in build container
-      "apk update",
-      "apk add git",
-      "apk add wget",
-      "apk add zip",
-      "apk add gcc",
-      "apk add musl-dev",
-    },
-  }, {
     check = "yum --version",  -- check for rhel
     commands = {              -- run before anything else in build container
       "yum -y install git",

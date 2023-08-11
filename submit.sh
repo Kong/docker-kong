@@ -70,7 +70,7 @@ fi
 git checkout master
 git pull
 
-if ! grep -q "$version" Dockerfile.apk
+if ! grep -q "$version" Dockerfile.deb
 then
   if [[ "$force" = "yes" ]]
   then
@@ -78,7 +78,7 @@ then
 
     git checkout "$version"
 
-    if ! grep -q "$version$" Dockerfile.apk
+    if ! grep -q "$version$" Dockerfile.deb
     then
       die "Error: version in build script doesn't match required version."
     fi
@@ -130,8 +130,7 @@ git checkout -b release/$version
 
 if [ "$mode" = "patch" ]
 then
-  sed "s|$prev-alpine|$version-alpine|;
-       s|$prev-ubuntu|$version-ubuntu|;
+  sed "s|$prev-ubuntu|$version-ubuntu|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
        s|refs/tags/$prev|refs/tags/$version|" library/kong > library/kong.new
@@ -139,8 +138,7 @@ then
 
 elif [ "$mode" = "rc" -a "$rc" -gt 1 ]
 then
-  sed "s|$prev-alpine|$version-alpine|;
-       s|$prev-ubuntu|$version-ubuntu|;
+  sed "s|$prev-ubuntu|$version-ubuntu|;
        s|, ${xy}rc$[rc-1]|, ${xy}rc${rc}|;
        s|$prev,|$version,|;
        s|$prevcommit|$commit|;
@@ -165,12 +163,6 @@ then
         v = "'$version'"
         xy = "'$xy'"
         commit = "'$commit'"
-        print "Tags: " v "-alpine, " v ", " xy ", alpine"
-        print "GitCommit: " commit
-        print "GitFetch: refs/tags/" v
-        print "Directory: alpine"
-        print "Architectures: amd64"
-        print ""
         print "Tags: " v "-ubuntu"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
@@ -211,12 +203,6 @@ then
         v = "'$version'"
         xy = "'$xy'"
         commit = "'$commit'"
-        print "Tags: " v "-alpine, " v ", " xy ", alpine, latest"
-        print "GitCommit: " commit
-        print "GitFetch: refs/tags/" v
-        print "Directory: alpine"
-        print "Architectures: amd64, arm64v8"
-        print ""
         print "Tags: " v "-ubuntu, " xy "-ubuntu, ubuntu"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
@@ -227,7 +213,6 @@ then
       }
       if (!(in_rc_tag == 1)) {
         gsub(", latest", "")
-        gsub(", alpine", "")
         gsub(", ubuntu", "")
         print
       }

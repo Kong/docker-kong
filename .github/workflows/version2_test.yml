@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        package: [apk, deb, rpm]
+        package: [deb, rpm]
 
     env:
       BASE: ${{ matrix.package }}

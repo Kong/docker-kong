@@ -5,7 +5,7 @@ and/or a custom template file to it.
 
 ```
 docker build \
-   --build-arg KONG_BASE="kong:0.14.1-alpine" \
+   --build-arg KONG_BASE="kong:0.14.1-ubuntu" \
    --build-arg PLUGINS="kong-http-to-https,kong-upstream-jwt" \
    --build-arg TEMPLATE="/mykong/nginx.conf" \
    --build-arg "KONG_LICENSE_DATA=$KONG_LICENSE_DATA" \

@@ -2,8 +2,8 @@
 # to ensure same version is used here and in the respective kong version
 KONG_BUILD_TOOLS?=4.33.19
 
-PACKAGE?=apk
-BASE?=alpine
+PACKAGE?=deb
+BASE?=ubuntu
 
 DOCKER_TAG_PREFIX?=kong
 
