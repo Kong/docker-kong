@@ -15,9 +15,11 @@ COPY kong.rpm /tmp/kong.rpm
 
 # hadolint ignore=DL3015
 RUN set -ex; \
+    arch='x86_64'; \
+    major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     if [ "$ASSET" = "remote" ] ; then \
       VERSION=$(grep '^VERSION_ID' /etc/os-release | cut -d = -f 2 | sed -e 's/^"//' -e 's/"$//' | cut -d . -f 1) \
-      && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$VERSION/Packages/k/kong-$KONG_VERSION.rhel$VERSION.amd64.rpm" \
+      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/8/${arch}/kong-${KONG_VERSION}-1.${arch}.rpm" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     fi \
