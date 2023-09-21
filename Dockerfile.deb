@@ -26,7 +26,7 @@ RUN set -ex; \
     fi \
     && echo "older deb systems don't support zstd compression" \
     && echo "repack using xz compression instead" \
-    && ar -v x /tmp/kong.deb \
+    && ar x /tmp/kong.deb \
     && zstd -d < control.tar.zst | xz > control.tar.xz \
     && zstd -d < data.tar.zst | xz > data.tar.xz \
     && ar -m -c -a sdsd /tmp/kong-repack.deb debian-binary control.tar.xz data.tar.xz \
