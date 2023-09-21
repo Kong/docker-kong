@@ -24,18 +24,20 @@ RUN set -ex; \
       && curl -fL "$DOWNLOAD_URL" -o /tmp/kong.deb \
       && echo "${KONG_SHA256}  /tmp/kong.deb" | sha256sum -c -; \
     fi \
-    && echo "older deb systems don't support zstd compression" \
-    && echo "repack using xz compression instead" \
-    && ar x /tmp/kong.deb \
-    && zstd -d < control.tar.zst | xz > control.tar.xz \
-    && zstd -d < data.tar.zst | xz > data.tar.xz \
-    && ar -m -c -a sdsd /tmp/kong-repack.deb debian-binary control.tar.xz data.tar.xz \
-    && rm debian-binary control.tar.xz data.tar.xz control.tar.zst data.tar.zst \
-    && apt-get update \
-    && apt-get install --yes /tmp/kong-repack.deb \
+    && if grep -E -qs 'buster|bullseye|xenial|bionic' /etc/os-release ; then \
+      echo "older deb systems don't support zstd compression"; \
+      echo "repack using xz compression instead" \
+      && ar -x /tmp/kong.deb \
+      && zstd -d < control.tar.zst | xz > control.tar.xz \
+      && zstd -d < data.tar.zst | xz > data.tar.xz \
+      && ar -m -c -a sdsd /tmp/kong-repack.deb debian-binary control.tar.xz data.tar.xz \
+      && rm debian-binary control.tar.xz data.tar.xz control.tar.zst data.tar.zst \
+      && apt-get install --yes /tmp/kong-repack.deb; \
+    else \
+      apt-get install --yes /tmp/kong.deb; \
+    fi \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/kong.deb \
-    && rm -rf /tmp/kong-repack.deb \
+    && rm -rf /tmp/*.deb \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 ${KONG_PREFIX} \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
