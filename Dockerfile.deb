@@ -17,27 +17,17 @@ RUN set -ex; \
     arch="$(dpkg --print-architecture)"; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     apt-get update; \
-    apt-get install -y curl zstd xz-utils binutils; \
+    apt-get install -y curl; \
     if [ "$ASSET" = "remote" ] ; then \
       CODENAME=$(grep VERSION_CODENAME /etc/os-release | cut -d'=' -f2) \
       && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/deb/debian/pool/${CODENAME}/main/k/ko/kong_${KONG_VERSION}/kong_${KONG_VERSION}_$arch.deb" \
       && curl -fL "$DOWNLOAD_URL" -o /tmp/kong.deb \
       && echo "${KONG_SHA256}  /tmp/kong.deb" | sha256sum -c -; \
     fi \
-    && if grep -E -qs 'buster|bullseye|xenial|bionic' /etc/os-release ; then \
-      echo "older deb systems don't support zstd compression"; \
-      echo "repack using xz compression instead" \
-      && ar -x /tmp/kong.deb \
-      && zstd -d < control.tar.zst | xz > control.tar.xz \
-      && zstd -d < data.tar.zst | xz > data.tar.xz \
-      && ar -m -c -a sdsd /tmp/kong-repack.deb debian-binary control.tar.xz data.tar.xz \
-      && rm debian-binary control.* data.* \
-      && apt-get install --yes /tmp/kong-repack.deb; \
-    else \
-      apt-get install --yes /tmp/kong.deb; \
-    fi \
+    && apt-get update \
+    && apt-get install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/*.deb \
+    && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 ${KONG_PREFIX} \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
@@ -45,7 +35,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
     && kong version \
-    && apt-get purge curl zstd xz-utils binutils -y
+    && apt-get purge curl -y
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
