@@ -31,8 +31,8 @@ RUN set -eux; \
     else \
       # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apk upgrade; \
-    fi; \
-    mkdir /kong \
+    fi \
+    && mkdir /kong \
     && tar -C /kong -xzf /tmp/kong.tar.gz \
     && mv /kong/usr/local/* /usr/local \
     && mv /kong/etc/* /etc \

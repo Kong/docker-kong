@@ -30,8 +30,8 @@ RUN set -ex; \
     else \
       # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apt-get upgrade -y ; \
-    fi; \
-    apt-get install -y --no-install-recommends unzip git \
+    fi \
+    && apt-get install -y --no-install-recommends unzip git \
     # Please update the ubuntu install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
     # and that our CI does not diverge from our docs.
