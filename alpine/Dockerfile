@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.18
 
 LABEL maintainer="Kong <support@konghq.com>"
 
