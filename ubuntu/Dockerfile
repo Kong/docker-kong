@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:jammy
 
 ARG ASSET=ce
 ENV ASSET $ASSET
