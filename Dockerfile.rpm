@@ -19,14 +19,14 @@ RUN set -ex; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     if [ "$ASSET" = "remote" ] ; then \
       VERSION=$(grep '^VERSION_ID' /etc/os-release | cut -d = -f 2 | sed -e 's/^"//' -e 's/"$//' | cut -d . -f 1) \
-      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/8/${arch}/kong-${KONG_VERSION}-1.${arch}.rpm" \
-      && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
-      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+      DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/8/${arch}/kong-${KONG_VERSION}-1.${arch}.rpm"; \
+      curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
+      && echo "${KONG_SHA256}  /tmp/kong.rpm" | sha256sum -c -; \
     fi \
     && yum install -y /tmp/kong.rpm \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
-    && chown -R kong:0 ${KONG_PREFIX} \
+    && chown -R kong:0 "$KONG_PREFIX" \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \

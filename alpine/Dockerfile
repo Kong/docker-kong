@@ -20,8 +20,8 @@ ARG KONG_ARM64_SHA="f6c90eb9b126e049859f037e81f070f4116ac701c4e4b9ad2d1ec574fbe4
 RUN set -eux; \
     arch="$(apk --print-arch)"; \
     case "${arch}" in \
-      x86_64) arch='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
-      aarch64) arch='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
+      x86_64) KONG_SHA256=$KONG_AMD64_SHA ;; \
+      aarch64) KONG_SHA256=$KONG_ARM64_SHA ;; \
     esac; \
     if [ "$ASSET" = "ce" ] ; then \
       apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \

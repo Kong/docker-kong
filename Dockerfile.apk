@@ -18,8 +18,8 @@ RUN set -ex; \
     arch="$(apk --print-arch)"; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     case "${arch}" in \
-      x86_64) export ARCH='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
-      aarch64) export ARCH='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
+      x86_64) KONG_SHA256=$KONG_AMD64_SHA ;; \
+      aarch64) KONG_SHA256=$KONG_ARM64_SHA ;; \
     esac; \
     apk add bash curl ca-certificates; \
     if [ "$ASSET" = "remote" ] ; then \
