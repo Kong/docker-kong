@@ -1,6 +1,7 @@
 version: '3.9'
 
-x-kong-config: &kong-env
+x-kong-config:
+  &kong-env
   KONG_DATABASE: ${KONG_DATABASE:-off}
   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
   KONG_PG_HOST: db
@@ -11,12 +12,12 @@ volumes:
   kong_data: {}
   kong_prefix_vol:
     driver_opts:
-     type: tmpfs
-     device: tmpfs
+      type: tmpfs
+      device: tmpfs
   kong_tmp_vol:
     driver_opts:
-     type: tmpfs
-     device: tmpfs
+      type: tmpfs
+      device: tmpfs
 
 networks:
   kong-net:
@@ -26,7 +27,7 @@ services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
-    profiles: ["database"]
+    profiles: [ "database" ]
     depends_on:
       - db
     environment:
@@ -40,7 +41,7 @@ services:
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations up && kong migrations finish
-    profiles: ["database"]
+    profiles: [ "database" ]
     depends_on:
       - db
     environment:
@@ -83,7 +84,7 @@ services:
       - "127.0.0.1:8444:8444/tcp"
       - "127.0.0.1:8002:8002/tcp"
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: [ "CMD", "kong", "health" ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -98,7 +99,7 @@ services:
 
   db:
     image: postgres:9.5
-    profiles: ["database"]
+    profiles: [ "database" ]
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -106,7 +107,15 @@ services:
     secrets:
       - kong_postgres_password
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-d",
+          "${KONG_PG_DATABASE:-kong}",
+          "-U",
+          "${KONG_PG_USER:-kong}"
+        ]
       interval: 30s
       timeout: 30s
       retries: 3
