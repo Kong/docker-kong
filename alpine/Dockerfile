@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.18
 
 LABEL maintainer="Kong <support@konghq.com>"
 
@@ -10,29 +10,30 @@ ARG EE_PORTS
 # hadolint ignore=DL3010
 COPY kong.tar.gz /tmp/kong.tar.gz
 
-ARG KONG_VERSION=2.8.3
+ARG KONG_VERSION=2.8.4
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_AMD64_SHA="46e8ccd60fdcfb44a02b7ff9cfc79b701bf1275ec6ba88138d98317509c682fa"
-ARG KONG_ARM64_SHA="f6c90eb9b126e049859f037e81f070f4116ac701c4e4b9ad2d1ec574fbe44bb3"
+ARG KONG_AMD64_SHA="930b3b933b6c3f0393700433a919745900485d19e0cd8aba2d70aa066ccd10d2"
+ARG KONG_ARM64_SHA="9027da2a4df477b462f34da9450412012ffdc0f9019e33ed7ff8e88f3df062c6"
 
 # hadolint ignore=DL3018
 RUN set -eux; \
     arch="$(apk --print-arch)"; \
+    major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     case "${arch}" in \
-      x86_64) arch='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
-      aarch64) arch='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
+      x86_64) KONG_SHA256=$KONG_AMD64_SHA ;; \
+      aarch64) KONG_SHA256=$KONG_ARM64_SHA ;; \
     esac; \
     if [ "$ASSET" = "ce" ] ; then \
       apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \
-      && curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz \
+      && curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/raw/names/kong-${arch}/versions/${KONG_VERSION}/kong-${KONG_VERSION}.${arch}.apk.tar.gz" -o /tmp/kong.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c - \
       && apk del .build-deps; \
     else \
       # this needs to stay inside this "else" block so that it does not become part of the "official images" builds (https://github.com/docker-library/official-images/pull/11532#issuecomment-996219700)
       apk upgrade; \
-    fi; \
-    mkdir /kong \
+    fi \
+    && mkdir /kong \
     && tar -C /kong -xzf /tmp/kong.tar.gz \
     && mv /kong/usr/local/* /usr/local \
     && mv /kong/etc/* /etc \
@@ -63,6 +64,6 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]

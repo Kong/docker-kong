@@ -1,9 +1,9 @@
 FROM debian:bullseye-slim
 
-ARG KONG_VERSION=2.8.3
+ARG KONG_VERSION=2.8.4
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="5f1298c36791456f6ef67420a4aca391c90ba9051f38caa0d9cfac3c6424d839"
+ARG KONG_SHA256="28f7f215a097612f35d3ae86d35c3fbb24a1454a7529f500e2341d5764a5d8a5"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
@@ -17,27 +17,17 @@ RUN set -ex; \
     arch="$(dpkg --print-architecture)"; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     apt-get update; \
-    apt-get install -y curl zstd xz-utils binutils; \
+    apt-get install -y curl; \
     if [ "$ASSET" = "remote" ] ; then \
-      CODENAME=$(grep VERSION_CODENAME /etc/os-release | cut -d'=' -f2) \
-      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/deb/debian/pool/${CODENAME}/main/k/ko/kong_${KONG_VERSION}/kong_${KONG_VERSION}_$arch.deb" \
-      && curl -fL "$DOWNLOAD_URL" -o /tmp/kong.deb \
+      CODENAME=$(grep -m1 VERSION_CODENAME /etc/os-release | cut -d = -f 2); \
+      DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/deb/debian/pool/${CODENAME}/main/k/ko/kong_${KONG_VERSION}/kong_${KONG_VERSION}_${arch}.deb"; \
+      curl -fL "$DOWNLOAD_URL" -o /tmp/kong.deb \
       && echo "${KONG_SHA256}  /tmp/kong.deb" | sha256sum -c -; \
     fi \
-    && if grep -E -qs 'buster|bullseye|xenial|bionic' /etc/os-release ; then \
-      echo "older deb systems don't support zstd compression"; \
-      echo "repack using xz compression instead" \
-      && ar -x /tmp/kong.deb \
-      && zstd -d < control.tar.zst | xz > control.tar.xz \
-      && zstd -d < data.tar.zst | xz > data.tar.xz \
-      && ar -m -c -a sdsd /tmp/kong-repack.deb debian-binary control.tar.xz data.tar.xz \
-      && rm debian-binary control.* data.* \
-      && apt-get install --yes /tmp/kong-repack.deb; \
-    else \
-      apt-get install --yes /tmp/kong.deb; \
-    fi \
+    && apt-get update \
+    && apt-get install --yes /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/*.deb \
+    && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 ${KONG_PREFIX} \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
@@ -45,7 +35,7 @@ RUN set -ex; \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
     && kong version \
-    && apt-get purge curl zstd xz-utils binutils -y
+    && apt-get purge curl -y
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
@@ -57,6 +47,6 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong-health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]

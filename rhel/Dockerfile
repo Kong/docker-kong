@@ -4,10 +4,10 @@ FROM registry.access.redhat.com/ubi${RHEL_VERSION}/ubi
 
 MAINTAINER Kong
 
-ARG KONG_VERSION=2.8.3
+ARG KONG_VERSION=2.8.4
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="ca4e0f5a91a8bd1f5dc82cc9ac0583f2a83c07f23c1a0e7a4788d15a9e23a1c7"
+ARG KONG_SHA256="cad72db4b24884800043758821408cfb594f89936d5ec03908da7bc01680cc66"
 
 LABEL name="Kong" \
       vendor="Kong" \
@@ -30,14 +30,16 @@ ARG RHEL_VERSION
 ENV RHEL_VERSION $RHEL_VERSION
 
 RUN set -ex; \
+    arch='x86_64'; \
+    major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$RHEL_VERSION/Packages/k/kong-$KONG_VERSION.rhel${RHEL_VERSION}.amd64.rpm" -o /tmp/kong.rpm \
+      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/${RHEL_VERSION}/${arch}/kong-${KONG_VERSION}.el${RHEL_VERSION}.${arch}.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     else \
       yum update -y \
       && yum upgrade -y ; \
-    fi; \
-    yum install -y -q unzip shadow-utils \
+    fi \
+    && yum install -y -q unzip shadow-utils \
     && yum clean all -q \
     && rm -fr /var/cache/yum/* /tmp/yum_save*.yumtx /root/.pki \
     # Please update the rhel install docs if the below line is changed so that
@@ -66,6 +68,6 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD kong health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]

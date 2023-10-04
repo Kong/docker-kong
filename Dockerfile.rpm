@@ -1,9 +1,9 @@
 FROM redhat/ubi8
 
-ARG KONG_VERSION=2.8.3
+ARG KONG_VERSION=2.8.4
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="1f67d6c35a359608505b7a65f4bd9f5b459d28a8bc2ca1c70f101fe78c331139"
+ARG KONG_SHA256="5d3e2712dd4d6b2b3adbe9bafdadd1f15f1f9c89256f9c24d339e4f44f9cc94d"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
@@ -18,15 +18,14 @@ RUN set -ex; \
     arch='x86_64'; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     if [ "$ASSET" = "remote" ] ; then \
-      VERSION=$(grep '^VERSION_ID' /etc/os-release | cut -d = -f 2 | sed -e 's/^"//' -e 's/"$//' | cut -d . -f 1) \
-      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/8/${arch}/kong-${KONG_VERSION}-1.${arch}.rpm" \
-      && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
-      && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
+      DOWNLOAD_URL="https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/8/${arch}/kong-${KONG_VERSION}.el8.${arch}.rpm"; \
+      curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
+      && echo "${KONG_SHA256}  /tmp/kong.rpm" | sha256sum -c -; \
     fi \
     && yum install -y /tmp/kong.rpm \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
-    && chown -R kong:0 ${KONG_PREFIX} \
+    && chown -R kong:0 "$KONG_PREFIX" \
     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
@@ -43,6 +42,6 @@ EXPOSE 8000 8443 8001 8444 $EE_PORTS
 
 STOPSIGNAL SIGQUIT
 
-HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong-health
+HEALTHCHECK --interval=60s --timeout=10s --retries=10 CMD kong health
 
 CMD ["kong", "docker-start"]
