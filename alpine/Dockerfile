@@ -19,13 +19,14 @@ ARG KONG_ARM64_SHA="f6c90eb9b126e049859f037e81f070f4116ac701c4e4b9ad2d1ec574fbe4
 # hadolint ignore=DL3018
 RUN set -eux; \
     arch="$(apk --print-arch)"; \
+    major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     case "${arch}" in \
       x86_64) KONG_SHA256=$KONG_AMD64_SHA ;; \
       aarch64) KONG_SHA256=$KONG_ARM64_SHA ;; \
     esac; \
     if [ "$ASSET" = "ce" ] ; then \
       apk add --no-cache --virtual .build-deps curl wget tar ca-certificates \
-      && curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-$KONG_VERSION.$arch.apk.tar.gz" -o /tmp/kong.tar.gz \
+      && curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/raw/names/kong-${arch}/versions/${KONG_VERSION}/kong-${KONG_VERSION}.${arch}.apk.tar.gz" -o /tmp/kong.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c - \
       && apk del .build-deps; \
     else \

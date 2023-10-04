@@ -16,15 +16,16 @@ ARG KONG_ARM64_SHA="1d5c2064d44b76fbb3cabf168dc226e91fedb991ace32915297505d08967
 # hadolint ignore=DL3015
 RUN set -ex; \
     arch=$(dpkg --print-architecture); \
+    major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     case "${arch}" in \
       amd64) KONG_SHA256=$KONG_AMD64_SHA ;; \
       arm64) KONG_SHA256=$KONG_ARM64_SHA ;; \
     esac; \
     apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \
+      CODENAME=$(grep -m1 VERSION_CODENAME /etc/os-release | cut -d = -f 2); \
       apt-get install -y curl \
-      && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
-      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_$arch.deb -o /tmp/kong.deb \
+      && curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/deb/ubuntu/pool/${CODENAME}/main/k/ko/kong_${KONG_VERSION}/kong_${KONG_VERSION}_${arch}.deb" -o /tmp/kong.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     else \
