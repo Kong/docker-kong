@@ -23,7 +23,7 @@ To build your Docker image, you will need to provide
 1. A Dockerfile that installs the Kong Gateway from a location you specify
 
 ## Base image
-You can use images derived from Alpine, RHEL, or Debian; Kong Software pushes `.apk`, `.deb`, and
+You can use images derived from RHEL or Ubuntu; Kong Software pushes `.deb`, and
 `.rpm` packages to our [public package repository](https://download.konghq.com/).
 
 ## Entrypoint script
@@ -36,7 +36,7 @@ directory where you are planning to run the command to build your Docker image.
 ## Create a Dockerfile to install Kong Gateway
 
 ### Decide how to get the Kong Gateway package
-Kong Software provides `.apk`, `.deb`, and `.rpm` packages via our [public package
+Kong Software provides `.deb`, and `.rpm` packages via our [public package
 repository](https://download.konghq.com/). Decide whether you want your
 Dockerfile to
 
@@ -73,9 +73,9 @@ ENV KONG_VERSION $KONG_VERSION
 # https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/repodata/<some-sha>-primary.xml.gz
 # ARG KONG_SHA256="<.deb-or.rpm-SHA>"
 
-# Uncomment to build a container using the .apk.tar.gz Kong Gateway package
-# For .apk.tar.gz packages, the SHA is in
-# https://download.konghq.com/gateway-<gateway-major-version>-alpine/PULP_MANIFEST
+# Uncomment to build a container using the .deb.tar.gz Kong Gateway package
+# For .deb.tar.gz packages, the SHA is in
+# https://download.konghq.com/gateway-<gateway-major-version>-ubuntu/PULP_MANIFEST
 # ARG KONG_AMD64_SHA="<amd64_sha>"
 # ARG KONG_ARM64_SHA="<arm64_sha>"
 
@@ -93,8 +93,8 @@ ARG EE_PORTS
 # Uncomment if you are installing a .deb
 # COPY kong.deb /tmp/kong.deb
 
-# Uncomment if you are installing a .apk.tar.gz
-# COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
+# Uncomment if you are installing a .deb.tar.gz
+# COPY kong.deb.tar.gz /tmp/kong.deb.tar.gz
 
 # hadolint ignore=DL3015
 # Uncomment the following section if you are installing a .rpm
@@ -125,7 +125,7 @@ ARG EE_PORTS
 #     apt-get install -y curl; \
 #     if [ "$ASSET" = "remote" ] ; then \
 #       CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
-#       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-debian-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
+#       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
 #       && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
 #       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
 #     fi \
@@ -142,23 +142,23 @@ ARG EE_PORTS
 #     && kong version \
 #    && apt-get purge curl -y
 
-# Uncomment the following section if you are installing a .apk.tar.gz
+# Uncomment the following section if you are installing a .deb.tar.gz
 # Edit the DOWNLOAD_URL line to install from a repository other than
 # download.konghq.com
 # RUN set -ex; \
-#     apk add bash curl ca-certificates; \
-#     arch="$(apk --print-arch)"; \
+#     deb add bash curl ca-certificates; \
+#     arch="$(deb --print-arch)"; \
 #     case "${arch}" in \
 #       x86_64) export ARCH='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
 #       aarch64) export ARCH='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
 #     esac; \
 #     if [ "$ASSET" = "remote" ] ; then \
-#       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-alpine/kong-${KONG_VERSION}.${ARCH}.apk.tar.gz" -o /tmp/kong.apk.tar.gz \
-#       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
+#       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu/kong-${KONG_VERSION}.${ARCH}.deb.tar.gz" -o /tmp/kong.deb.tar.gz \
+#       && echo "$KONG_SHA256  /tmp/kong.deb.tar.gz" | sha256sum -c -; \
 #     fi \
-#     && apk add --no-cache --virtual .build-deps tar gzip \
-#     && tar -C / -xzf /tmp/kong.apk.tar.gz \
-#     && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash \
+#     && deb add --no-cache --virtual .build-deps tar gzip \
+#     && tar -C / -xzf /tmp/kong.deb.tar.gz \
+#     && deb add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash \
 #     && adduser -S kong \
 #     && addgroup -S kong \
 #     && mkdir -p "/usr/local/kong" \
@@ -170,7 +170,7 @@ ARG EE_PORTS
 #     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
 #     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
 #     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-#     && apk del .build-deps \
+#     && deb del .build-deps \
 #     && kong version
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh

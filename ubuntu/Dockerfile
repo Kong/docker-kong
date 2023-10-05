@@ -24,7 +24,7 @@ RUN set -ex; \
     esac; \
     apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \
-      apt-get install -y curl \
+      apt-get install -y --no-install-recommends curl ca-certificates \
       && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
       && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_$arch.deb -o /tmp/kong.deb \
       && apt-get purge -y curl \
@@ -38,7 +38,7 @@ RUN set -ex; \
     # Please update the ubuntu install docs if the below line is changed so that
     # end users can properly install Kong along with its required dependencies
     # and that our CI does not diverge from our docs.
-    && apt install --yes /tmp/kong.deb \
+    && apt install --yes --no-install-recommends /tmp/kong.deb \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \
