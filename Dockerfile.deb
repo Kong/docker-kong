@@ -2,10 +2,10 @@
 FROM debian:bullseye-20230502-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
-ARG KONG_VERSION=3.4.1
+ARG KONG_VERSION=3.4.2
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="c2418c91e7922f8670a7ad0f9af58a51f8d34ed83493fbea3b0cc3d1ec0c08bc"
+ARG KONG_SHA256="012ce37a57894db6f0f8139c79127fca759e6da58b09d56858901ac64d76557e"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
