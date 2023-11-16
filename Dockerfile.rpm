@@ -1,5 +1,5 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7@sha256:6910799b75ad41f00891978575a0d955be2f800c51b955af73926e7ab59a41c3
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9@sha256:87bcbfedfd70e67aab3875fff103bade460aeff510033ebb36b7efa009ab6639
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
