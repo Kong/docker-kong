@@ -1,5 +1,3 @@
-version: '3.9'
-
 x-kong-config:
   &kong-env
   KONG_DATABASE: ${KONG_DATABASE:-off}
