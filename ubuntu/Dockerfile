@@ -9,11 +9,11 @@ ARG EE_PORTS
 
 COPY kong.deb /tmp/kong.deb
 
-ARG KONG_VERSION=3.6.1
+ARG KONG_VERSION=3.7.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_AMD64_SHA="03b2aca93fd41b8dc0908754cef815433c1d3069ac842a1d078ca98105b230fd"
-ARG KONG_ARM64_SHA="b544bfe2ba4109335d26efb5e59029450f823c3a19b6aef77f6c93d5850142b0"
+ARG KONG_AMD64_SHA="71b946cac188653eb29714f21b98eb146cec536e05a5818a49007f9211e572d4"
+ARG KONG_ARM64_SHA="fb01282dfe9bf42ba27df30c2bc269aadac3ae3f298ba535f77b15a7bff2f6df"
 
 # hadolint ignore=DL3015
 RUN set -ex; \
@@ -26,7 +26,8 @@ RUN set -ex; \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y --no-install-recommends curl ca-certificates \
       && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
-      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_$arch.deb -o /tmp/kong.deb \
+      && KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+      && curl -fL https://packages.konghq.com/public/gateway-$KONG_REPO/deb/ubuntu/pool/$UBUNTU_CODENAME/main/k/ko/kong_$KONG_VERSION/kong_${KONG_VERSION}_$arch.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c - \
       || exit 1; \
