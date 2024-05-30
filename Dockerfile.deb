@@ -2,10 +2,10 @@
 FROM debian:bullseye-20230502-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
-ARG KONG_VERSION=3.6.1
+ARG KONG_VERSION=3.7.0
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="97da5168777d5ebc48ff5488d254bee930c52a631203e94c76b3b9dcc83a5d5c"
+ARG KONG_SHA256="3f325e456d884f809b9480100dfb2ae613467fec6864a86e08c44b52a010d73a"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
@@ -20,7 +20,8 @@ RUN set -ex; \
     apt-get install -y curl; \
     if [ "$ASSET" = "remote" ] ; then \
       CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
-      && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-debian-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
+      && KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/deb/debian/pool/$CODENAME/main/k/ko/kong_$KONG_VERSION/kong_${KONG_VERSION}_amd64.deb" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     fi \

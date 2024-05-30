@@ -34,10 +34,11 @@ function get_url() {
 
   eval $args
 
-  raw_url=$(egrep -o 'https?://download.konghq.com/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
+  raw_url=$(egrep -o 'https?://packages.konghq.com/public/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
 
   # set variables contained in raw url
   KONG_VERSION=$version
+  KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//')
   ARCH=$arch
 
   eval echo $raw_url
