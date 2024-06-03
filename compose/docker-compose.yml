@@ -1,4 +1,3 @@
-version: '3.9'
 
 x-kong-config:
   &kong-env
@@ -27,7 +26,7 @@ services:
   kong-migrations:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
-    profiles: [ "database" ]
+    profiles: [ "database", "hybrid" ]
     depends_on:
       - db
     environment:
@@ -41,7 +40,7 @@ services:
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations up && kong migrations finish
-    profiles: [ "database" ]
+    profiles: [ "database", "hybrid" ]
     depends_on:
       - db
     environment:
@@ -52,9 +51,116 @@ services:
       - kong-net
     restart: on-failure
 
+  kong-cp:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    user: "${KONG_USER:-kong}"
+    profiles: [ "hybrid" ]
+    depends_on:
+      - kong-migrations
+      - kong-migrations-up
+    environment:
+      <<: *kong-env
+      KONG_DATABASE: "postgres"
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ROLE: "control_plane"
+      KONG_ADMIN_LISTEN: "${KONG_ADMIN_LISTEN:-0.0.0.0:8001}"
+      KONG_ADMIN_GUI_LISTEN: "${KONG_ADMIN_GUI_LISTEN:-0.0.0.0:8002}"
+      KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong-cp}
+      KONG_CLUSTER_CERT: /run/secrets/kong_cluster_cert
+      KONG_CLUSTER_CERT_KEY: /run/secrets/kong_cluster_cert_key
+    secrets:
+      - kong_postgres_password
+      - kong_cluster_cert
+      - kong_cluster_cert_key
+    networks:
+      - kong-net
+    ports:
+      # The following two environment variables default to an insecure value (0.0.0.0)
+      # according to the CIS Security test.
+      # - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8000:8000/tcp"
+      # - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
+      # Making them mandatory but undefined, like so would be backwards-breaking:
+      # - "${KONG_INBOUND_PROXY_LISTEN?Missing inbound proxy host}:8000:8000/tcp"
+      # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
+      # Alternative is deactivating check 5.13 in the security bench, if we consider Kong's own config to be enough security here
+
+      - "127.0.0.1:8001:8001/tcp"
+      - "127.0.0.1:8444:8444/tcp"
+      - "127.0.0.1:8002:8002/tcp"
+      # Cluster communication
+      - "127.0.0.1:8005:8005/tcp"
+      # Telemetry
+      - "127.0.0.1:8006:8006/tcp"
+
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure:5
+    read_only: true
+    volumes:
+      - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong-cp}
+      - kong_tmp_vol:/tmp
+      - ./config:/opt/kong
+    security_opt:
+      - no-new-privileges
+
+  kong-dp:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    user: "${KONG_USER:-kong}"
+    profiles:
+      - hybrid
+    depends_on:
+      - kong-cp
+    environment:
+      KONG_DATABASE: "off"
+      KONG_ROLE: "data_plane"
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_CLUSTER_CONTROL_PLANE: kong-cp:8005
+      KONG_CLUSTER_TELEMETRY_ENDPOINT: kong-cp:8006
+      KONG_PROXY_LISTEN: "${KONG_PROXY_LISTEN:-0.0.0.0:8000}"
+      KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong-dp}
+      KONG_CLUSTER_CERT: /run/secrets/kong_cluster_cert
+      KONG_CLUSTER_CERT_KEY: /run/secrets/kong_cluster_cert_key
+    secrets:
+      - kong_cluster_cert
+      - kong_cluster_cert_key
+    networks:
+      - kong-net
+    ports:
+      # The following two environment variables default to an insecure value (0.0.0.0)
+      # according to the CIS Security test.
+      - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8000:8000/tcp"
+      - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
+      # Making them mandatory but undefined, like so would be backwards-breaking:
+      # - "${KONG_INBOUND_PROXY_LISTEN?Missing inbound proxy host}:8000:8000/tcp"
+      # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
+      # Alternative is deactivating check 5.13 in the security bench, if we consider Kong's own config to be enough security here
+      # - "127.0.0.1:8001:8001/tcp"
+      # - "127.0.0.1:8444:8444/tcp"
+      # - "127.0.0.1:8002:8002/tcp"
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure:5
+    read_only: true
+    volumes:
+      - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong-dp}
+      - kong_tmp_vol:/tmp
+      - ./config:/opt/kong
+    security_opt:
+      - no-new-privileges
+
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
+    profiles:
+      - traditional
     environment:
       <<: *kong-env
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
@@ -99,7 +205,7 @@ services:
 
   db:
     image: postgres:9.5
-    profiles: [ "database" ]
+    profiles: [ "database", "hybrid" ]
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -130,3 +236,7 @@ services:
 secrets:
   kong_postgres_password:
     file: ./POSTGRES_PASSWORD
+  kong_cluster_cert:
+    file: ./certs/cluster.crt
+  kong_cluster_cert_key:
+    file: ./certs/cluster.key
