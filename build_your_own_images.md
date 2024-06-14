@@ -24,7 +24,7 @@ To build your Docker image, you will need to provide
 
 ## Base image
 You can use images derived from RHEL or Ubuntu; Kong Software pushes `.deb`, and
-`.rpm` packages to our [public package repository](https://download.konghq.com/).
+`.rpm` packages to our [public package repository](https://packages.konghq.com/).
 
 ## Entrypoint script
 
@@ -37,10 +37,10 @@ directory where you are planning to run the command to build your Docker image.
 
 ### Decide how to get the Kong Gateway package
 Kong Software provides `.deb`, and `.rpm` packages via our [public package
-repository](https://download.konghq.com/). Decide whether you want your
+repository](https://packages.konghq.com/). Decide whether you want your
 Dockerfile to
 
-1. Download the desired package from https://download.konghq.com, or
+1. Download the desired package from https://packages.konghq.com, or
 2. Download the desired package from another package repository you specify, or
 3. Install the desired package locally from disk.
 
@@ -68,16 +68,10 @@ ENV KONG_VERSION $KONG_VERSION
 
 # Uncomment the ARG KONG_SHA256 line to build a container using a .deb or .rpm package
 # For .deb packages, the SHA is in
-# https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/dists/default/all/binary-amd64/Packages
+# https://cloudsmith.io/~kong/repos/gateway-<gateway-major-version><gateway-minor-version>/packages/detail/deb/kong/<gateway-version>/a=amd64;xc=main;d=debian%252F<os_version>;t=binary/
 # For .rpm packages, the SHA is in
-# https://download.konghq.com/gateway-<gateway-major-version>-<os>-<os_version>/repodata/<some-sha>-primary.xml.gz
+# https://cloudsmith.io/~kong/repos/gateway-<gateway-major-version><gateway-minor-version>/packages/detail/rpm/kong/<gateway-version>/a=x86_64;d=el%252F<os_version>;t=binary/
 # ARG KONG_SHA256="<.deb-or.rpm-SHA>"
-
-# Uncomment to build a container using the .deb.tar.gz Kong Gateway package
-# For .deb.tar.gz packages, the SHA is in
-# https://download.konghq.com/gateway-<gateway-major-version>-ubuntu/PULP_MANIFEST
-# ARG KONG_AMD64_SHA="<amd64_sha>"
-# ARG KONG_ARM64_SHA="<arm64_sha>"
 
 # Uncomment to download package from a remote repository
 # ARG ASSET=remote
@@ -99,11 +93,12 @@ ARG EE_PORTS
 # hadolint ignore=DL3015
 # Uncomment the following section if you are installing a .rpm
 # Edit the DOWNLOAD_URL line to install from a repository other than
-# download.konghq.com
+# packages.konghq.com
 # RUN set -ex; \
 #     if [ "$ASSET" = "remote" ] ; then \
 #       VERSION=$(grep '^VERSION_ID' /etc/os-release | cut -d = -f 2 | sed -e 's/^"//' -e 's/"$//' | cut -d . -f 1) \
-#       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-$VERSION/Packages/k/kong-$KONG_VERSION.rhel$VERSION.amd64.rpm" \
+#       && KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+#       && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/rpm/el/$VERSION/x86_64/kong-$KONG_VERSION.el$VERSION.x86_64.rpm" \
 #       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
 #       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
 #     fi \
@@ -119,13 +114,14 @@ ARG EE_PORTS
 
 # Uncomment the following section if you are installing a .deb
 # Edit the DOWNLOAD_URL line to install from a repository other than
-# download.konghq.com
+# packages.konghq.com
 # RUN set -ex; \
 #     apt-get update; \
 #     apt-get install -y curl; \
 #     if [ "$ASSET" = "remote" ] ; then \
 #       CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
-#       && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
+#       && KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+#       && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/deb/ubuntu/pool/$CODENAME/main/k/ko/kong_$KONG_VERSION/kong_${KONG_VERSION}_amd64.deb" \
 #       && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
 #       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
 #     fi \
@@ -140,38 +136,7 @@ ARG EE_PORTS
 #     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
 #     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
 #     && kong version \
-#    && apt-get purge curl -y
-
-# Uncomment the following section if you are installing a .deb.tar.gz
-# Edit the DOWNLOAD_URL line to install from a repository other than
-# download.konghq.com
-# RUN set -ex; \
-#     deb add bash curl ca-certificates; \
-#     arch="$(deb --print-arch)"; \
-#     case "${arch}" in \
-#       x86_64) export ARCH='amd64'; KONG_SHA256=$KONG_AMD64_SHA ;; \
-#       aarch64) export ARCH='arm64'; KONG_SHA256=$KONG_ARM64_SHA ;; \
-#     esac; \
-#     if [ "$ASSET" = "remote" ] ; then \
-#       curl -fL "https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu/kong-${KONG_VERSION}.${ARCH}.deb.tar.gz" -o /tmp/kong.deb.tar.gz \
-#       && echo "$KONG_SHA256  /tmp/kong.deb.tar.gz" | sha256sum -c -; \
-#     fi \
-#     && deb add --no-cache --virtual .build-deps tar gzip \
-#     && tar -C / -xzf /tmp/kong.deb.tar.gz \
-#     && deb add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash \
-#     && adduser -S kong \
-#     && addgroup -S kong \
-#     && mkdir -p "/usr/local/kong" \
-#     && chown -R kong:0 /usr/local/kong \
-#     && chown kong:0 /usr/local/bin/kong \
-#     && chmod -R g=u /usr/local/kong \
-#     && rm -rf /tmp/kong.tar.gz \
-#     && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
-#     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
-#     && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
-#     && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
-#     && deb del .build-deps \
-#     && kong version
+#     && apt-get purge curl -y
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 

@@ -26,7 +26,8 @@ RUN set -ex; \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y --no-install-recommends curl ca-certificates \
       && UBUNTU_CODENAME=$(cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2) \
-      && curl -fL https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-ubuntu-${UBUNTU_CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_$arch.deb -o /tmp/kong.deb \
+      && KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+      && curl -fL https://packages.konghq.com/public/gateway-$KONG_REPO/deb/ubuntu/pool/$UBUNTU_CODENAME/main/k/ko/kong_$KONG_VERSION/kong_${KONG_VERSION}_$arch.deb \
       && apt-get purge -y curl \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c - \
       || exit 1; \
