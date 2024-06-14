@@ -31,7 +31,8 @@ COPY kong.rpm /tmp/kong.rpm
 # hadolint ignore=DL3015
 RUN set -ex; \
     if [ "$ASSET" = "remote" ] ; then \
-      DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-rhel-8/Packages/k/kong-$KONG_VERSION.rhel8.amd64.rpm" \
+      KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/rpm/el/8/x86_64/kong-$KONG_VERSION.el8.x86_64.rpm" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
       || exit 1; \

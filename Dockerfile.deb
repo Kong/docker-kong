@@ -20,7 +20,8 @@ RUN set -ex; \
     apt-get install -y curl; \
     if [ "$ASSET" = "remote" ] ; then \
       CODENAME=$(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) \
-      && DOWNLOAD_URL="https://download.konghq.com/gateway-${KONG_VERSION%%.*}.x-debian-${CODENAME}/pool/all/k/kong/kong_${KONG_VERSION}_amd64.deb" \
+      && KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
+      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/deb/debian/pool/$CODENAME/main/k/ko/kong_$KONG_VERSION/kong_${KONG_VERSION}_amd64.deb" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.deb \
       && echo "$KONG_SHA256  /tmp/kong.deb" | sha256sum -c -; \
     fi \
