@@ -174,7 +174,7 @@ then
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: ubuntu"
-        print "Architectures: amd64, arm64v8"
+        print "Architectures: amd64"
         print ""
         before_first = 0
       } else {
@@ -214,13 +214,13 @@ then
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: alpine"
-        print "Architectures: amd64, arm64v8"
+        print "Architectures: amd64"
         print ""
         print "Tags: " v "-ubuntu, " xy "-ubuntu, ubuntu"
         print "GitCommit: " commit
         print "GitFetch: refs/tags/" v
         print "Directory: ubuntu"
-        print "Architectures: amd64, arm64v8"
+        print "Architectures: amd64"
         print ""
         before_first = 0
       }
