@@ -68,7 +68,7 @@ function run_test {
   }
 
   pushd compose
-  docker-compose up -d
+  docker compose up -d
   retry_health
 
   curl -I localhost:8001 | grep -E '(openresty|kong)'
@@ -78,8 +78,8 @@ function run_test {
     tfailure
   fi
   
-  docker-compose kill
-  docker-compose rm -f
+  docker compose kill
+  docker compose rm -f
   sleep 5
   docker volume prune -f
   popd
@@ -89,19 +89,19 @@ function run_test {
   export COMPOSE_PROFILES=database
   export KONG_DATABASE=postgres
   pushd compose
-  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
+  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker compose -p kong -f - up -d
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
-    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker compose.yml | docker compose -p kong -f - ps
     docker ps
     sleep 15
-    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker compose -p kong -f - up -d
   done
   curl -I localhost:8001 | grep 'Server: openresty'
-  sed -i -e 's/127.0.0.1://g' docker-compose.yml
+  sed -i -e 's/127.0.0.1://g' docker compose.yml
   
-  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
+  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker compose -p kong up -d
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
-    docker-compose -p kong ps
+    docker compose -p kong ps
     docker ps
     sleep 15
   done
@@ -115,12 +115,12 @@ function run_test {
   
   echo "cleanup"
 
-  docker-compose -p kong kill
-  docker-compose -p kong rm -f
+  docker compose -p kong kill
+  docker compose -p kong rm -f
   sleep 5
   docker volume prune -f
   docker system prune -y
-  git checkout -- docker-compose.yml
+  git checkout -- docker compose.yml
   popd
 
   # Run Kong functional tests

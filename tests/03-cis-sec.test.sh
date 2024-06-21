@@ -6,7 +6,7 @@ function run_test {
   tinitialize "Docker-Kong test suite" "${BASH_SOURCE[0]}"
 
   tchapter "CIS-Sec tests $KONG_DOCKER_TAG"
-  ttest "CIS-Sec for docker-compose"
+  ttest "CIS-Sec for docker compose"
 
   docker kill $(docker ps -q)
   docker run -d kong-$BASE tail -f /dev/null
