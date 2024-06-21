@@ -20,6 +20,7 @@ COPY packer.lua /packer.lua
 
 USER root
 
+RUN cp /usr/local/lib/luarocks/rocks-5.1/luarocks/3.9.2-1/bin/luarocks-admin /usr/local/bin/
 RUN /usr/local/openresty/luajit/bin/luajit /packer.lua -- "$INJECTED_PLUGINS"
 
 FROM ${KONG_BASE}
