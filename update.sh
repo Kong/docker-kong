@@ -34,55 +34,26 @@ function get_url() {
 
   eval $args
 
-  raw_url=$(egrep -o 'https?://download.konghq.com/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
+  raw_url=$(egrep -o 'https?://packages.konghq.com/public/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
 
   # set variables contained in raw url
   KONG_VERSION=$version
+  KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//')
+  ARCH=$arch
 
   eval echo $raw_url
 }
 
+
 hub --version &> /dev/null || die "hub is not in PATH. Get it from https://github.com/github/hub"
 
-kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+#kbt_in_kong_v=$(curl -sL https://raw.githubusercontent.com/Kong/kong/$version/.requirements | grep 'KONG_BUILD_TOOLS_VERSION\=' | awk -F"=" '{print $2}' | tr -d "'[:space:]")
+kbt_in_kong_v=4.33.19
 if [[ -n "$kbt_in_kong_v" ]]; then
   sed -i.bak 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
 fi
 
-pushd alpine
-   url=$(get_url Dockerfile amd64)
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-
-   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-   
-   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' ../Dockerfile.apk
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' ../Dockerfile.apk
-
-   url=$(get_url Dockerfile arm64)
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-
-   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-   
-   sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' ../Dockerfile.apk
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' ../Dockerfile.apk
-popd
-
-pushd rhel
-   url=$(get_url Dockerfile amd64 "RHEL_VERSION=7")
-   echo $url
-   curl -fL $url -o /tmp/kong
-   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
-
-   sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
-   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
-popd
-
+# Dockerfile.deb
 url=$(get_url Dockerfile.rpm amd64 "VERSION=8")
 echo $url
 curl -fL $url -o /tmp/kong
@@ -92,23 +63,23 @@ sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rp
 sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
 
 pushd ubuntu
-   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=bionic")
+   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=jammy")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
 
-   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=bionic")
+   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=jammy")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
    sed -i.bak 's/ARG KONG_ARM64_SHA=.*/ARG KONG_ARM64_SHA=\"'$new_sha'\"/g' Dockerfile
-
    sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
 popd
 
+# Dockerfile.deb
 url=$(get_url Dockerfile.deb amd64 "CODENAME=bullseye")
 echo $url
 curl -fL $url -o /tmp/kong
