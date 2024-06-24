@@ -34,11 +34,11 @@ function get_url() {
 
   eval $args
 
-  raw_url=$(egrep -o 'https?://packages.konghq.com/public/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
+  raw_url=$(grep -E -o 'https?://packages.konghq.com/public/gateway-[^ ]+' $dockerfile | sed 's/\"//g')
 
   # set variables contained in raw url
   KONG_VERSION=$version
-  KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//')
+  major_minor=$(echo ${KONG_VERSION%.*} | sed 's/\.//')
   ARCH=$arch
 
   eval echo $raw_url
@@ -52,8 +52,8 @@ if [[ -n "$kbt_in_kong_v" ]]; then
   sed -i.bak 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
 fi
 
-# Dockerfile.deb
-url=$(get_url Dockerfile.rpm amd64 "VERSION=8")
+# Dockerfile.rpm
+url=$(get_url Dockerfile.rpm x86_64 "VERSION=8")
 echo $url
 curl -fL $url -o /tmp/kong
 new_sha=$(sha256sum /tmp/kong | cut -b1-64)
@@ -62,7 +62,7 @@ sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rp
 sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
 
 pushd ubuntu
-   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=jammy")
+   url=$(get_url Dockerfile amd64 "CODENAME=jammy")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
