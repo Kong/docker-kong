@@ -46,10 +46,10 @@ RUN set -eux; \
     && chown kong:0 /usr/local/bin/kong \
     && chmod -R g=u /usr/local/kong \
     && rm -rf /tmp/kong.tar.gz \
-    && ln -s /usr/local/openresty/bin/resty /usr/local/bin/resty \
-    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
-    && ln -s /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
-    && ln -s /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
+    && ln -sf /usr/local/openresty/bin/resty /usr/local/bin/resty \
+    && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
+    && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
+    && ln -sf /usr/local/openresty/nginx/sbin/nginx /usr/local/bin/nginx \
     && if [ "$ASSET" = "ce" ] ; then \
       kong version; \
     fi
