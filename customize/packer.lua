@@ -194,7 +194,6 @@ local function get_plugins()
   return plugins
 end
 
-
 local function get_rocks()
   local cmd = "luarocks list --tree=system --porcelain"
   local ok, _, sout, serr = execex(cmd)

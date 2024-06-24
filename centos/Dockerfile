@@ -34,6 +34,7 @@ RUN set -ex; \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 /usr/local/kong \
+    && ln -sf /usr/lib64/libz.so.1 /usr/lib64/libz.so \
     && ln -sf /usr/local/openresty/bin/resty /usr/local/bin/resty \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/luajit \
     && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/local/bin/lua \
