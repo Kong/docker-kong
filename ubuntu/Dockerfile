@@ -13,15 +13,11 @@ ARG KONG_VERSION=3.7.1
 ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_AMD64_SHA="58e380961fc90c6b4dfd62f4ee596ab053afe5ae72a93445c4356f496f2dc9ec"
-ARG KONG_ARM64_SHA="602a68cf3a09bbea26106d4bd4041c242d7913e40582d18cac0f6958aad78f72"
 
 # hadolint ignore=DL3015
 RUN set -ex; \
     arch=$(dpkg --print-architecture); \
-    case "${arch}" in \
-      amd64) KONG_SHA256=$KONG_AMD64_SHA ;; \
-      arm64) KONG_SHA256=$KONG_ARM64_SHA ;; \
-    esac; \
+    KONG_SHA256=$KONG_AMD64_SHA ; \
     apt-get update \
     && if [ "$ASSET" = "ce" ] ; then \
       apt-get install -y --no-install-recommends curl ca-certificates \
