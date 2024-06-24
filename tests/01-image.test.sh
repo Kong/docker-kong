@@ -6,7 +6,7 @@ function run_test {
   if [[ -f Dockerfile.$BASE ]]; then
     docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < Dockerfile.$BASE
   fi
-  
+
   if [[ -f $BASE/Dockerfile ]]; then
     docker run -i --rm -v $PWD/hadolint.yaml:/.config/hadolint.yaml hadolint/hadolint:2.7.0 < $BASE/Dockerfile
   fi
@@ -23,11 +23,11 @@ function run_test {
   if [[ -f Dockerfile.$BASE ]]; then
     version_given="$(grep 'ARG KONG_VERSION' Dockerfile.$BASE | awk -F "=" '{print $2}')"
   fi
-  
+
   if [[ -f $BASE/Dockerfile ]]; then
     version_given="$(grep 'ARG KONG_VERSION' $BASE/Dockerfile | awk -F "=" '{print $2}')"
   fi
-  
+
   version_built="$(docker run -i --rm kong-$BASE kong version | tr -d '[:space:]')"
 
   if [[ "$version_given" != "$version_built" ]]; then
@@ -40,24 +40,24 @@ function run_test {
   fi
 
   ttest "Dbless Test"
-  
+
   pushd compose
-  docker-compose up -d
+  docker compose up -d
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
-    docker-compose up -d
+    docker compose up -d
     docker ps
     sleep 15
   done
-  
+
   curl -I localhost:8001 | grep -E '(openresty|kong)'
   if [ $? -eq 0 ]; then
     tsuccess
   else
     tfailure
   fi
-  
-  docker-compose kill
-  docker-compose rm -f
+
+  docker compose kill
+  docker compose rm -f
   sleep 5
   docker volume prune -f
   popd
@@ -67,19 +67,19 @@ function run_test {
   export COMPOSE_PROFILES=database
   export KONG_DATABASE=postgres
   pushd compose
-  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
+  curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker compose -p kong -f - up -d
   until docker ps -f health=healthy | grep -q kong:1.5.0;  do
-    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker-compose -p kong -f - ps
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | docker compose -p kong -f - ps
     docker ps
     sleep 15
-    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker-compose -p kong -f - up -d
+    curl -fsSL https://raw.githubusercontent.com/Kong/docker-kong/1.5.0/swarm/docker-compose.yml | KONG_DOCKER_TAG=kong:1.5.0 docker compose -p kong -f - up -d
   done
   curl -I localhost:8001 | grep 'Server: openresty'
   sed -i -e 's/127.0.0.1://g' docker-compose.yml
-  
-  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker-compose -p kong up -d
+
+  KONG_DOCKER_TAG=${KONG_DOCKER_TAG} docker compose -p kong up -d
   until docker ps -f health=healthy | grep -q ${KONG_DOCKER_TAG}; do
-    docker-compose -p kong ps
+    docker compose -p kong ps
     docker ps
     sleep 15
   done
@@ -90,11 +90,11 @@ function run_test {
   else
     tfailure
   fi
-  
+
   echo "cleanup"
 
-  docker-compose -p kong kill
-  docker-compose -p kong rm -f
+  docker compose -p kong kill
+  docker compose -p kong rm -f
   sleep 5
   docker volume prune -f
   docker system prune -y
