@@ -25,7 +25,13 @@ RUN set -ex; \
       && echo "${KONG_SHA256}  /tmp/kong.deb" | sha256sum -c -; \
     fi \
     && apt-get update \
-    && apt-get install --yes /tmp/kong.deb \
+    && apt-get install --yes /tmp/kong.deb lua5.1 liblua5.1-dev unzip make \
+    && curl -L https://luarocks.org/releases/luarocks-3.8.0.tar.gz -o luarocks-3.8.0.tar.gz \
+    && tar zxpf luarocks-3.8.0.tar.gz \
+    && cd luarocks-3.8.0 \
+    && ./configure && make && make install \
+    && export PATH=$PATH:/usr/local/bin/luarocks \
+    && cd - \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/kong.deb \
     && chown kong:0 /usr/local/bin/kong \
