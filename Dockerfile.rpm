@@ -22,7 +22,15 @@ RUN set -ex; \
       curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "${KONG_SHA256}  /tmp/kong.rpm" | sha256sum -c -; \
     fi \
-    && yum install -y /tmp/kong.rpm \
+    && yum install -y /tmp/kong.rpm wget gcc make ncurses-devel \
+    && wget https://ftp.gnu.org/gnu/readline/readline-8.2-rc4.tar.gz \
+    && tar zxvf readline-8.2-rc4.tar.gz && cd readline-8.2-rc4 && ./configure && make && make install && cd - \
+    && export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH \
+    && wget https://www.lua.org/ftp/lua-5.1.5.tar.gz && tar -zxvf lua-5.1.5.tar.gz \
+    && cd lua-5.1.5 && make linux && make linux install && cd - \
+    && wget https://luarocks.org/releases/luarocks-3.8.0.tar.gz && tar zxpf luarocks-3.8.0.tar.gz \
+    && cd luarocks-3.8.0 && ./configure && make && make install && cd -\
+    && export PATH=$PATH:/usr/local/bin/luarocks \
     && rm /tmp/kong.rpm \
     && chown kong:0 /usr/local/bin/kong \
     && chown -R kong:0 "$KONG_PREFIX" \
