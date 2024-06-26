@@ -35,6 +35,7 @@ RUN set -eux; \
     && mv /kong/etc/* /etc \
     && rm -rf /kong \
     && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zip bash zlib zlib-dev git ca-certificates \
+    && apk add --no-cache luarocks \
     && adduser -S kong \
     && addgroup -S kong \
     && mkdir -p "/usr/local/kong" \
