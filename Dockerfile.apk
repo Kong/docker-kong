@@ -23,8 +23,7 @@ RUN set -ex; \
     fi \
     && apk add --no-cache --virtual .build-deps tar gzip \
     && tar -C / -xzf /tmp/kong.apk.tar.gz \
-    && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash \
-    && apk add --no-cache luarocks \
+    && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash luarocks yaml \
     && adduser -S kong \
     && addgroup -S kong \
     && mkdir -p "${KONG_PREFIX}" \
