@@ -52,6 +52,26 @@ if [[ -n "$kbt_in_kong_v" ]]; then
   sed -i.bak 's/KONG_BUILD_TOOLS?=.*/KONG_BUILD_TOOLS?='$kbt_in_kong_v'/g' Makefile
 fi
 
+pushd alpine
+   url=$(get_url Dockerfile amd64)
+   echo $url
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+popd
+
+pushd rhel
+   url=$(get_url Dockerfile amd64 "RHEL_VERSION=7")
+   echo $url
+   curl -fL $url -o /tmp/kong
+   new_sha=$(sha256sum /tmp/kong | cut -b1-64)
+
+   sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile
+   sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile
+popd
+
 # Dockerfile.rpm
 url=$(get_url Dockerfile.rpm x86_64 "VERSION=8")
 echo $url
