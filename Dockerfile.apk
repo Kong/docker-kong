@@ -4,7 +4,6 @@ ARG KONG_VERSION=2.8.4
 ENV KONG_VERSION $KONG_VERSION
 
 ARG KONG_AMD64_SHA="930b3b933b6c3f0393700433a919745900485d19e0cd8aba2d70aa066ccd10d2"
-ARG KONG_ARM64_SHA="9027da2a4df477b462f34da9450412012ffdc0f9019e33ed7ff8e88f3df062c6"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
@@ -15,15 +14,11 @@ ARG EE_PORTS
 COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
 
 RUN set -ex; \
-    arch="$(apk --print-arch)"; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
-    case "${arch}" in \
-      x86_64) KONG_SHA256=$KONG_AMD64_SHA ;; \
-      aarch64) KONG_SHA256=$KONG_ARM64_SHA ;; \
-    esac; \
+    KONG_SHA256=$KONG_AMD64_SHA ; \
     apk add bash curl ca-certificates; \
     if [ "$ASSET" = "remote" ] ; then \
-      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/raw/names/kong-${arch}/versions/${KONG_VERSION}/kong-${KONG_VERSION}.${arch}.apk.tar.gz" -o /tmp/kong.apk.tar.gz \
+      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/alpine/any-version/main/x86_64/kong-${KONG_VERSION}.apk" -o /tmp/kong.apk.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
     fi \
     && apk add --no-cache --virtual .build-deps tar gzip \

@@ -30,10 +30,9 @@ ARG RHEL_VERSION
 ENV RHEL_VERSION $RHEL_VERSION
 
 RUN set -ex; \
-    arch='x86_64'; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     if [ "$ASSET" = "ce" ] ; then \
-      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/${RHEL_VERSION}/${arch}/kong-${KONG_VERSION}.el${RHEL_VERSION}.${arch}.rpm" -o /tmp/kong.rpm \
+      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/rpm/el/${RHEL_VERSION}/x86_64/kong-${KONG_VERSION}.el${RHEL_VERSION}.x86_64.rpm" -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c -; \
     else \
       yum update -y \
