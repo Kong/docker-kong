@@ -11,18 +11,18 @@ ENV KONG_PREFIX $KONG_PREFIX
 ARG ASSET=remote
 ARG EE_PORTS
 
-COPY kong.apk.tar.gz /tmp/kong.apk.tar.gz
+COPY kong.tar.gz /tmp/kong.tar.gz
 
 RUN set -ex; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     KONG_SHA256=$KONG_AMD64_SHA ; \
     apk add bash curl ca-certificates; \
     if [ "$ASSET" = "remote" ] ; then \
-      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/alpine/any-version/main/x86_64/kong-${KONG_VERSION}.apk" -o /tmp/kong.apk.tar.gz \
-      && echo "$KONG_SHA256  /tmp/kong.apk.tar.gz" | sha256sum -c -; \
+      curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/alpine/any-version/main/x86_64/kong-${KONG_VERSION}.apk" -o /tmp/kong.tar.gz \
+      && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
     fi \
     && apk add --no-cache --virtual .build-deps tar gzip \
-    && tar -C / -xzf /tmp/kong.apk.tar.gz \
+    && tar -C / -xzf /tmp/kong.tar.gz \
     && apk add --no-cache libstdc++ libgcc openssl pcre perl tzdata libcap zlib zlib-dev bash luarocks yaml \
     && adduser -S kong \
     && addgroup -S kong \
