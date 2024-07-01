@@ -1,5 +1,5 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7@sha256:6910799b75ad41f00891978575a0d955be2f800c51b955af73926e7ab59a41c3
+FROM redhat/ubi8
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
@@ -38,6 +38,7 @@ RUN set -ex; \
       || exit 1; \
     fi \
     # findutils provides xargs (temporarily)
+    && yum install -y microdnf procps-ng hostname \
     && microdnf install --assumeyes --nodocs \
       findutils \
       shadow-utils \
