@@ -16,7 +16,7 @@ COPY kong.tar.gz /tmp/kong.tar.gz
 RUN set -ex; \
     major_minor="$(echo "${KONG_VERSION%.*}" | tr -d '.')"; \
     KONG_SHA256=$KONG_AMD64_SHA ; \
-    apk add bash curl ca-certificates; \
+    apk add --no-cache curl bash ca-certificates; \
     if [ "$ASSET" = "remote" ] ; then \
       curl -fL "https://packages.konghq.com/public/gateway-${major_minor}/alpine/any-version/main/x86_64/kong-${KONG_VERSION}.apk" -o /tmp/kong.tar.gz \
       && echo "$KONG_SHA256  /tmp/kong.tar.gz" | sha256sum -c -; \
