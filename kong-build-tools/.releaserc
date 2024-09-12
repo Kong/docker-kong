@@ -1,0 +1,45 @@
+{
+  "branches": ["+([0-9])?(.{+([0-9]),x}).x", "master", "next"],
+  "tagFormat": "${version}",
+  "repositoryUrl": "https://github.com/Kong/kong-build-tools.git",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "breaking": true, "release": "major" },
+          { "revert": true, "release": "patch" },
+          { "type": "build", "release": "patch" },
+          { "type": "docs", "release": "patch" },
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "chore", "release": "patch" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "build", "section": "Build", "hidden": false },
+            { "type": "chore", "section": "Chores", "hidden": false },
+            { "type": "ci", "section": "CI/CD", "hidden": false },
+            { "type": "docs", "section": "Docs", "hidden": false },
+            { "type": "feat", "section": "Features", "hidden": false },
+            { "type": "fix", "section": "Bug Fixes", "hidden": false },
+            { "type": "perf", "section": "Performance", "hidden": false },
+            { "type": "refactor", "section": "Refactor", "hidden": false },
+            { "type": "style", "section": "Code Style", "hidden": false },
+            { "type": "test", "section": "Tests", "hidden": false }
+          ]
+        }
+      }
+    ],
+    "@semantic-release/github"
+  ]
+}

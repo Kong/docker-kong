@@ -1,0 +1,123 @@
+version: '2.1'
+
+
+services:
+  kong-migrations:
+    image: "${KONG_TEST_IMAGE_NAME:-kong:latest}"
+    command: kong migrations bootstrap
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_FIPS: ${KONG_FIPS:-off}
+    restart: always
+    networks:
+      - kong-net
+
+  kong-migrations-up:
+    image: "${KONG_TEST_IMAGE_NAME:-kong:latest}"
+    command: kong migrations up && kong migrations finish
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_FIPS: ${KONG_FIPS:-off}
+    restart: always
+    networks:
+      - kong-net
+
+  kong:
+    image: "${KONG_TEST_IMAGE_NAME:-kong:latest}"
+    user: "${KONG_USER:-kong}"
+    container_name: "${KONG_TEST_CONTAINER_NAME:-kong-tests}"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_PLUGINS: "${KONG_PLUGINS:-bundled}"
+      KONG_NGINX_WORKER_PROCESSES: "${KONG_NGINX_WORKER_PROCESSES:-1}"
+      KONG_CASSANDRA_CONTACT_POINTS: db
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_PORTAL: "on"
+      KONG_ENFORCE_RBAC:
+      KONG_LICENSE_DATA:
+      KONG_FIPS: ${KONG_FIPS:-off}
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure
+    networks:
+      - kong-net
+    ports:
+      - "8000:8000/tcp"
+      - "8443:8443/tcp"
+      - "127.0.0.1:8001:8001/tcp"
+      - "127.0.0.1:8002:8002/tcp"
+      - "127.0.0.1:8003:8003/tcp"
+      - "127.0.0.1:8004:8004/tcp"
+      - "127.0.0.1:8444:8444/tcp"
+      - "127.0.0.1:8445:8445/tcp"
+      - "127.0.0.1:8446:8446/tcp"
+      - "127.0.0.1:8447:8447/tcp"
+
+  db:
+    image: postgres:13
+    ports:
+      - '5432:5432'
+    expose:
+      - 5432
+    environment:
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+      POSTGRES_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      - kong-net
+
+  mockbin:
+    image: kennethreitz/httpbin
+    ports:
+      - '8080:80'
+    expose:
+      - 8000
+    networks:
+      - kong-net
+
+networks:
+  kong-net:
+    external: false
+
