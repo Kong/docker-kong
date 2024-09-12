@@ -47,12 +47,12 @@ start_kong() {
   if [ "$SSL_PROVIDER" = "boringssl" ]; then
     KONG_FIPS=on
   fi
-  KONG_FIPS=$KONG_FIPS KONG_TEST_IMAGE_NAME=${1:-$KONG_TEST_IMAGE_NAME} docker-compose -f "$TEST_COMPOSE_PATH" up -d
+  KONG_FIPS=$KONG_FIPS KONG_TEST_IMAGE_NAME=${1:-$KONG_TEST_IMAGE_NAME} docker compose -f "$TEST_COMPOSE_PATH" up -d
 }
 
 stop_kong() {
-  KONG_TEST_IMAGE_NAME=${1:-$KONG_TEST_IMAGE_NAME} docker-compose -f "$TEST_COMPOSE_PATH" down
-  KONG_TEST_IMAGE_NAME=${1:-$KONG_TEST_IMAGE_NAME} docker-compose -f "$TEST_COMPOSE_PATH" rm -f
+  KONG_TEST_IMAGE_NAME=${1:-$KONG_TEST_IMAGE_NAME} docker compose -f "$TEST_COMPOSE_PATH" down
+  KONG_TEST_IMAGE_NAME=${1:-$KONG_TEST_IMAGE_NAME} docker compose -f "$TEST_COMPOSE_PATH" rm -f
   docker stop $(docker ps -a -q) || true
   docker rm $(docker ps -a -q) || true
   docker volume prune -f
@@ -75,8 +75,8 @@ kong_ready() {
 wait_kong() {
   while ! kong_ready; do
     msg_test "Waiting for Kong to be ready "
-    docker-compose -f "$TEST_COMPOSE_PATH" ps
-    docker-compose -f "$TEST_COMPOSE_PATH" logs kong
+    docker compose -f "$TEST_COMPOSE_PATH" ps
+    docker compose -f "$TEST_COMPOSE_PATH" logs kong
     sleep 5
   done
 }
