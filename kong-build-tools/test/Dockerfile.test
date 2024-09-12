@@ -1,0 +1,53 @@
+ARG RESTY_IMAGE_BASE="ubuntu"
+ARG RESTY_IMAGE_TAG="bionic"
+ARG DOCKER_KONG_SUFFIX
+ARG DOCKER_OPENRESTY_SUFFIX
+ARG DOCKER_REPOSITORY
+
+FROM ${DOCKER_REPOSITORY}:test-${DOCKER_OPENRESTY_SUFFIX}
+
+ENV PATH=$PATH:/kong/bin:/usr/local/openresty/bin/:/usr/local/kong/bin/:/usr/local/openresty/nginx/sbin/
+ENV LUA_PATH=/kong/?.lua;/kong/?/init.lua;/root/.luarocks/share/lua/5.1/?.lua;/root/.luarocks/share/lua/5.1/?/init.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;./?.lua;/usr/local/openresty/luajit/share/luajit-2.1.0-beta3/?.lua;/usr/local/openresty/luajit/share/lua/5.1/?.lua;/usr/local/openresty/luajit/share/lua/5.1/?/init.lua
+ENV LUA_CPATH=/root/.luarocks/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/?.so;./?.so;/usr/local/openresty/luajit/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/loadall.so
+
+RUN cp -R /tmp/build/* / || true
+RUN rm -rf /usr/local/bin/kong
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+    ca-certificates \
+    tzdata \
+    vim \
+    jq \
+    httpie \
+    iputils-ping \
+    net-tools \
+    valgrind \
+    net-tools && \
+    dpkg-reconfigure --frontend noninteractive tzdata && \
+    apt-get install -y postgresql
+
+RUN rm -rf /kong/* || true
+COPY kong /kong
+RUN rm -rf /kong/bin/grpcurl
+RUN mkdir -p /kong/servroot/logs
+RUN chmod -R 777 /kong
+WORKDIR /kong
+RUN luarocks purge --tree=/usr/local || true
+RUN /usr/local/bin/luarocks make kong-*.rockspec \
+    CRYPTO_DIR=/usr/local/kong \
+    OPENSSL_DIR=/usr/local/kong \
+    YAML_LIBDIR=/usr/local/kong/lib \
+    EXPAT_DIR=/usr/local/kong \
+    LIBXML2_DIR=/usr/local/kong \
+    CFLAGS="-L/usr/local/kong/lib -Wl,-rpath,/usr/local/kong/lib -O2 -fPIC"
+RUN make dev
+
+RUN curl -L https://cpanmin.us | perl - App::cpanminus \
+    && cpanm --notest Test::Nginx \
+    && cpanm --notest local::lib
+
+RUN rm -rf /tmp/build
+
+CMD ["sh", "-c", "cat /kong/spec/fixtures/hosts >> /etc/hosts; tail -f /dev/null"]

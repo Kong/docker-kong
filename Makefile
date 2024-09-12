@@ -66,10 +66,6 @@ build_v2:
 
 test: KONG_DOCKER_TAG?=$(DOCKER_TAG)
 test:
-	if cd kong-build-tools; \
-	then git pull; \
-	else git clone https://github.com/Kong/kong-build-tools.git; fi
-	cd kong-build-tools && git reset --hard $(KONG_BUILD_TOOLS)
 	BASE=$(BASE) ./tests/test.sh --suite "Docker-Kong test suite"
 
 release-rhel: build_v2

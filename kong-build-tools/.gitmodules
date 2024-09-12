@@ -1,0 +1,6 @@
+[submodule "lua-kong-nginx-module"]
+	path = lua-kong-nginx-module
+	url = git@github.com:Kong/lua-kong-nginx-module.git
+[submodule "lua-resty-lmdb"]
+	path = lua-resty-lmdb
+	url = git@github.com:Kong/lua-resty-lmdb.git
