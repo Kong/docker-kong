@@ -46,7 +46,7 @@ if [[ "$1" == "kong" ]]; then
 
     # remove all dangling sockets in $PREFIX dir before starting Kong
     LOGGED_SOCKET_WARNING=0
-    for localfile in "$PREFIX"/*; do
+    for localfile in "$PREFIX"/* "$PREFIX"/sockets/*; do
       if [ -S "$localfile" ]; then
         if (( LOGGED_SOCKET_WARNING == 0 )); then
           printf >&2 'WARN: found dangling unix sockets in the prefix directory '
