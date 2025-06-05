@@ -54,7 +54,7 @@ if [[ -n "$kbt_in_kong_v" ]]; then
 fi
 
 # Dockerfile.deb
-url=$(get_url Dockerfile.rpm amd64 "VERSION=8")
+url=$(get_url Dockerfile.rpm amd64 "VERSION=9")
 echo $url
 curl -fL $url -o /tmp/kong
 new_sha=$(sha256sum /tmp/kong | cut -b1-64)
@@ -63,14 +63,14 @@ sed -i.bak 's/ARG KONG_SHA256=.*/ARG KONG_SHA256=\"'$new_sha'\"/g' Dockerfile.rp
 sed -i.bak 's/ARG KONG_VERSION=.*/ARG KONG_VERSION='$version'/g' Dockerfile.rpm
 
 pushd ubuntu
-   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=jammy")
+   url=$(get_url Dockerfile amd64 "UBUNTU_CODENAME=noble")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
 
    sed -i.bak 's/ARG KONG_AMD64_SHA=.*/ARG KONG_AMD64_SHA=\"'$new_sha'\"/g' Dockerfile
 
-   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=jammy")
+   url=$(get_url Dockerfile arm64 "UBUNTU_CODENAME=noble")
    echo $url
    curl -fL $url -o /tmp/kong
    new_sha=$(sha256sum /tmp/kong | cut -b1-64)
@@ -80,7 +80,7 @@ pushd ubuntu
 popd
 
 # Dockerfile.deb
-url=$(get_url Dockerfile.deb amd64 "CODENAME=bullseye")
+url=$(get_url Dockerfile.deb amd64 "CODENAME=bookworm")
 echo $url
 curl -fL $url -o /tmp/kong
 new_sha=$(sha256sum /tmp/kong | cut -b1-64)
