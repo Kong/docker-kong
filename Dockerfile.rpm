@@ -1,5 +1,5 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7@sha256:6910799b75ad41f00891978575a0d955be2f800c51b955af73926e7ab59a41c3
+FROM registry.access.redhat.com/ubi9-minimal@sha256:92b1d5747a93608b6adb64dfd54515c3c5a360802db4706765ff3d8470df6290
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 
@@ -18,7 +18,7 @@ LABEL name="Kong" \
 # RedHat required LICENSE file approved path
 COPY LICENSE /licenses/
 
-ARG KONG_SHA256="dbdaea6648c43c306ad8d7ce07e17cbd86d056379ec5729ed98ce6b9c0cb19f2"
+ARG KONG_SHA256="880a832e1d4cb2b4a2fa6e5d673c66b224c37a968e81a10f48f8dc7411fd7ab3"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
@@ -32,7 +32,7 @@ COPY kong.rpm /tmp/kong.rpm
 RUN set -ex; \
     if [ "$ASSET" = "remote" ] ; then \
       KONG_REPO=$(echo ${KONG_VERSION%.*} | sed 's/\.//') \
-      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/rpm/el/8/x86_64/kong-$KONG_VERSION.el8.x86_64.rpm" \
+      && DOWNLOAD_URL="https://packages.konghq.com/public/gateway-$KONG_REPO/rpm/el/9/x86_64/kong-$KONG_VERSION.el9.x86_64.rpm" \
       && curl -fL $DOWNLOAD_URL -o /tmp/kong.rpm \
       && echo "$KONG_SHA256  /tmp/kong.rpm" | sha256sum -c - \
       || exit 1; \

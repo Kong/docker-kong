@@ -1,11 +1,11 @@
 # When you update this file substantially, please update build_your_own_images.md as well.
-FROM debian:bullseye-20230502-slim
+FROM debian:bookworm-20250520-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
 ARG KONG_VERSION=3.9.1
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="e7c2ca5e9ae9400699604bf5d4f95c8196a26d9279ef88de2a38c09f66498283"
+ARG KONG_SHA256="34857a1b61e3c4b64b1e0529d8582a49ec19bc36f5b787bb63b41874e53c156a"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
