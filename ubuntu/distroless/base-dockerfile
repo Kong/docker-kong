@@ -1,0 +1,67 @@
+ARG BUILDERIMAGE="busybox:1.36.1-uclibc"
+ARG BASEIMAGE="gcr.io/distroless/static-debian12"
+
+FROM $BUILDERIMAGE as binaries
+FROM $BUILDERIMAGE as builder
+
+ARG username=app
+ENV USERNAME $username
+
+ARG IMAGE_NAME="distroless-kong-base"
+
+ARG gid=2001
+ARG uid=1001
+
+ARG data_path=/app
+ENV DATA_PATH  $data_path
+
+ARG OMS_CLIENT_TENANT_DIR=/tenants-clients
+ENV OMS_CLIENT_TENANT_DIR $OMS_CLIENT_TENANT_DIR
+
+
+RUN addgroup -g $gid $USERNAME \
+      && adduser -DH -u $uid $USERNAME -G $USERNAME \
+      && mkdir -p $OMS_CLIENT_TENANT_DIR && chown $USERNAME:$USERNAME $OMS_CLIENT_TENANT_DIR \
+      && mkdir -p $DATA_PATH && chown $USERNAME:$USERNAME $DATA_PATH
+
+FROM $BASEIMAGE
+
+# default non-root gid and uid user
+ARG username=app
+ENV USERNAME $username
+
+ARG gid=2001
+ARG uid=1001
+
+# data_path is mostly for storing jars,binaries and other config files
+ARG data_path=/app
+ENV DATA_PATH  $data_path
+
+ARG TENANT_DIR=/tenants-clients
+ENV TENANT_DIR $TENANT_DIR
+
+#The following binaries will be available in the final image
+COPY --from=binaries /bin/cp /bin/cp
+COPY --from=binaries /bin/sh /bin/sh
+COPY --from=binaries /bin/ls /bin/ls
+COPY --from=binaries /bin/ash /bin/ash
+COPY --from=binaries /bin/echo /bin/echo
+COPY --from=binaries /bin/sha1sum /bin/sha1sum
+COPY --from=binaries /bin/grep /bin/grep
+COPY --from=binaries /bin/tr /bin/tr
+COPY --from=binaries /bin/sed /bin/sed
+COPY --from=binaries /bin/cat /bin/cat
+COPY --from=binaries /bin/hostname /bin/hostname
+COPY --from=binaries /bin/rm /bin/rm
+COPY --from=binaries /bin/ln /bin/ln
+
+
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+COPY --from=builder --chown=$USERNAME:$USERNAME $TENANT_DIR $TENANT_DIR
+COPY --from=builder --chown=$USERNAME:$USERNAME $DATA_PATH $DATA_PATH
+
+WORKDIR $DATA_PATH
+
+# become rootless user
+USER $USERNAME:$USERNAME
