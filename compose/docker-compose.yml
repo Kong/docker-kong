@@ -29,7 +29,8 @@ services:
     command: kong migrations bootstrap
     profiles: [ "database" ]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       <<: *kong-env
     secrets:
@@ -43,7 +44,8 @@ services:
     command: kong migrations up && kong migrations finish
     profiles: [ "database" ]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       <<: *kong-env
     secrets:
@@ -55,6 +57,11 @@ services:
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
+    depends_on:
+      db:
+        condition: service_healthy
+      kong-migrations:
+        condition: service_completed_successfully
     environment:
       <<: *kong-env
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
