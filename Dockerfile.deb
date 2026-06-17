@@ -2,10 +2,10 @@
 FROM debian:bookworm-20250520-slim
 
 LABEL maintainer="Kong Docker Maintainers <docker@konghq.com> (@team-gateway-bot)"
-ARG KONG_VERSION=3.9.2
+ARG KONG_VERSION=3.9.3
 ENV KONG_VERSION $KONG_VERSION
 
-ARG KONG_SHA256="ff5608c29f76ff2393cd7f1e4a618cbcc4f9668d938178fe7c550957270dee46"
+ARG KONG_SHA256="3b6c05db3ee5ed95e497b93c30293e3c870878fcc23820868e28cc2e15ced1bd"
 
 ARG KONG_PREFIX=/usr/local/kong
 ENV KONG_PREFIX $KONG_PREFIX
