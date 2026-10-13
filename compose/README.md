@@ -16,6 +16,12 @@ Gateway distinguished for its high performance and extensibility via plugins.
 
 ## How to use this Compose file
 
+**Note**
+- Kong image [kong](https://hub.docker.com/_/kong) used in `docker-compose.yaml` is the open source image.
+- To use Kong Enterprise Edition following image [kong/kong-gateway](https://hub.docker.com/r/kong/kong-gateway) should be used.
+  - A `license.json` file from Kong is required to leverage enterprise features.
+  - For additional information, please refer to [docs](https://docs.konghq.com/gateway/latest/install/docker/) 
+
 Kong Gateway can be deployed in different ways. This Docker Compose file provides 
 support for running Kong in [db-less][kong-docs-dbless] mode, in which only a Kong 
 container is spun up, or with a backing database. The default is db-less mode:
