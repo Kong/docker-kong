@@ -101,9 +101,10 @@ services:
     image: postgres:9.5
     profiles: [ "database" ]
     environment:
-      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
-      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
+      KONG_PASSWORD_FILE: /run/secrets/kong_postgres_password
     secrets:
       - kong_postgres_password
     healthcheck:
@@ -126,6 +127,7 @@ services:
       - kong-net
     volumes:
       - kong_data:/var/lib/postgresql/data
+      - ./init_kong_db_user.sql:/docker-entrypoint-initdb.d/init_kong_db_user.sql
 
 secrets:
   kong_postgres_password:
